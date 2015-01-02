@@ -36,3 +36,10 @@ see https://github.com/femtotrader/ig-markets-stream-api-python-library
 Work in progress
 ----------------
 see http://labs.ig.com/node/98 and https://labs.ig.com/node/28
+
+Thanks to
+---------
+ - ixta
+ - Chris
+ - colombao
+ - gianluca.finocchiaro
