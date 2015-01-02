@@ -30,7 +30,7 @@ acc_number = "ABC123"
 HTTP REST API
 -------------
 If you need to submit trade orders, open positions, close positions and view market sentiment,
-see https://github.com/femtotrader/ig-markets-stream-api-python-library
+see https://github.com/femtotrader/ig-markets-rest-api-python-library
 
 
 Work in progress
