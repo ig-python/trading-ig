@@ -31,3 +31,4 @@ HTTP REST API
 -------------
 If you need to submit trade orders, open positions, close positions and view market sentiment,
 see https://github.com/femtotrader/ig-markets-stream-api-python-library
+ 
