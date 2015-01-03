@@ -4,7 +4,7 @@
 # IG API Trader
 
 import igls,requests,json, time
-from ig_service_config import config
+from trading_ig_config import config
 
 if config.acc_type.upper() == "DEMO":
     BASEURL = 'https://demo-api.ig.com/gateway/deal'

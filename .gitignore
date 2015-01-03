@@ -54,4 +54,4 @@ docs/_build/
 target/
 
 # config
-ig_service_config.py
+*_config.py
