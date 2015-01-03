@@ -7,9 +7,9 @@ import igls,requests,json, time
 from ig_service_config import *
 
 if acc_type.upper() == "DEMO":
-    sessionurl = 'https://demo-api.ig.com/gateway/deal/session'
+    BASEURL = 'https://demo-api.ig.com/gateway/deal'
 elif acc_type.upper() == "LIVE":
-    sessionurl = 'https://api.ig.com/gateway/deal/session'
+    BASEURL = 'https://api.ig.com/gateway/deal'
 else:
     raise(NotImplementedError("acc_type is %r but it should be either 'DEMO' or 'LIVE'" % acc_type))
 
@@ -31,8 +31,8 @@ def processBalanceUpdate(item, myUpdateField):
 
 
 if __name__ == '__main__':
-       
-    r = requests.post(sessionurl, data=json.dumps(payload), headers=headers, verify=False)
+    url = BASEURL + "/session"
+    r = requests.post(url, data=json.dumps(payload), headers=headers, verify=False)
 
     cst = r.headers['cst']
     xsecuritytoken = r.headers['x-security-token']
