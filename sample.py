@@ -4,17 +4,17 @@
 # IG API Trader
 
 import igls,requests,json, time
-from ig_service_config import *
+from ig_service_config import config
 
-if acc_type.upper() == "DEMO":
+if config.acc_type.upper() == "DEMO":
     BASEURL = 'https://demo-api.ig.com/gateway/deal'
-elif acc_type.upper() == "LIVE":
+elif config.acc_type.upper() == "LIVE":
     BASEURL = 'https://api.ig.com/gateway/deal'
 else:
-    raise(NotImplementedError("acc_type is %r but it should be either 'DEMO' or 'LIVE'" % acc_type))
+    raise(NotImplementedError("acc_type is %r but it should be either 'DEMO' or 'LIVE'" % config.acc_type))
 
-headers = {'content-type': 'application/json; charset=UTF-8', 'Accept': 'application/json; charset=UTF-8', 'X-IG-API-KEY': api_key}
-payload = {'identifier': username, 'password': password}
+headers = {'content-type': 'application/json; charset=UTF-8', 'Accept': 'application/json; charset=UTF-8', 'X-IG-API-KEY': config.api_key}
+payload = {'identifier': config.username, 'password': config.password}
 
 # Tell the user when the Lighstreamer connection state changes
 def on_state(state):
@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
     cst = r.headers['cst']
     xsecuritytoken = r.headers['x-security-token']
-    fullheaders = {'content-type': 'application/json; charset=UTF-8', 'Accept': 'application/json; charset=UTF-8', 'X-IG-API-KEY': api_key, 'CST': cst, 'X-SECURITY-TOKEN': xsecuritytoken }
+    fullheaders = {'content-type': 'application/json; charset=UTF-8', 'Accept': 'application/json; charset=UTF-8', 'X-IG-API-KEY': config.api_key, 'CST': cst, 'X-SECURITY-TOKEN': xsecuritytoken }
 
     body = r.json()
     lightstreamerEndpoint = body[u'lightstreamerEndpoint']

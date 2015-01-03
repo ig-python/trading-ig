@@ -19,11 +19,12 @@ Using this library to connect to the IG Markets API is extremely easy.
 with `ig_service_config.py`
 
 ```python
-username = "YOUR_USERNAME"
-password = "YOUR_PASSWORD"
-api_key = "YOUR_API_KEY"
-acc_type = "DEMO" # LIVE / DEMO
-acc_number = "ABC123"
+class config(object):
+    username = "YOUR_USERNAME"
+    password = "YOUR_PASSWORD"
+    api_key = "YOUR_API_KEY"
+    acc_type = "DEMO" # LIVE / DEMO
+    acc_number = "ABC123"
 ```
 
 
