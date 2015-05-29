@@ -674,7 +674,7 @@ class LsClient(object):
         with self._lock:
             self._send_control({
                 'LS_op': OP_START,
-                'LS_table': tble.table_id
+                'LS_table': table.table_id
             })
 
     def delete(self, table):
