@@ -1,3 +1,5 @@
+[![Code Health](https://landscape.io/github/femtotrader/ig-markets-stream-api-python-library/master/landscape.svg?style=flat)](https://landscape.io/github/femtotrader/ig-markets-stream-api-python-library/master)
+
 ig-markets-stream-api-python-library
 ====================================
 
