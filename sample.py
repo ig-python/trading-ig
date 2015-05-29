@@ -13,22 +13,29 @@ elif config.acc_type.upper() == "LIVE":
 else:
     raise(NotImplementedError("acc_type is %r but it should be either 'DEMO' or 'LIVE'" % config.acc_type))
 
-headers = {'content-type': 'application/json; charset=UTF-8', 'Accept': 'application/json; charset=UTF-8', 'X-IG-API-KEY': config.api_key}
-payload = {'identifier': config.username, 'password': config.password}
+headers = {
+    'content-type': 'application/json; charset=UTF-8',
+    'Accept': 'application/json; charset=UTF-8',
+    'X-IG-API-KEY': config.api_key
+}
+
+payload = {
+    'identifier': config.username,
+    'password': config.password
+}
 
 # Tell the user when the Lighstreamer connection state changes
 def on_state(state):
-    print 'New state:', state
-    igls.LOG.debug('New state: '+str(state))
+    print('New state:', state)
+    igls.LOG.debug("New state: %s" % state)
 
 # Process a lighstreamer price update
 def processPriceUpdate(item, myUpdateField):
-    print "price update = "+str(myUpdateField)
+    print("price update = %s" % myUpdateField)
 
 # Process an update of the users trading account balance
 def processBalanceUpdate(item, myUpdateField):
-    print "balance update = "+str(myUpdateField)
-
+    print("balance update = %s" % myUpdateField)
 
 if __name__ == '__main__':
     url = BASEURL + "/session"
@@ -36,7 +43,13 @@ if __name__ == '__main__':
 
     cst = r.headers['cst']
     xsecuritytoken = r.headers['x-security-token']
-    fullheaders = {'content-type': 'application/json; charset=UTF-8', 'Accept': 'application/json; charset=UTF-8', 'X-IG-API-KEY': config.api_key, 'CST': cst, 'X-SECURITY-TOKEN': xsecuritytoken }
+    fullheaders = {
+        'content-type': 'application/json; charset=UTF-8',
+        'Accept': 'application/json; charset=UTF-8',
+        'X-IG-API-KEY': config.api_key,
+        'CST': cst,
+        'X-SECURITY-TOKEN': xsecuritytoken
+    }
 
     body = r.json()
     lightstreamerEndpoint = body[u'lightstreamerEndpoint']
