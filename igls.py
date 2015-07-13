@@ -28,6 +28,8 @@ import urllib2
 import urlparse
 
 import requests
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 import json,datetime,time,os
 
