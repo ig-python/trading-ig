@@ -1,3 +1,4 @@
+[![Requirements Status](https://requires.io/github/femtotrader/ig-markets-stream-api-python-library/requirements.svg?branch=master)](https://requires.io/github/femtotrader/ig-markets-stream-api-python-library/requirements/?branch=master)
 [![Code Health](https://landscape.io/github/femtotrader/ig-markets-stream-api-python-library/master/landscape.svg?style=flat)](https://landscape.io/github/femtotrader/ig-markets-stream-api-python-library/master)
 
 ig-markets-stream-api-python-library
