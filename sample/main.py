@@ -12,21 +12,25 @@ from trading_ig_config import config
 from trading_ig import IGService
 from trading_ig_stream import igls
 
+
 # Tell the user when the Lighstreamer connection state changes
 def on_state(state):
     print('New state:', state)
     igls.LOG.debug("New state: %s" % state)
+
 
 # Process a lighstreamer price update
 def process_price_update(item, myUpdateField, item_ids):
     #print("price update for %s" % myUpdateField)
     print("price update for %s= %s" % (item_ids, myUpdateField))
 
+
 # Process an update of the users trading account balance
 def process_balance_update(item, myUpdateField):
     print("balance update = %s" % myUpdateField)
 
-if __name__ == '__main__':
+
+def main():
     ig_service = IGService(config.username, config.password, config.api_key, config.acc_type)
     ig_session = ig_service.create_session()
     cst = ig_service.crud_session.CLIENT_TOKEN
@@ -63,3 +67,7 @@ if __name__ == '__main__':
     while True:
         time.sleep(delay)
         print("sleep %d" % delay)
+
+
+if __name__ == '__main__':
+    main()
