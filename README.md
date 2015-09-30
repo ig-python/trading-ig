@@ -19,7 +19,7 @@ How To Use The Library
 
 Using this library to connect to the IG Markets API is extremely easy.
 
-with `trading_ig_config.py`
+Copy `trading_ig_config_default.py` to `trading_ig_config.py` and update it
 
 ```python
 class config(object):
@@ -29,6 +29,29 @@ class config(object):
     acc_type = "DEMO" # LIVE / DEMO
     acc_number = "ABC123"
 ```
+
+Run sample using:
+
+
+    $ python2 sample/main.py
+    ('New state:', 'connecting Lightstreamer session')
+    ('New state:', 'connected Lightstreamer session')
+    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:27', u'119.753', u'119.761', u'0.020', u'TRADEABLE']
+    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:27', u'119.752', u'119.760', u'0.019', u'TRADEABLE']
+    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:28', u'119.749', u'119.757', u'0.016', u'TRADEABLE']
+    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:28', u'119.750', u'119.758', u'0.017', u'TRADEABLE']
+    price update for L1:CS.D.GBPUSD.CFD.IP= [u'16:31:28', u'1.51190', u'1.51200', u'-0.00302', u'TRADEABLE']
+    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:28', u'119.749', u'119.757', u'0.016', u'TRADEABLE']
+    price update for L1:CS.D.GBPUSD.CFD.IP= [u'16:31:28', u'1.51189', u'1.51199', u'-0.00303', u'TRADEABLE']
+    price update for L1:CS.D.GBPUSD.CFD.IP= [u'16:31:28', u'1.51188', u'1.51198', u'-0.00304', u'TRADEABLE']
+    price update for L1:CS.D.GBPUSD.CFD.IP= [u'16:31:29', u'1.51189', u'1.51199', u'-0.00303', u'TRADEABLE']
+    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:30', u'119.750', u'119.758', u'0.017', u'TRADEABLE']
+    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:30', u'119.747', u'119.762', u'0.017', u'TRADEABLE']
+    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:30', u'119.752', u'119.760', u'0.019', u'TRADEABLE']
+    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:30', u'119.753', u'119.761', u'0.020', u'TRADEABLE']
+    price update for L1:CS.D.GBPUSD.CFD.IP= [u'16:31:31', u'1.51188', u'1.51198', u'-0.00304', u'TRADEABLE']
+    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:31', u'119.754', u'119.762', u'0.021', u'TRADEABLE']
+    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:31', u'119.755', u'119.763', u'0.022', u'TRADEABLE']
 
 
 HTTP REST API
