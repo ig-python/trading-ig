@@ -16,9 +16,7 @@ if PY3:
     def _iteritems(d):
         return iter(d.items())
 
-    def wait_for_input():
-        input("{0:-^80}\n".format("HIT CR TO UNSUBSCRIBE AND DISCONNECT FROM \
-LIGHTSTREAMER"))
+    wait_for_input = input
 
     import queue
 
@@ -35,9 +33,7 @@ else:
     def _iteritems(d):
         return d.iteritems()
 
-    def wait_for_input():
-        raw_input("{0:-^80}\n".format("HIT CR TO UNSUBSCRIBE AND DISCONNECT FROM \
-LIGHTSTREAMER"))
+    wait_for_input = raw_input
 
     import Queue as queue
     from urllib2 import HTTPError, URLError
