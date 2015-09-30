@@ -421,7 +421,7 @@ class LsClient(object):
         try:
             return requests.post(url, data=data, verify=False)
 
-        except urllib2.HTTPError, e:
+        except urllib2.HTTPError as e:
             self.log.error('HTTP %d for %r', e.getcode(), url)
             return e
 
@@ -508,7 +508,7 @@ class LsClient(object):
             try:
                 running = self._do_recv()
                 fail_count = 0
-            except Exception, e:
+            except Exception as e:
                 if not self._is_transient_error(e):
                     self.log.exception('_do_recv failure')
                     break
