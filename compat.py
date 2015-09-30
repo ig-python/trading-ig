@@ -19,7 +19,6 @@ if PY3:
     wait_for_input = input
 
     import queue
-
     from urllib.error import HTTPError, URLError
 
 else:
