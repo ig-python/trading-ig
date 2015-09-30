@@ -17,14 +17,13 @@
 """
 from __future__ import absolute_import
 
-import compat
+import trading_ig_stream.compat as compat
 import collections
 import logging
 import socket
 import threading
 import time
 import urllib
-#import urlparse
 
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
