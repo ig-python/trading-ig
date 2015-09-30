@@ -8,7 +8,7 @@ PY2 = sys.version_info[0] == 2
 
 if PY3:
     from urllib.request import urlopen as _urlopen
-    from urllib.parse import (urlparse as parse_url, urljoin, urlencode)
+    from urllib.parse import (urlparse as parse_url, urlunparse, urljoin, urlencode)
 
     def _url_encode(params):
         return urlencode(params).encode("utf-8")
@@ -27,7 +27,7 @@ LIGHTSTREAMER"))
 else:
     from urllib import (urlopen as _urlopen, urlencode)
     from urlparse import urlparse as parse_url
-    from urlparse import urljoin
+    from urlparse import urlunparse, urljoin
 
     def _url_encode(params):
         return urlencode(params)

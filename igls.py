@@ -17,15 +17,14 @@
 """
 from __future__ import absolute_import
 
-import Queue
+import compat
 import collections
 import logging
 import socket
 import threading
 import time
 import urllib
-import urllib2
-import urlparse
+#import urlparse
 
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -165,9 +164,9 @@ def _replace_url_host(url, hostname=None):
     is not None, otherwise simply return the original URL."""
     if not hostname:
         return url
-    parsed = urlparse.urlparse(url)
+    parsed = compat.parse_url(url)
     new = [parsed[0], hostname] + list(parsed[2:])
-    return urlparse.urlunparse(new)
+    return compat.urlunparse(new)
 
 
 def _decode_field(s, prev=None):
@@ -177,7 +176,7 @@ def _decode_field(s, prev=None):
         3. Literal '' indicates unchanged since previous update.
         4. If the string starts with either '$' or '#', but is not length 1,
            trim the first character.
-        5. Unicode escapes of the form '\uXXXX' are unescaped.
+        5. Unicode escapes of the form '\\uXXXX' are unescaped.
 
     Returns the decoded Unicode string.
     """
@@ -216,7 +215,7 @@ class WorkQueue(object):
     def __init__(self):
         """Create an instance."""
         self.log = logging.getLogger('WorkQueue')
-        self.queue = Queue.Queue()
+        self.queue = compat.queue.Queue()
         self.thread = threading.Thread(target=self._main)
         self.thread.setDaemon(True)
         self.thread.start()
@@ -417,11 +416,11 @@ class LsClient(object):
     def _post(self, suffix, data, base_url=None):
         """Perform an HTTP post to `suffix`, logging before and after. If an
         HTTP exception is thrown, log an error and return the exception."""
-        url = urlparse.urljoin(base_url or self.base_url, suffix)
+        url = compat.urljoin(base_url or self.base_url, suffix)
         try:
             return requests.post(url, data=data, verify=False)
 
-        except urllib2.HTTPError as e:
+        except compat.HTTPError as e:
             self.log.error('HTTP %d for %r', e.getcode(), url)
             return e
 
@@ -493,7 +492,7 @@ class LsClient(object):
                 return True
 
     def _is_transient_error(self, e):
-        if isinstance(e, urllib2.URLError) \
+        if isinstance(e, compat.URLError) \
                 and isinstance(e.reason, socket.error):
             return True
         return isinstance(e, (socket.error, TransientError))
