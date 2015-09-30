@@ -30,11 +30,12 @@ def on_state(state):
     igls.LOG.debug("New state: %s" % state)
 
 # Process a lighstreamer price update
-def processPriceUpdate(item, myUpdateField):
-    print("price update = %s" % myUpdateField)
+def process_price_update(item, myUpdateField, item_ids):
+    print("price update for %s" % myUpdateField)
+    #print("price update for %s= %s" % (item_ids, myUpdateField))
 
 # Process an update of the users trading account balance
-def processBalanceUpdate(item, myUpdateField):
+def process_balance_update(item, myUpdateField):
     print("balance update = %s" % myUpdateField)
 
 if __name__ == '__main__':
@@ -70,7 +71,7 @@ if __name__ == '__main__':
         item_factory=lambda row: tuple(float(v) for v in row)
     )
 
-    priceTable.on_update.listen(processPriceUpdate)
+    priceTable.on_update.listen(process_price_update)
 
     balanceTable = igls.Table(client,
         mode=igls.MODE_MERGE,
@@ -78,7 +79,7 @@ if __name__ == '__main__':
         schema='AVAILABLE_CASH',
         item_factory=lambda row: tuple(string(v) for v in row))
 
-    balanceTable.on_update.listen(processBalanceUpdate)
+    balanceTable.on_update.listen(process_balance_update)
 
 
     while True:

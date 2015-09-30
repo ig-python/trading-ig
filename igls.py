@@ -1,12 +1,12 @@
 #
 # Copyright 2012, the py-lightstreamer authors
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #    http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -44,7 +44,7 @@ LOG = logging.getLogger('lightstreamer')
 hdlr = logging.FileHandler('Logs/log-'+str(day)+"-"+str(month)+"-"+(year)+'.log')
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 hdlr.setFormatter(formatter)
-LOG.addHandler(hdlr) 
+LOG.addHandler(hdlr)
 LOG.setLevel(logging.DEBUG)
 
 
@@ -312,7 +312,7 @@ class Table(object):
         `max_frequency`: requested maximum updates per second for table items;
             set to "unfiltered" to forward all messages without loss (only
             valid for MODE_MERGE, MODE_DISTINCT, MODE_COMMAND), set to 0 for
-            "no frequency limit", or integer number of updates per second. 
+            "no frequency limit", or integer number of updates per second.
         `snapshot` indicates whether server should send a snapshot at
             subscription time. False for no, True for yes, or integer >= 1 for
             'yes, but only send N items.
@@ -353,8 +353,7 @@ class Table(object):
         self._last_item_map[item_id] = fields
         #self.items[item_id] = self.item_factory(fields)
         #self.on_update.fire(item_id, self.items[item_id])
-        self.on_update.fire(item_id, fields)
-
+        self.on_update.fire(item_id, fields, self.item_ids)
 
 class LsClient(object):
     """Manages a single Lightstreamer session. Callers are expected to:
@@ -421,7 +420,7 @@ class LsClient(object):
         url = urlparse.urljoin(base_url or self.base_url, suffix)
         try:
             return requests.post(url, data=data, verify=False)
-        
+
         except urllib2.HTTPError, e:
             self.log.error('HTTP %d for %r', e.getcode(), url)
             return e
@@ -697,4 +696,3 @@ class LsClient(object):
         self._send_control({
             'LS_op': OP_DESTROY
         })
-
