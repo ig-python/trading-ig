@@ -82,6 +82,7 @@ if __name__ == '__main__':
 
     balanceTable.on_update.listen(process_balance_update)
 
-
+    delay = 10
     while True:
-        time.sleep(10)
+        time.sleep(delay)
+        print("sleep %d" % delay)
