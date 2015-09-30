@@ -1,29 +1,15 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-# IG API Trader
+"""
+IG Markets Stream API with Python
+2015 FemtoTrader
+"""
 
 from trading_ig_stream import igls
 import requests, json, time
 from trading_ig_config import config
-
-if config.acc_type.upper() == "DEMO":
-    BASEURL = 'https://demo-api.ig.com/gateway/deal'
-elif config.acc_type.upper() == "LIVE":
-    BASEURL = 'https://api.ig.com/gateway/deal'
-else:
-    raise(NotImplementedError("acc_type is %r but it should be either 'DEMO' or 'LIVE'" % config.acc_type))
-
-headers = {
-    'content-type': 'application/json; charset=UTF-8',
-    'Accept': 'application/json; charset=UTF-8',
-    'X-IG-API-KEY': config.api_key
-}
-
-payload = {
-    'identifier': config.username,
-    'password': config.password
-}
+from trading_ig import IGService
 
 # Tell the user when the Lighstreamer connection state changes
 def on_state(state):
@@ -40,32 +26,22 @@ def process_balance_update(item, myUpdateField):
     print("balance update = %s" % myUpdateField)
 
 if __name__ == '__main__':
-    url = BASEURL + "/session"
-    r = requests.post(url, data=json.dumps(payload), headers=headers, verify=False)
-
-    cst = r.headers['cst']
-    xsecuritytoken = r.headers['x-security-token']
-    fullheaders = {
-        'content-type': 'application/json; charset=UTF-8',
-        'Accept': 'application/json; charset=UTF-8',
-        'X-IG-API-KEY': config.api_key,
-        'CST': cst,
-        'X-SECURITY-TOKEN': xsecuritytoken
-    }
-
-    body = r.json()
-    lightstreamerEndpoint = body[u'lightstreamerEndpoint']
-    clientId = body[u'clientId']
-    accounts = body[u'accounts']
-
+    ig_service = IGService(config.username, config.password, config.api_key, config.acc_type)
+    ig_session = ig_service.create_session()
+    cst = ig_service.crud_session.CLIENT_TOKEN
+    xsecuritytoken = ig_service.crud_session.SECURITY_TOKEN
+    lightstreamerEndpoint = ig_session[u'lightstreamerEndpoint']
+    clientId = ig_session[u'clientId']
+    accounts = ig_session[u'accounts']
     # Depending on how many accounts you have with IG the '0' may need to change to select the correct one (spread bet, CFD account etc)
     accountId = accounts[0][u'accountId']
 
-    client = igls.LsClient(lightstreamerEndpoint+"/lightstreamer/")
+    client = igls.LsClient(lightstreamerEndpoint + "/lightstreamer/")
     client.on_state.listen(on_state)
-    client.create_session(username=accountId, password='CST-'+cst+'|XST-'+xsecuritytoken, adapter_set='')
+    client.create_session(username=accountId, password='CST-%s|XST-%s' % (cst, xsecuritytoken), adapter_set='')
 
-    for item_id in ['L1:CS.D.GBPUSD.CFD.IP', 'L1:CS.D.USDJPY.CFD.IP']:
+    lst_item_ids = ['L1:CS.D.GBPUSD.CFD.IP', 'L1:CS.D.USDJPY.CFD.IP']
+    for item_id in lst_item_ids:
         priceTable = igls.Table(client,
             mode=igls.MODE_MERGE,
             item_ids=item_id,
