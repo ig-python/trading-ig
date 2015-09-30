@@ -3,7 +3,7 @@
 
 # IG API Trader
 
-import igls,requests,json, time
+import igls, requests, json, time
 from trading_ig_config import config
 
 if config.acc_type.upper() == "DEMO":
@@ -58,14 +58,14 @@ if __name__ == '__main__':
 
     # Depending on how many accounts you have with IG the '0' may need to change to select the correct one (spread bet, CFD account etc)
     accountId = accounts[0][u'accountId']
-    
+
     client = igls.LsClient(lightstreamerEndpoint+"/lightstreamer/")
     client.on_state.listen(on_state)
     client.create_session(username=accountId, password='CST-'+cst+'|XST-'+xsecuritytoken, adapter_set='')
 
     priceTable = igls.Table(client,
         mode=igls.MODE_MERGE,
-        item_ids='L1:CS.D.GBPUSD.CFD.IP',
+        item_ids='L1:CS.D.GBPUSD.CFD.IP L1:CS.D.USDJPY.CFD.IP',
         schema='UPDATE_TIME BID OFFER CHANGE MARKET_STATE',
         item_factory=lambda row: tuple(float(v) for v in row)
     )
@@ -83,4 +83,3 @@ if __name__ == '__main__':
 
     while True:
         time.sleep(10)
-        

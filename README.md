@@ -39,7 +39,11 @@ see https://github.com/femtotrader/ig-markets-rest-api-python-library
 
 Work in progress
 ----------------
-see http://labs.ig.com/node/98 and https://labs.ig.com/node/28
+see :
+
+ - http://labs.ig.com/node/98
+ - https://labs.ig.com/node/28
+ - http://www.andlil.com/forum/script-api-ig-stream-rest-t10091-10.html
 
 Thanks to
 ---------
