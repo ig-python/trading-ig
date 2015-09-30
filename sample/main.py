@@ -6,10 +6,11 @@ IG Markets Stream API with Python
 2015 FemtoTrader
 """
 
-from trading_ig_stream import igls
-import requests, json, time
+import time
+
 from trading_ig_config import config
 from trading_ig import IGService
+from trading_ig_stream import igls
 
 # Tell the user when the Lighstreamer connection state changes
 def on_state(state):
