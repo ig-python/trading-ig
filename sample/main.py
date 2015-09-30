@@ -3,7 +3,8 @@
 
 # IG API Trader
 
-import igls, requests, json, time
+from trading_ig_stream import igls
+import requests, json, time
 from trading_ig_config import config
 
 if config.acc_type.upper() == "DEMO":
@@ -31,8 +32,8 @@ def on_state(state):
 
 # Process a lighstreamer price update
 def process_price_update(item, myUpdateField, item_ids):
-    print("price update for %s" % myUpdateField)
-    #print("price update for %s= %s" % (item_ids, myUpdateField))
+    #print("price update for %s" % myUpdateField)
+    print("price update for %s= %s" % (item_ids, myUpdateField))
 
 # Process an update of the users trading account balance
 def process_balance_update(item, myUpdateField):
@@ -64,14 +65,14 @@ if __name__ == '__main__':
     client.on_state.listen(on_state)
     client.create_session(username=accountId, password='CST-'+cst+'|XST-'+xsecuritytoken, adapter_set='')
 
-    priceTable = igls.Table(client,
-        mode=igls.MODE_MERGE,
-        item_ids='L1:CS.D.GBPUSD.CFD.IP L1:CS.D.USDJPY.CFD.IP',
-        schema='UPDATE_TIME BID OFFER CHANGE MARKET_STATE',
-        item_factory=lambda row: tuple(float(v) for v in row)
-    )
-
-    priceTable.on_update.listen(process_price_update)
+    for item_id in ['L1:CS.D.GBPUSD.CFD.IP', 'L1:CS.D.USDJPY.CFD.IP']:
+        priceTable = igls.Table(client,
+            mode=igls.MODE_MERGE,
+            item_ids=item_id,
+            schema='UPDATE_TIME BID OFFER CHANGE MARKET_STATE',
+            item_factory=lambda row: tuple(float(v) for v in row)
+        )
+        priceTable.on_update.listen(process_price_update)
 
     balanceTable = igls.Table(client,
         mode=igls.MODE_MERGE,
