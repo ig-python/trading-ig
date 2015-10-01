@@ -38,8 +38,8 @@ class IGStreamService(object):
             self.ls_client.connect()
             return
         except Exception as e:
-            print("Unable to connect to Lightstreamer Server")
-            print(traceback.format_exc())
+            log.error("Unable to connect to Lightstreamer Server")
+            log.error(traceback.format_exc())
             sys.exit(1)
 
     def disconnect(self):
