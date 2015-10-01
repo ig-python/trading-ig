@@ -32,27 +32,23 @@ class config(object):
 
 Run sample using:
 
+```
+$ python sample/main.py
+INFO:requests.packages.urllib3.connectionpool:Starting new HTTPS connection (1): demo-api.ig.com
+INFO:ig_stream:Starting connection with https://demo-apd.marketdatasystems.com
+L1:CS.D.USDJPY.CFD.IP: Time 20:35:43 - Bid 119.870 - Ask 119.885
+L1:CS.D.GBPUSD.CFD.IP: Time 20:35:46 - Bid 1.51270 - Ask 1.51290
+----------HIT CR TO UNSUBSCRIBE AND DISCONNECT FROM     LIGHTSTREAMER-----------
+L1:CS.D.USDJPY.CFD.IP: Time 20:35:43 - Bid 119.870 - Ask 119.885
+L1:CS.D.USDJPY.CFD.IP: Time 20:35:48 - Bid 119.871 - Ask 119.886
+L1:CS.D.GBPUSD.CFD.IP: Time 20:35:48 - Bid 1.51271 - Ask 1.51291
+L1:CS.D.USDJPY.CFD.IP: Time 20:35:48 - Bid 119.870 - Ask 119.885
+L1:CS.D.GBPUSD.CFD.IP: Time 20:35:49 - Bid 1.51270 - Ask 1.51290
 
-    $ python2 sample/main.py
-    ('New state:', 'connecting Lightstreamer session')
-    ('New state:', 'connected Lightstreamer session')
-    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:27', u'119.753', u'119.761', u'0.020', u'TRADEABLE']
-    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:27', u'119.752', u'119.760', u'0.019', u'TRADEABLE']
-    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:28', u'119.749', u'119.757', u'0.016', u'TRADEABLE']
-    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:28', u'119.750', u'119.758', u'0.017', u'TRADEABLE']
-    price update for L1:CS.D.GBPUSD.CFD.IP= [u'16:31:28', u'1.51190', u'1.51200', u'-0.00302', u'TRADEABLE']
-    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:28', u'119.749', u'119.757', u'0.016', u'TRADEABLE']
-    price update for L1:CS.D.GBPUSD.CFD.IP= [u'16:31:28', u'1.51189', u'1.51199', u'-0.00303', u'TRADEABLE']
-    price update for L1:CS.D.GBPUSD.CFD.IP= [u'16:31:28', u'1.51188', u'1.51198', u'-0.00304', u'TRADEABLE']
-    price update for L1:CS.D.GBPUSD.CFD.IP= [u'16:31:29', u'1.51189', u'1.51199', u'-0.00303', u'TRADEABLE']
-    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:30', u'119.750', u'119.758', u'0.017', u'TRADEABLE']
-    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:30', u'119.747', u'119.762', u'0.017', u'TRADEABLE']
-    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:30', u'119.752', u'119.760', u'0.019', u'TRADEABLE']
-    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:30', u'119.753', u'119.761', u'0.020', u'TRADEABLE']
-    price update for L1:CS.D.GBPUSD.CFD.IP= [u'16:31:31', u'1.51188', u'1.51198', u'-0.00304', u'TRADEABLE']
-    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:31', u'119.754', u'119.762', u'0.021', u'TRADEABLE']
-    price update for L1:CS.D.USDJPY.CFD.IP= [u'16:31:31', u'119.755', u'119.763', u'0.022', u'TRADEABLE']
-
+INFO:lightstreamer:Unsubscribed successfully
+WARNING:lightstreamer:Server error
+DISCONNECTED FROM LIGHTSTREAMER
+```
 
 HTTP REST API
 -------------
