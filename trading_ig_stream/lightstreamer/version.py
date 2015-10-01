@@ -7,3 +7,4 @@ __maintainer__ = "Weswit"
 __email__ = ""
 __status__ = "Development"
 __url__ = 'https://github.com/Weswit/Lightstreamer-example-StockList-client-python'
+__credits__ = ''

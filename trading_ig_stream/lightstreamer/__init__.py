@@ -14,6 +14,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from __future__ import absolute_import, division, print_function
+
 from trading_ig_stream.lightstreamer.version import (__author__, __copyright__, __credits__,
                       __license__, __version__, __maintainer__, __email__,
                       __status__, __url__)
@@ -44,7 +46,7 @@ ERROR_CMD = "ERROR"
 SYNC_ERROR_CMD = "SYNC ERROR"
 OK_CMD = "OK"
 
-log = logging.getLogger()
+log = logging.getLogger('lightstreamer')
 
 
 class Subscription(object):
@@ -256,7 +258,19 @@ class LSClient(object):
         })
         return self._current_subscription_key
 
-    def unsubscribe(self, subcription_key):
+    def unsubscribe(self, subcription_key=None):
+        """Unregister the Subscription associated to the
+        specified subscription_key.
+        if no subcription_key is given it unsubscribe all.
+        """
+        if subcription_key is None:
+            subscriptions = self._subscriptions.copy() # To avoid a RuntimeError: dictionary changed size during iteration
+            for subcription_key in subscriptions:
+                self._unsubscribe(subcription_key)
+        else:
+            self._unsubscribe(subcription_key)
+
+    def _unsubscribe(self, subcription_key):
         """Unregister the Subscription associated to the
         specified subscription_key.
         """
