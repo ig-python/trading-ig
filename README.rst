@@ -46,13 +46,28 @@
 IG Markets API - Python Library
 ===============================
 
-This project is a Python client to deal with IG Markets API
+A lightweight Python library that can be used to connect to the IG Markets REST and STREAM API with a LIVE or DEMO account.
+
+IG Markets provide Retail Spread Betting and CFD accounts for trading Equities, Forex, Commodities, Indices and much more.
 
 REST API
 --------
 
+You can use the IG Markets HTTP / REST API to submit trade orders, open positions, close positions and view market sentiment. IG Markets provide Retail Spread Betting and CFD accounts for trading Equities, Forex, Commodities, Indices and much more.
+
+
 STREAM API
 ----------
+
+You can use the IG Markets STREAM API to get realtime price, balance...
+
+More
+----
+
+Full details about the API along with information about how to open an account with IG can be found at the link below:
+
+http://labs.ig.com/
+
 
 Install
 -------

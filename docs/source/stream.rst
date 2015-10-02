@@ -1,18 +1,15 @@
-ig-markets-stream-api-python-library
-====================================
-
-A lightweight Python library that can be used to get live data from IG
-Markets STREAM API with a LIVE or DEMO account
+IG Markets STREAM API - Python Library
+======================================
 
 You can use the IG Markets STREAM API to get realtime price, balance...
-
-IG Markets provide Retail Spread Betting and CFD accounts for trading
-Equities, Forex, Commodities, Indices and much more.
 
 Full details about the API along with information about how to open an
 account with IG can be found at the link below:
 
 http://labs.ig.com/
+
+How To Use The Library
+----------------------
 
 How To Use The Library
 ----------------------
