@@ -54,8 +54,7 @@ IG Markets provide Retail Spread Betting and CFD accounts for trading Equities, 
 REST API
 --------
 
-You can use the IG Markets HTTP / REST API to submit trade orders, open positions, close positions and view market sentiment. IG Markets provide Retail Spread Betting and CFD accounts for trading Equities, Forex, Commodities, Indices and much more.
-
+You can use the IG Markets HTTP / REST API to submit trade orders, open positions, close positions and view market sentiment.
 
 STREAM API
 ----------
