@@ -54,6 +54,8 @@ docs/_build/
 target/
 
 # config
-*_config.py
-*_config.yaml
-*_config.json
+*_config.*
+*_config.old.*
+
+# Mac OS
+.DS_Store

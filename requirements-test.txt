@@ -1,0 +1,7 @@
+pytest
+nose
+pandas
+requests
+requests-cache
+bunch
+six

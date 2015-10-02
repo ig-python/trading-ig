@@ -18,9 +18,6 @@ if PY3:
 
     wait_for_input = input
 
-    import queue
-    from urllib.error import HTTPError, URLError
-
 else:
     from urllib import (urlopen as _urlopen, urlencode)
     from urlparse import urlparse as parse_url
@@ -33,6 +30,3 @@ else:
         return d.iteritems()
 
     wait_for_input = raw_input
-
-    import Queue as queue
-    from urllib2 import HTTPError, URLError

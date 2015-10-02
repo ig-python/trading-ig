@@ -1,0 +1,10 @@
+__author__ = "Weswit s.r.l."
+__copyright__ = "Copyright 2015, http://www.weswit.com/"
+__credits__ = [""]
+__license__ = "Apache"
+__version__ = "0.0.1"
+__maintainer__ = "Weswit"
+__email__ = ""
+__status__ = "Development"
+__url__ = 'https://github.com/Weswit/Lightstreamer-example-StockList-client-python'
+__credits__ = ''
