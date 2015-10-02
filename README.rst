@@ -23,22 +23,25 @@
     :alt: Downloads monthly
 
 .. image:: https://requires.io/github/ig-python/ig-markets-api-python-library/requirements.svg?branch=master
-     :target: https://requires.io/github/ig-python/ig-markets-api-python-library/requirements/?branch=master
-     :alt: Requirements Status
+    :target: https://requires.io/github/ig-python/ig-markets-api-python-library/requirements/?branch=master
+    :alt: Requirements Status
 
 .. image:: https://sourcegraph.com/api/repos/github.com/ig-python/ig-markets-api-python-library/.badges/status.png
-   :target: https://sourcegraph.com/github.com/ig-python/ig-markets-api-python-library
+    :target: https://sourcegraph.com/github.com/ig-python/ig-markets-api-python-library
 
 .. image:: https://badges.gitter.im/Join%20Chat.svg
-   :target: https://gitter.im/ig-python/ig-markets-rest-api-python-library?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+    :target: https://gitter.im/ig-python/ig-markets-rest-api-python-library?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
 .. image:: https://landscape.io/github/ig-python/ig-markets-api-python-library/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/ig-python/ig-markets-api-python-library/master
-   :alt: Code Health
+    :target: https://landscape.io/github/ig-python/ig-markets-api-python-library/master
+    :alt: Code Health
 
 .. image:: https://travis-ci.org/ig-python/ig-markets-api-python-library.svg?branch=master
     :target: https://travis-ci.org/ig-python/ig-markets-api-python-library
 
+.. image:: https://readthedocs.org/projects/ig-markets-api-python-library/badge/?version=latest
+    :target: http://ig-markets-api-python-library.readthedocs.org/en/latest/?badge=latest
+    :alt: Documentation Status
 
 IG Markets API - Python Library
 ===============================
