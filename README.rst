@@ -122,3 +122,8 @@ Other related projects
    * https://github.com/maroxe/igtrade
    * https://github.com/falex69/igtrade
    * https://github.com/yopibou/L3
+
+
+.. image:: https://badges.gitter.im/Join%20Chat.svg
+   :alt: Join the chat at https://gitter.im/ig-python/ig-markets-api-python-library
+   :target: https://gitter.im/ig-python/ig-markets-api-python-library?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
