@@ -3,5 +3,5 @@ nose
 pandas
 requests
 requests-cache
-bunch
+infi.bunch
 six
