@@ -15,6 +15,7 @@ Contents:
 
    rest.rst
    stream.rst
+   todo.rst
 
 Indices and tables
 ==================

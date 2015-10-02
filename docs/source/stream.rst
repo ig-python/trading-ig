@@ -11,9 +11,6 @@ http://labs.ig.com/
 How To Use The Library
 ----------------------
 
-How To Use The Library
-----------------------
-
 Run sample using:
 
 ::
