@@ -257,19 +257,7 @@ class LSClient(object):
         })
         return self._current_subscription_key
 
-    def unsubscribe(self, subcription_key=None):
-        """Unregister the Subscription associated to the
-        specified subscription_key.
-        if no subcription_key is given it unsubscribe all.
-        """
-        if subcription_key is None:
-            subscriptions = self._subscriptions.copy() # To avoid a RuntimeError: dictionary changed size during iteration
-            for subcription_key in subscriptions:
-                self._unsubscribe(subcription_key)
-        else:
-            self._unsubscribe(subcription_key)
-
-    def _unsubscribe(self, subcription_key):
+    def unsubscribe(self, subcription_key):
         """Unregister the Subscription associated to the
         specified subscription_key.
         """
