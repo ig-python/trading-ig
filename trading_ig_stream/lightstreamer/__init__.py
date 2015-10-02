@@ -46,8 +46,7 @@ ERROR_CMD = "ERROR"
 SYNC_ERROR_CMD = "SYNC ERROR"
 OK_CMD = "OK"
 
-log = logging.getLogger('lightstreamer')
-
+logger = logging.getLogger(__name__)
 
 class Subscription(object):
     """Represents a Subscription to be submitted to a Lightstreamer Server."""
@@ -137,7 +136,7 @@ class LSClient(object):
         # Combines the "base_url" with the
         # required "url" to be used for the specific request.
         url = compat.urljoin(base_url.geturl(), url)
-        #log.debug("urlopen %s with data=%s" % (url, body))
+        #logger.debug("urlopen %s with data=%s" % (url, body))
         return compat._urlopen(url, data=self._encode_params(body)) # str_to_bytes
 
     def _set_control_link_url(self, custom_address=None):
@@ -204,16 +203,16 @@ class LSClient(object):
         else:
             lines = self._stream_connection.readlines()
             lines.insert(0, server_response)
-            log.error("Server response error: \n%s" % "".join(lines))
+            logger.error("Server response error: \n%s" % "".join(lines))
             raise IOError()
 
     def _join(self):
         """Await the natural STREAM-CONN-THREAD termination."""
         if self._stream_connection_thread:
-            log.debug("Waiting for STREAM-CONN-THREAD to terminate")
+            logger.debug("Waiting for STREAM-CONN-THREAD to terminate")
             self._stream_connection_thread.join()
             self._stream_connection_thread = None
-            log.debug("STREAM-CONN-THREAD terminated")
+            logger.debug("STREAM-CONN-THREAD terminated")
 
     def disconnect(self):
         """Request to close the session previously opened with
@@ -222,11 +221,11 @@ class LSClient(object):
         if self._stream_connection is not None:
             # Close the HTTP connection
             self._stream_connection.close()
-            log.debug("Connection closed")
+            logger.debug("Connection closed")
             #self._join()
             print("DISCONNECTED FROM LIGHTSTREAMER")
         else:
-            log.warning("No connection to Lightstreamer")
+            logger.warning("No connection to Lightstreamer")
 
     def destroy(self):
         """Destroy the session previously opened with
@@ -239,7 +238,7 @@ class LSClient(object):
                 # since it is handled by thread completion.
                 self._join()
             else:
-                log.warning("No connection to Lightstreamer")
+                logger.warning("No connection to Lightstreamer")
 
     def subscribe(self, subscription):
         """"Perform a subscription request to Lightstreamer Server."""
@@ -279,77 +278,77 @@ class LSClient(object):
                 "LS_Table": subcription_key,
                 "LS_op": OP_DELETE
             })
-            log.debug("Server response ---> <%s>", server_response)
+            logger.debug("Server response ---> <%s>", server_response)
 
             if server_response == OK_CMD:
                 del self._subscriptions[subcription_key]
-                log.info("Unsubscribed successfully")
+                logger.info("Unsubscribed successfully")
             else:
-                log.warning("Server error")
+                logger.warning("Server error")
         else:
-            log.warning("No subscription key %d found!" % subcription_key)
+            logger.warning("No subscription key %d found!" % subcription_key)
 
     def _forward_update_message(self, update_message):
         """Forwards the real time update to the relative
         Subscription instance for further dispatching to its listeners.
         """
-        log.debug("Received update message ---> <%s>", update_message)
+        logger.debug("Received update message ---> <%s>", update_message)
         tok = update_message.split(',')
         table, item = int(tok[0]), tok[1]
         if table in self._subscriptions:
             self._subscriptions[table].notifyupdate(item)
         else:
-            log.warning("No subscription found!")
+            logger.warning("No subscription found!")
 
 
     def _receive(self):
         receive = True
         while receive:
-            log.debug("Waiting for a new message")
+            logger.debug("Waiting for a new message")
             try:
                 message = self._get_stream()
-                log.debug("Received message ---> <%s>" % message)
+                logger.debug("Received message ---> <%s>" % message)
             except Exception:
-                log.error("Communication error")
+                logger.error("Communication error")
                 print(traceback.format_exc())
                 message = None
 
             if message is None:
                 receive = False
-                log.warning("No new message received")
+                logger.warning("No new message received")
             elif message == PROBE_CMD:
                 # Skipping the PROBE message, keep on receiving messages.
-                log.debug("PROBE message")
+                logger.debug("PROBE message")
             elif message.startswith(ERROR_CMD):
                 # Terminate the receiving loop on ERROR message
                 receive = False
-                log.error("ERROR")
+                logger.error("ERROR")
             elif message.startswith(LOOP_CMD):
                 # Terminate the the receiving loop on LOOP message.
                 # A complete implementation should proceed with
                 # a rebind of the session.
-                log.debug("LOOP")
+                logger.debug("LOOP")
                 receive = False
             elif message.startswith(SYNC_ERROR_CMD):
                 # Terminate the receiving loop on SYNC ERROR message.
                 # A complete implementation should create a new session
                 # and re-subscribe to all the old items and relative fields.
-                log.error("SYNC ERROR")
+                logger.error("SYNC ERROR")
                 receive = False
             elif message.startswith(END_CMD):
                 # Terminate the receiving loop on END message.
                 # The session has been forcibly closed on the server side.
                 # A complete implementation should handle the
                 # "cause_code" if present.
-                log.info("Connection closed by the server")
+                logger.info("Connection closed by the server")
                 receive = False
             elif message.startswith("Preamble"):
                 # Skipping Preamble message, keep on receiving messages.
-                log.debug("Preamble")
+                logger.debug("Preamble")
             else:
                 self._forward_update_message(message)
 
-        log.debug("Closing connection")
+        logger.debug("Closing connection")
         # Clear internal data structures for session
         # and subscriptions management.
         #self._stream_connection.close()

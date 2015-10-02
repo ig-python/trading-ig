@@ -12,8 +12,7 @@ import traceback
 import logging
 
 from trading_ig import IGService
-from trading_ig.config import ConfigEnvVar
-#from trading_ig_config import config
+from trading_ig.config import config
 
 from trading_ig_stream import IGStreamService
 from trading_ig_stream.lightstreamer import Subscription
@@ -21,7 +20,7 @@ import trading_ig_stream.compat as compat
 
 # A simple function acting as a Subscription listener
 def on_prices_update(item_update):
-    #print("price: %s " % item_update)
+    # print("price: %s " % item_update)
     print("{stock_name:<19}: Time {UPDATE_TIME:<8} - "
           "Bid {BID:>5} - Ask {OFFER:>5}".format(stock_name=item_update["name"], **item_update["values"]))
 
@@ -30,9 +29,8 @@ def on_account_update(balance_update):
 
 def main():
     logging.basicConfig(level=logging.INFO)
-    #logging.basicConfig(level=logging.DEBUG)
+    # logging.basicConfig(level=logging.DEBUG)
 
-    config = ConfigEnvVar("IG_SERVICE")
     ig_service = IGService(config.username, config.password, config.api_key, config.acc_type)
 
     ig_stream_service = IGStreamService(ig_service)

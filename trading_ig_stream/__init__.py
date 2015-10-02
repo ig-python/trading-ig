@@ -7,4 +7,4 @@ from trading_ig_stream.version import (__author__, __copyright__,
                       __license__, __version__, __email__,
                       __status__, __url__)
 
-from trading_ig_stream.ig_stream import IGStreamService
+from trading_ig_stream.stream import IGStreamService

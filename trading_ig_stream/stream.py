@@ -9,7 +9,7 @@ import logging
 
 from .lightstreamer import LSClient
 
-log = logging.getLogger('ig_stream')
+logger = logging.getLogger(__name__)
 
 class IGStreamService(object):
     def __init__(self, ig_service):
@@ -30,7 +30,7 @@ class IGStreamService(object):
         ls_password = 'CST-%s|XST-%s' % (cst, xsecuritytoken)
 
         # Establishing a new connection to Lightstreamer Server
-        log.info("Starting connection with %s" % lightstreamerEndpoint)
+        logger.info("Starting connection with %s" % lightstreamerEndpoint)
         #self.ls_client = LSClient("http://localhost:8080", "DEMO")
         #self.ls_client = LSClient("http://push.lightstreamer.com", "DEMO")
         self.ls_client = LSClient(lightstreamerEndpoint, adapter_set="", user=accountId, password=ls_password)
@@ -38,8 +38,8 @@ class IGStreamService(object):
             self.ls_client.connect()
             return
         except Exception as e:
-            log.error("Unable to connect to Lightstreamer Server")
-            log.error(traceback.format_exc())
+            logger.error("Unable to connect to Lightstreamer Server")
+            logger.error(traceback.format_exc())
             sys.exit(1)
 
     def disconnect(self):
