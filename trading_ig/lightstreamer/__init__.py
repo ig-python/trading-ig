@@ -16,7 +16,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-from trading_ig_stream.lightstreamer.version import (__author__, __copyright__, __credits__,
+from trading_ig.lightstreamer.version import (__author__, __copyright__, __credits__,
                       __license__, __version__, __maintainer__, __email__,
                       __status__, __url__)
 
@@ -24,7 +24,7 @@ import logging
 import threading
 import time
 import traceback
-import trading_ig_stream.compat as compat
+import trading_ig.compat as compat
 
 CONNECTION_URL_PATH = "lightstreamer/create_session.txt"
 CONTROL_URL_PATH = "lightstreamer/control.txt"

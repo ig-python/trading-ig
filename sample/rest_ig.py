@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
+"""
+IG Markets REST API sample with Python
+2015 FemtoTrader
+"""
+
 from trading_ig import IGService
 from trading_ig.config import config
 import logging

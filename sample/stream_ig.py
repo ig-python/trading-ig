@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 
 """
-IG Markets Stream API with Python
+IG Markets Stream API sample with Python
 2015 FemtoTrader
 """
 
@@ -11,12 +11,10 @@ import sys
 import traceback
 import logging
 
-from trading_ig import IGService
+from trading_ig import (IGService, IGStreamService)
 from trading_ig.config import config
-
-from trading_ig_stream import IGStreamService
-from trading_ig_stream.lightstreamer import Subscription
-import trading_ig_stream.compat as compat
+from trading_ig.lightstreamer import Subscription
+import trading_ig.compat as compat
 
 # A simple function acting as a Subscription listener
 def on_prices_update(item_update):

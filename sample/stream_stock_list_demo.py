@@ -17,8 +17,8 @@
 import sys
 import traceback
 import logging
-from trading_ig_stream.lightstreamer import LSClient, Subscription
-import trading_ig_stream.compat as compat
+from trading_ig.lightstreamer import LSClient, Subscription
+import trading_ig.compat as compat
 
 # A simple function acting as a Subscription listener
 def on_item_update(item_update):

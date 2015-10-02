@@ -76,7 +76,7 @@ Get latest version using Git
 Work in progress
 ----------------
 
-This project is not a `IG Markets <http://www.barchartondemand.com/>`__ projet.
+This project is not a `IG Markets <http://www.barchartondemand.com/>`__ project.
 Use it at your own risk.
 
 There is still some room for improvement, fix issue
