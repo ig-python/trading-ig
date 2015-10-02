@@ -8,7 +8,8 @@ Welcome to ig-markets-api-python-library's documentation!
 
 .. include:: ../../README.rst
 
-Contents:
+See also
+--------
 
 .. toctree::
    :maxdepth: 2
