@@ -12,7 +12,7 @@ import json
 
 from requests import Session
 
-from .utils import (_HAS_PANDAS, _HAS_BUNCH)
+from .utils import (_HAS_PANDAS, _HAS_MUNCH)
 from .utils import (conv_resol, conv_datetime, conv_to_ms)
 
 class IGSessionCRUD(object):
@@ -177,7 +177,7 @@ class IGService:
         self.parse_response = self.parse_response_with_exception
 
         self.return_dataframe = _HAS_PANDAS
-        self.return_bunch = _HAS_BUNCH
+        self.return_munch = _HAS_MUNCH
 
         if session is None:
             self.session = Session() # Requests Session (global)
@@ -602,9 +602,9 @@ class IGService:
         action = 'read'
         response = self._req(action, endpoint, params, session)
         data = self.parse_response(response.text)
-        if self.return_bunch:
-            from .utils import bunchify
-            data = bunchify(data)
+        if self.return_munch:
+            from .utils import munchify
+            data = munchify(data)
         return(data)
 
     def fetch_related_client_sentiment_by_instrument(self, market_id,
@@ -646,11 +646,11 @@ class IGService:
             if len(data['nodes']) == 0:
                 columns = ['id', 'name']
                 data['nodes'] = pd.DataFrame(columns=columns)
-        # if self.return_bunch:
+        # if self.return_munch:
         #     # ToFix: ValueError: The truth value of a DataFrame is ambiguous.
         #     # Use a.empty, a.bool(), a.item(), a.any() or a.all().
-        #     from .utils import bunchify
-        #     data = bunchify(data)
+        #     from .utils import munchify
+        #     data = munchify(data)
         return data
 
     def fetch_sub_nodes_by_node(self, node, session=None):
@@ -680,9 +680,9 @@ class IGService:
         action = 'read'
         response = self._req(action, endpoint, params, session)
         data = self.parse_response(response.text)
-        if _HAS_BUNCH and self.return_bunch:
-            from .utils import bunchify
-            data = bunchify(data)
+        if _HAS_MUNCH and self.return_munch:
+            from .utils import munchify
+            data = munchify(data)
         return data
 
     def search_markets(self, search_term, session=None):

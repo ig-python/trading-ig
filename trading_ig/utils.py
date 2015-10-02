@@ -18,12 +18,12 @@ else:
     _HAS_PANDAS = True
 
 try:
-    from infi.bunch import bunchify
+    from munch import munchify
 except ImportError:
-    _HAS_BUNCH = False
-    logger.warning("Can't import bunch")
+    _HAS_MUNCH = False
+    logger.warning("Can't import munch")
 else:
-    _HAS_BUNCH = True
+    _HAS_MUNCH = True
 
 def conv_resol(resolution):
     """Returns a string for resolution (from a Pandas)
