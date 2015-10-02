@@ -91,3 +91,12 @@ def conv_to_ms(td):
         logger.error(traceback.format_exc())
         logger.warning("conv_to_ms returns '%s'" % td)
         return td
+
+def remove(cache):
+    """Remove cache"""
+    try:
+        filename = "%s.sqlite" % cache
+        print("remove %s" % filename)
+        os.remove(filename)
+    except:
+        pass

@@ -19,6 +19,8 @@ import requests_cache
 
 
 def main():
+    logging.basicConfig(level=logging.DEBUG)
+
     expire_after = timedelta(hours=1)
     session = requests_cache.CachedSession(cache_name='cache', backend='sqlite', expire_after=expire_after)
     # set expire_after=None if you don't want cache expiration
@@ -53,13 +55,14 @@ def main():
     #epic = 'CS.D.EURUSD.MINI.IP'
     epic = 'IX.D.ASX.IFM.IP' # US (SPY) - mini
 
-    #resolution = 'D'
+    resolution = 'D'
     # see from pandas.tseries.frequencies import to_offset
     #resolution = 'H'
-    resolution = '1Min'
+    #resolution = '1Min'
 
-    #num_points = 10
-    #response = ig_service.fetch_historical_prices_by_epic_and_num_points(epic, resolution, num_points)
+    num_points = 10
+    response = ig_service.fetch_historical_prices_by_epic_and_num_points(epic, resolution, num_points)
+    #Exception: error.public-api.exceeded-account-historical-data-allowance
 
     # if you want to cache this query
     #response = ig_service.fetch_historical_prices_by_epic_and_num_points(epic, resolution, num_points, session)
@@ -67,13 +70,13 @@ def main():
     #df_ask = response['prices']['ask']
     #print("ask prices:\n%s" % df_ask)
 
-    (start_date, end_date) = ('2015-09-15', '2015-09-28')
+    #(start_date, end_date) = ('2015-09-15', '2015-09-28')
     #response = ig_service.fetch_historical_prices_by_epic_and_date_range(epic, resolution, start_date, end_date)
 
     # if you want to cache this query
-    response = ig_service.fetch_historical_prices_by_epic_and_date_range(epic, resolution, start_date, end_date, session)
-    df_ask = response['prices']['ask']
-    print("ask prices:\n%s" % df_ask)
+    #response = ig_service.fetch_historical_prices_by_epic_and_date_range(epic, resolution, start_date, end_date, session)
+    #df_ask = response['prices']['ask']
+    #print("ask prices:\n%s" % df_ask)
 
 
 if __name__ == '__main__':

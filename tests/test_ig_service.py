@@ -6,6 +6,8 @@ Run unit tests using
 nosetests -s -v
 """
 
+import os
+
 import pandas as pd
 import requests
 import requests_cache
@@ -16,9 +18,8 @@ import time
 
 import trading_ig
 from trading_ig import IGService
-from trading_ig.config import ConfigEnvVar
-# defines username, password, api_key, acc_type, acc_number
-# from trading_ig_config import config
+from trading_ig.utils import remove
+from trading_ig.config import config
 
 """
 Environment variables must be set using
@@ -31,36 +32,38 @@ export IG_SERVICE_ACC_NUMBER=""
 
 """
 
+CACHE_NAME = 'cache'
+
+remove(CACHE_NAME)
 
 def test_ig_service():
 
     delay_for_ig = 30
 
     def wait(delay):
-        print("Wait %s s to avoid error.public-api.exceeded-account-allowance"
+        print("Wait %s s to avoid 'error.public-api.exceeded-account-allowance'"
               % delay)
         time.sleep(delay)
 
-    session_cached = requests_cache.CachedSession(cache_name='cache',
+    session_cached = requests_cache.CachedSession(cache_name=CACHE_NAME,
                                                   backend='sqlite',
                                                   expire_after=timedelta(
                                                       hours=1))
     session_not_cached = requests.Session()
 
-    for session in [session_cached, session_cached, session_not_cached]:
+    for i, session in enumerate([session_cached, session_cached, session_not_cached]):
 
         # pp = pprint.PrettyPrinter(indent=4)
 
         assert(isinstance(trading_ig.__version__, six.string_types))
 
-        config = ConfigEnvVar("IG_SERVICE")
         # ig_service = IGService(config.username, config.password,
         #                        config.api_key, config.acc_type)
         ig_service = IGService(config.username, config.password, config.api_key,
                                config.acc_type, session)
         ig_service.create_session()
 
-        print("fetch_accounts")
+        print("%d - fetch_accounts" % i)
         response = ig_service.fetch_accounts()
         print(response)
         # assert(response['balance'][0]['available']>0)
@@ -172,6 +175,8 @@ def test_ig_service():
         assert(isinstance(response, pd.DataFrame))
 
         print("")
+        wait(delay_for_ig)
+        wait(delay_for_ig)
 
         print("fetch_historical_prices_by_epic_and_num_points")
 
@@ -198,10 +203,11 @@ def test_ig_service():
         assert(isinstance(response['prices'], pd.DataFrame))
 
         print("")
+        wait(delay_for_ig)
 
         print("fetch_historical_prices_by_epic_and_date_range")
-        start_date = datetime(2014, 12, 15)
-        end_date = datetime(2014, 12, 20)
+        end_date = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        start_date = end_date - timedelta(days=3)
         response = ig_service.\
             fetch_historical_prices_by_epic_and_date_range(epic, resolution,
                                                            start_date, end_date)
@@ -211,5 +217,7 @@ def test_ig_service():
         # assert(isinstance(response['prices']['price'], pd.Panel))
         assert(isinstance(response['prices'], pd.DataFrame))
 
-        wait(delay_for_ig)
         print("")
+        wait(delay_for_ig)
+
+remove(CACHE_NAME)
