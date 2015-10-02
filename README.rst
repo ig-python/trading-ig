@@ -1,83 +1,106 @@
-|Requirements Status| |Code Health|
+.. image:: https://img.shields.io/pypi/v/trading_ig.svg
+    :target: https://pypi.python.org/pypi/trading_ig/
+    :alt: Latest Version
 
-ig-markets-stream-api-python-library
-====================================
+.. image:: https://img.shields.io/pypi/pyversions/trading_ig.svg
+    :target: https://pypi.python.org/pypi/trading_ig/
+    :alt: Supported Python versions
 
-A lightweight Python library that can be used to get live data from IG
-Markets STREAM API with a LIVE or DEMO account
+.. image:: https://img.shields.io/pypi/wheel/trading_ig.svg
+    :target: https://pypi.python.org/pypi/trading_ig/
+    :alt: Wheel format
 
-You can use the IG Markets STREAM API to get realtime price, balance...
+.. image:: https://img.shields.io/pypi/l/trading_ig.svg
+    :target: https://pypi.python.org/pypi/trading_ig/
+    :alt: License
 
-IG Markets provide Retail Spread Betting and CFD accounts for trading
-Equities, Forex, Commodities, Indices and much more.
+.. image:: https://img.shields.io/pypi/status/trading_ig.svg
+    :target: https://pypi.python.org/pypi/trading_ig/
+    :alt: Development Status
 
-Full details about the API along with information about how to open an
-account with IG can be found at the link below:
+.. image:: https://img.shields.io/pypi/dm/trading_ig.svg
+    :target: https://pypi.python.org/pypi/trading_ig/
+    :alt: Downloads monthly
 
-http://labs.ig.com/
+.. image:: https://requires.io/github/ig-python/ig-markets-api-python-library/requirements.svg?branch=master
+     :target: https://requires.io/github/ig-python/ig-markets-api-python-library/requirements/?branch=master
+     :alt: Requirements Status
 
-How To Use The Library
-----------------------
+.. image:: https://sourcegraph.com/api/repos/github.com/ig-python/ig-markets-api-python-library/.badges/status.png
+   :target: https://sourcegraph.com/github.com/ig-python/ig-markets-api-python-library
 
-Using this library to connect to the IG Markets API is extremely easy.
+.. image:: https://badges.gitter.im/Join%20Chat.svg
+   :target: https://gitter.im/ig-python/ig-markets-rest-api-python-library?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
-Copy ``trading_ig_config_default.py`` to ``trading_ig_config.py`` and
-update it
+.. image:: https://landscape.io/github/ig-python/ig-markets-api-python-library/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/ig-python/ig-markets-api-python-library/master
+   :alt: Code Health
 
-.. code:: python
+.. image:: https://travis-ci.org/ig-python/ig-markets-api-python-library.svg?branch=master
+    :target: https://travis-ci.org/ig-python/ig-markets-api-python-library
 
-    class config(object):
-        username = "YOUR_USERNAME"
-        password = "YOUR_PASSWORD"
-        api_key = "YOUR_API_KEY"
-        acc_type = "DEMO" # LIVE / DEMO
-        acc_number = "ABC123"
 
-Run sample using:
+IG Markets API - Python Library
+===============================
+
+This project is a Python client to deal with IG Markets API
+
+REST API
+--------
+
+STREAM API
+----------
+
+Install
+-------
+
+From Python package index
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
-    $ python sample/main.py
-    INFO:requests.packages.urllib3.connectionpool:Starting new HTTPS connection (1): demo-api.ig.com
-    INFO:ig_stream:Starting connection with https://demo-apd.marketdatasystems.com
-    L1:CS.D.USDJPY.CFD.IP: Time 20:35:43 - Bid 119.870 - Ask 119.885
-    L1:CS.D.GBPUSD.CFD.IP: Time 20:35:46 - Bid 1.51270 - Ask 1.51290
-    ----------HIT CR TO UNSUBSCRIBE AND DISCONNECT FROM     LIGHTSTREAMER-----------
-    L1:CS.D.USDJPY.CFD.IP: Time 20:35:43 - Bid 119.870 - Ask 119.885
-    L1:CS.D.USDJPY.CFD.IP: Time 20:35:48 - Bid 119.871 - Ask 119.886
-    L1:CS.D.GBPUSD.CFD.IP: Time 20:35:48 - Bid 1.51271 - Ask 1.51291
-    L1:CS.D.USDJPY.CFD.IP: Time 20:35:48 - Bid 119.870 - Ask 119.885
-    L1:CS.D.GBPUSD.CFD.IP: Time 20:35:49 - Bid 1.51270 - Ask 1.51290
+    $ pip install trading_ig
 
-    INFO:lightstreamer:Unsubscribed successfully
-    WARNING:lightstreamer:Server error
-    DISCONNECTED FROM LIGHTSTREAMER
+From source
+~~~~~~~~~~~
 
-HTTP REST API
--------------
+Get latest version using Git
 
-If you need to submit trade orders, open positions, close positions and
-view market sentiment, see
-https://github.com/femtotrader/ig-markets-rest-api-python-library
+::
+
+    $ git clone https://github.com/ig-python/ig-markets-api-python-library.git
+    $ cd ig-markets-api-python-library
+    $ python setup.py install
+
 
 Work in progress
 ----------------
+
+This project is not a `IG Markets <http://www.barchartondemand.com/>`__ projet.
+Use it at your own risk.
+
+There is still some room for improvement, fix issue
 
 see :
 
 -  http://labs.ig.com/node/98
 -  https://labs.ig.com/node/28
 -  http://www.andlil.com/forum/script-api-ig-stream-rest-t10091-10.html
+-  https://github.com/ig-python/ig-markets-api-python-library/issues
 
 Thanks to
 ---------
-
+-  `Lewis Barber <https://github.com/lewisbarber>`__
 -  ixta
 -  Chris
 -  colombao
--  gianluca.finocchiaro
+-  `gianluca.finocchiaro <https://github.com/gfinocchiaro>`__
+-  Weswit
 
-.. |Requirements Status| image:: https://requires.io/github/femtotrader/ig-markets-stream-api-python-library/requirements.svg?branch=master
-   :target: https://requires.io/github/femtotrader/ig-markets-stream-api-python-library/requirements/?branch=master
-.. |Code Health| image:: https://landscape.io/github/femtotrader/ig-markets-stream-api-python-library/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/femtotrader/ig-markets-stream-api-python-library/master
+Other related projects
+----------------------
+* igtrade (and forks)
+
+   * https://github.com/maroxe/igtrade
+   * https://github.com/falex69/igtrade
+   * https://github.com/yopibou/L3
