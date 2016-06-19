@@ -509,13 +509,15 @@ class IGService:
         return data
 
     def create_working_order(self, currency_code, direction, epic, expiry,
-                             good_till_date, guaranteed_stop, level,
+                             guaranteed_stop, level,
                              limit_distance, limit_level, size, stop_distance,
                              stop_level, time_in_force, order_type,
+                             good_till_date=None,
                              session=None):
         """Creates an OTC working order"""
 
-        good_till_date = conv_datetime(good_till_date, 1)
+        if good_till_date is not None:
+            good_till_date = conv_datetime(good_till_date, 1)
 
         params = {
             'currencyCode': currency_code,
