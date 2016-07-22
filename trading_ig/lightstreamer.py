@@ -21,6 +21,11 @@ import traceback
 from urllib.request import urlopen as _urlopen
 from urllib.parse import (urlparse as parse_url, urljoin, urlencode)
 
+try:
+    from systemd.daemon import notify
+except ImportError:
+    notify = None
+
 def _url_encode(params):
     return urlencode(params).encode("utf-8")
 
@@ -167,6 +172,10 @@ class LSClient(object):
         """Establish a connection to Lightstreamer Server to create
         a new session.
         """
+
+        if not notify:
+            log.warning("systemd.daemon not available, no watchdog notifications will be sent.")
+
         self._stream_connection = self._call(
             self._base_url,
             CONNECTION_URL_PATH,
@@ -318,6 +327,9 @@ class LSClient(object):
                 log.error("Communication error")
                 print(traceback.format_exc())
                 message = None
+
+            if notify:
+                notify('WATCHDOG=1')
 
             if message is None:
                 receive = False
