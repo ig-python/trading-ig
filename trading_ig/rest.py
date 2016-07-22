@@ -735,7 +735,7 @@ class IGService:
         prices['volume'] = ts_lastTradedVolume
         return prices
 
-    def format_prices(self, prices, flag_calc_spread=True):
+    def format_prices(self, prices, flag_calc_spread=False):
         """Format prices data as a DataFrame with hierarchical columns"""
 
         import pandas as pd
@@ -749,8 +749,10 @@ class IGService:
                 'closePrice.%s' % typ: 'Close',
                 'lastTradedVolume': 'Volume'
             })
+        last = prices[0]['lastTradedVolume'] or prices[0]['closePrice']['lastTraded']
         df = json_normalize(prices)
-        df = df.set_index('snapshotTime')
+        df = df.set_index('snapshotTimeUTC')
+        df.index = pd.to_datetime(df.index)
         df.index.name = 'DateTime'
 
         df_ask = df[['openPrice.ask', 'highPrice.ask',
@@ -764,20 +766,56 @@ class IGService:
         if flag_calc_spread:
             df_spread = df_ask - df_bid
 
-        df_last = df[['openPrice.lastTraded', 'highPrice.lastTraded',
-                      'lowPrice.lastTraded', 'closePrice.lastTraded',
-                      'lastTradedVolume']]
-        df_last = df_last.rename(columns=cols('lastTraded'))
+        if last:
+            df_last = df[['openPrice.lastTraded', 'highPrice.lastTraded',
+                          'lowPrice.lastTraded', 'closePrice.lastTraded',
+                          'lastTradedVolume']]
+            df_last = df_last.rename(columns=cols('lastTraded'))
 
-        if not flag_calc_spread:
-            df2 = pd.concat([df_bid, df_ask, df_last],
-                            axis=1,
-                            keys=['bid', 'ask', 'last'])
-        else:
-            df2 = pd.concat([df_bid, df_ask, df_spread, df_last],
-                            axis=1,
-                            keys=['bid', 'ask', 'spread', 'last'])
+        data = [df_bid, df_ask]
+        keys = ['bid', 'ask']
+        if flag_calc_spread:
+            data.append(df_spread)
+            keys.append('spread')
+
+        if last:
+            data.append(df_last)
+            keys.append('last')
+
+        df2 = pd.concat(data, axis=1, keys=keys)
         return(df2)
+
+    def fetch_historical_prices_by_epic(self, epic, resolution=None,
+                                        start_date=None,
+                                        end_date=None,
+                                        numpoints=None,
+                                        pagesize=0,
+                                        pagenumber=None,
+                                        session=None):
+        """Returns a list of historical prices for the given epic, resolution,
+        number of points"""
+        params = {}
+        if resolution:
+            params['resolution'] = conv_resol(resolution)
+        if start_date:
+            params['from'] = start_date
+        if end_date:
+            params['to'] = end_date
+        if numpoints:
+            params['max'] = numpoints
+        if pagesize:
+            params['pageSize'] = pagesize
+        if pagenumber:
+            params['pageNumber'] = pagenumber
+        endpoint = '/prices/' + epic
+        action = 'read'
+        self.crud_session.HEADERS['LOGGED_IN']['Version'] = 3
+        response = self._req(action, endpoint, params, session)
+        del(self.crud_session.HEADERS['LOGGED_IN']['Version'])
+        data = self.parse_response(response.text)
+        if _HAS_PANDAS and self.return_dataframe:
+            data['prices'] = self.format_prices(data['prices'])
+        return(data)
 
     def fetch_historical_prices_by_epic_and_num_points(self, epic, resolution,
                                                        numpoints, session=None):
