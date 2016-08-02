@@ -18,7 +18,7 @@ import sys
 import traceback
 import logging
 from trading_ig.lightstreamer import LSClient, Subscription
-import trading_ig.compat as compat
+
 
 # A simple function acting as a Subscription listener
 def on_item_update(item_update):
@@ -57,7 +57,7 @@ def main():
     # Registering the Subscription
     sub_key = lightstreamer_client.subscribe(subscription)
 
-    compat.wait_for_input("{0:-^80}\n".format("HIT CR TO UNSUBSCRIBE AND DISCONNECT FROM \
+    input("{0:-^80}\n".format("HIT CR TO UNSUBSCRIBE AND DISCONNECT FROM \
     LIGHTSTREAMER"))
 
     # Unsubscribing from Lightstreamer by using the subscription key

@@ -14,7 +14,7 @@ import logging
 from trading_ig import (IGService, IGStreamService)
 from trading_ig.config import config
 from trading_ig.lightstreamer import Subscription
-import trading_ig.compat as compat
+
 
 # A simple function acting as a Subscription listener
 def on_prices_update(item_update):
@@ -66,7 +66,7 @@ def main():
     # Registering the Subscription
     sub_key_account = ig_stream_service.ls_client.subscribe(subscription_account)
 
-    compat.wait_for_input("{0:-^80}\n".format("HIT CR TO UNSUBSCRIBE AND DISCONNECT FROM \
+    input("{0:-^80}\n".format("HIT CR TO UNSUBSCRIBE AND DISCONNECT FROM \
     LIGHTSTREAMER"))
 
     # Disconnecting
