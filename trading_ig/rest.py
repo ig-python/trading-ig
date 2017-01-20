@@ -411,7 +411,7 @@ class IGService:
             deal_reference = json.loads(response.text)['dealReference']
             return self.fetch_deal_by_deal_reference(deal_reference)
         else:
-            return response.text
+            raise Exception(response.text)
 
     def create_open_position(self, currency_code, direction, epic, expiry,
                              force_open, guaranteed_stop, level, limit_distance,
@@ -443,7 +443,7 @@ class IGService:
             deal_reference = json.loads(response.text)['dealReference']
             return self.fetch_deal_by_deal_reference(deal_reference)
         else:
-            return response.text  # parse_response ?
+            raise Exception(response.text)
 
     def update_open_position(self, limit_level, stop_level, deal_id,
                              session=None):
@@ -463,7 +463,7 @@ class IGService:
             deal_reference = json.loads(response.text)['dealReference']
             return self.fetch_deal_by_deal_reference(deal_reference)
         else:
-            return response.text  # parse_response ?
+            raise Exception(response.text)
 
     def fetch_working_orders(self, session = None):
         """Returns all open working orders for the active account"""
@@ -543,7 +543,7 @@ class IGService:
             deal_reference = json.loads(response.text)['dealReference']
             return self.fetch_deal_by_deal_reference(deal_reference)
         else:
-            return response.text  # parse_response ?
+            raise Exception(response.text)
 
     def delete_working_order(self, deal_id, session=None):
         """Deletes an OTC working order"""
@@ -559,7 +559,7 @@ class IGService:
             deal_reference = json.loads(response.text)['dealReference']
             return self.fetch_deal_by_deal_reference(deal_reference)
         else:
-            return response.text  # parse_response ?
+            raise Exception(response.text)
 
     def update_working_order(self, good_till_date, level, limit_distance,
                              limit_level, stop_distance, stop_level,
@@ -586,7 +586,7 @@ class IGService:
             deal_reference = json.loads(response.text)['dealReference']
             return self.fetch_deal_by_deal_reference(deal_reference)
         else:
-            return response.text  # parse_response ?
+            raise Exception(response.text)
 
     ############ END ############
 
