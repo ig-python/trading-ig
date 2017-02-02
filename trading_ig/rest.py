@@ -754,8 +754,8 @@ class IGService:
             })
         last = prices[0]['lastTradedVolume'] or prices[0]['closePrice']['lastTraded']
         df = json_normalize(prices)
-        df = df.set_index('snapshotTimeUTC')
-        df.index = pd.to_datetime(df.index)
+        df = df.set_index('snapshotTime')
+        df.index = pd.to_datetime(df.index,format="%Y:%m:%d-%H:%M:%S")
         df.index.name = 'DateTime'
 
         df_ask = df[['openPrice.ask', 'highPrice.ask',
