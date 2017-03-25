@@ -299,7 +299,7 @@ class LSClient(object):
         Subscription instance for further dispatching to its listeners.
         """
         log.debug("Received update message ---> <{0}>".format(update_message))
-        tok = update_message.split(',')
+        tok = update_message.split(',', 1)
         table, item = int(tok[0]), tok[1]
         if table in self._subscriptions:
             self._subscriptions[table].notifyupdate(item)

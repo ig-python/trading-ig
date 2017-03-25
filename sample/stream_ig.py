@@ -33,7 +33,14 @@ def main():
 
     ig_stream_service = IGStreamService(ig_service)
     ig_session = ig_stream_service.create_session()
-    accountId = ig_session[u'accounts'][0][u'accountId']
+    # Ensure configured account is selected
+    accounts = ig_session[u'accounts']
+    for account in accounts:
+        if account[u'accountId'] == config.acc_number:
+            accountId = account[u'accountId']
+        else:
+            print('Account not found: {0}'.format(config.acc_number))
+            accountId = None
     ig_stream_service.connect(accountId)
 
     # Making a new Subscription in MERGE mode
