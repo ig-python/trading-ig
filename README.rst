@@ -114,6 +114,10 @@ Thanks to
 -  colombao
 -  `gianluca.finocchiaro <https://github.com/gfinocchiaro>`__
 -  Weswit
+- `Dimitri John Ledkov <https://github.com/xnox>`__
+- `RRMXkun <https://github.com/RRMXkun>`__
+- `redbullpeter <https://github.com/redbullpeter>`__
+- `David Sabater Dinter <https://github.com/dsdinter>`__
 
 Other related projects
 ----------------------
