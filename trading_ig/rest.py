@@ -1002,6 +1002,14 @@ class IGService:
         data = self.parse_response(response.text)
         return data
 
+    def read_session(self, session=None):
+        """Retrieves current session details"""
+        params = {}
+        endpoint = '/session'
+        action = 'read'
+        response = self._req(action, endpoint, params, session)
+        data = self.parse_response(response.text)
+        return data
     ############ END ############
 
 
