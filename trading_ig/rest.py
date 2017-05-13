@@ -343,6 +343,50 @@ class IGService:
 
         return data
 
+    def fetch_transaction_history(self, trans_type=None, from_date=None, to_date=None,
+                                  max_span_seconds=None, page_size=None, page_number=None,
+                                  session=None):
+        """Returns the transaction history for the specified transaction
+        type and period"""
+        params = {}
+        if trans_type:
+            params['type'] = trans_type
+        if from_date:
+            if hasattr(from_date, 'isoformat'):
+                from_date = from_date.isoformat()
+            params['from'] = from_date
+        if to_date:
+            if hasattr(to_date, 'isoformat'):
+                to_date = to_date.isoformat()
+            params['to'] = to_date
+        if max_span_seconds:
+            params['maxSpanSeconds'] = max_span_seconds
+        if page_size:
+            params['pageSize'] = page_size
+        if page_number:
+            params['pageNumber'] = page_number
+
+        endpoint = '/history/transactions'
+        action = 'read'
+
+        self.crud_session.HEADERS['LOGGED_IN']['Version'] = 2
+        response = self._req(action, endpoint, params, session)
+        del(self.crud_session.HEADERS['LOGGED_IN']['Version'])
+        data = self.parse_response(response.text)
+        if _HAS_PANDAS and self.return_dataframe:
+            import pandas as pd
+            data = pd.DataFrame(data['transactions'])
+
+            if len(data) == 0:
+                columns = ['cashTransaction', 'closeLevel', 'currency', 'date',
+                           'dateUtc', 'instrumentName', 'openLevel', 'period',
+                           'profitAndLoss', 'reference', 'size',
+                           'transactionType']
+                data = pd.DataFrame(columns=columns)
+                return data
+
+        return data
+
     ############ END ############
 
 
