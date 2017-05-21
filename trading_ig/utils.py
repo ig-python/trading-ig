@@ -5,8 +5,6 @@ import logging
 import traceback
 import six
 
-import pandas as pd
-
 logger = logging.getLogger(__name__)
 
 try:
