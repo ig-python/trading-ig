@@ -5,15 +5,13 @@ import logging
 import traceback
 import six
 
-import pandas as pd
-
 logger = logging.getLogger(__name__)
 
 try:
     import pandas as pd
 except ImportError:
     _HAS_PANDAS = False
-    logger.warning("Can't import pandas")
+    logger.info("Can't import pandas")
 else:
     _HAS_PANDAS = True
 
@@ -21,7 +19,7 @@ try:
     from munch import munchify
 except ImportError:
     _HAS_MUNCH = False
-    logger.warning("Can't import munch")
+    logger.info("Can't import munch")
 else:
     _HAS_MUNCH = True
 
