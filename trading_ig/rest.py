@@ -556,14 +556,15 @@ class IGService:
         return data
 
     def create_working_order(self, currency_code, direction, epic, expiry,
-                             guaranteed_stop, level,
-                             limit_distance, limit_level, size, stop_distance,
-                             stop_level, time_in_force, order_type,
-                             good_till_date=None,
-                             session=None):
+                             guaranteed_stop, level, size,
+                             time_in_force, order_type,
+                             limit_distance=None, limit_level=None,
+                             stop_distance=None, stop_level=None,
+                             good_till_date=None, deal_reference=None,
+                             force_open=False, session=None):
         """Creates an OTC working order"""
 
-        if good_till_date is not None:
+        if good_till_date is not None and type(good_till_date) is not int:
             good_till_date = conv_datetime(good_till_date, 1)
 
         params = {
@@ -573,18 +574,30 @@ class IGService:
             'expiry': expiry,
             'goodTillDate': good_till_date,
             'guaranteedStop': guaranteed_stop,
+            'forceOpen': force_open,
             'level': level,
-            'limitDistance': limit_distance,
-            'limitLevel': limit_level,
             'size': size,
-            'stopDistance': stop_distance,
-            'stopLevel': stop_level,
             'timeInForce': time_in_force,
             'type': order_type
         }
+        if limit_distance:
+            params['limitDistance'] = limit_distance
+        if limit_level:
+            params['limitLevel'] = limit_level
+        if stop_distance:
+            params['stopDistance'] = stop_distance
+        if stop_level:
+            params['stopLevel'] = stop_level
+        if deal_reference:
+            params['dealReference'] = deal_reference
+
         endpoint = '/workingorders/otc'
         action = 'create'
+
+        self.crud_session.HEADERS['LOGGED_IN']['Version'] = 2
+        print(params)
         response = self._req(action, endpoint, params, session)
+        del(self.crud_session.HEADERS['LOGGED_IN']['Version'])
 
         if response.status_code == 200:
             deal_reference = json.loads(response.text)['dealReference']
