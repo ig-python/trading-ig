@@ -369,7 +369,7 @@ class IGService:
         endpoint = '/history/transactions'
         action = 'read'
 
-        self.crud_session.HEADERS['LOGGED_IN']['Version'] = 2
+        self.crud_session.HEADERS['LOGGED_IN']['Version'] = "2"
         response = self._req(action, endpoint, params, session)
         del(self.crud_session.HEADERS['LOGGED_IN']['Version'])
         data = self.parse_response(response.text)
@@ -594,7 +594,7 @@ class IGService:
         endpoint = '/workingorders/otc'
         action = 'create'
 
-        self.crud_session.HEADERS['LOGGED_IN']['Version'] = 2
+        self.crud_session.HEADERS['LOGGED_IN']['Version'] = "2"
         print(params)
         response = self._req(action, endpoint, params, session)
         del(self.crud_session.HEADERS['LOGGED_IN']['Version'])
@@ -869,7 +869,7 @@ class IGService:
             params['pageNumber'] = pagenumber
         endpoint = '/prices/' + epic
         action = 'read'
-        self.crud_session.HEADERS['LOGGED_IN']['Version'] = 3
+        self.crud_session.HEADERS['LOGGED_IN']['Version'] = "3"
         response = self._req(action, endpoint, params, session)
         del(self.crud_session.HEADERS['LOGGED_IN']['Version'])
         data = self.parse_response(response.text)
