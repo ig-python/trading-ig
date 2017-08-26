@@ -18,8 +18,8 @@ import logging
 import threading
 import traceback
 
-from urllib.request import urlopen as _urlopen
-from urllib.parse import (urlparse as parse_url, urljoin, urlencode)
+from six.moves.urllib.request import urlopen as _urlopen
+from six.moves.urllib.parse import (urlparse as parse_url, urljoin, urlencode)
 
 try:
     from systemd.daemon import notify
