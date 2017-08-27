@@ -58,17 +58,16 @@ def conv_resol(resolution):
 def conv_datetime(dt, version=1):
     """Converts dt to string like
     version 1 = 2014:12:15-00:00:00
-    version 2 = 2014-12-15-00:00:00
+    version 2 = 2014/12/15 00:00:00
     """
     try:
         if isinstance(dt, six.string_types):
             if _HAS_PANDAS:
-                import pandas as pd
                 dt = pd.to_datetime(dt)
 
         d_formats = {
             1: "%Y:%m:%d-%H:%M:%S",
-            2: "%Y-%m-%d %H:%M:%S"
+            2: "%Y/%m/%d %H:%M:%S"
         }
         fmt = d_formats[version]
         return dt.strftime(fmt)
