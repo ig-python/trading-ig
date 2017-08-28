@@ -563,7 +563,7 @@ class IGService:
                              good_till_date=None, deal_reference=None,
                              force_open=False, session=None):
         """Creates an OTC working order"""
-	VERSION = 2
+        VERSION = 2
         if good_till_date is not None and type(good_till_date) is not int:
             good_till_date = conv_datetime(good_till_date, VERSION)
 
