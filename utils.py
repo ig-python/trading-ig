@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
+import os
 import logging
 import traceback
 import six
@@ -16,12 +17,13 @@ else:
     _HAS_PANDAS = True
 
 try:
-    from munch import munchify
+    from munch import munchify  # noqa
 except ImportError:
     _HAS_MUNCH = False
     logger.info("Can't import munch")
 else:
     _HAS_MUNCH = True
+
 
 def conv_resol(resolution):
     """Returns a string for resolution (from a Pandas)
@@ -29,12 +31,12 @@ def conv_resol(resolution):
     if _HAS_PANDAS:
         from pandas.tseries.frequencies import to_offset
         d = {
-            to_offset('1Min'):'MINUTE',
-            to_offset('2Min'):'MINUTE_2',
-            to_offset('3Min'):'MINUTE_3',
-            to_offset('5Min'):'MINUTE_5',
-            to_offset('10Min'):'MINUTE_10',
-            to_offset('15Min'):'MINUTE_15',
+            to_offset('1Min'): 'MINUTE',
+            to_offset('2Min'): 'MINUTE_2',
+            to_offset('3Min'): 'MINUTE_3',
+            to_offset('5Min'): 'MINUTE_5',
+            to_offset('10Min'): 'MINUTE_10',
+            to_offset('15Min'): 'MINUTE_15',
             to_offset('30Min'): 'MINUTE_30',
             to_offset('1H'): 'HOUR',
             to_offset('2H'): 'HOUR_2',
@@ -88,6 +90,7 @@ def conv_to_ms(td):
         logger.error(traceback.format_exc())
         logger.warning("conv_to_ms returns '%s'" % td)
         return td
+
 
 def remove(cache):
     """Remove cache"""

@@ -26,11 +26,14 @@ try:
 except ImportError:
     notify = None
 
+
 def _url_encode(params):
     return urlencode(params).encode("utf-8")
 
+
 def _iteritems(d):
     return iter(d.items())
+
 
 CONNECTION_URL_PATH = "lightstreamer/create_session.txt"
 BIND_URL_PATH = "lightstreamer/bind_session.txt"
@@ -174,7 +177,8 @@ class LSClient(object):
         """
 
         if not notify:
-            log.warning("systemd.daemon not available, no watchdog notifications will be sent.")
+            log.warning("systemd.daemon not available, " +
+                        "no watchdog notifications will be sent.")
 
         self._stream_connection = self._call(
             self._base_url,
@@ -301,7 +305,8 @@ class LSClient(object):
             else:
                 log.warning("Server error")
         else:
-            log.warning("No subscription key {0} found!".format(subcription_key))
+            log.warning("No subscription key {0} found!".format(
+                        subcription_key))
 
     def _forward_update_message(self, update_message):
         """Forwards the real time update to the relative
@@ -380,6 +385,7 @@ class LSClient(object):
             log.debug("Binding to this active session")
             self.bind()
 
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
@@ -399,16 +405,15 @@ if __name__ == "__main__":
     subscription = Subscription(
         mode="MERGE",
         items=["item1", "item2", "item3", "item4",
-            "item5", "item6", "item7", "item8",
-            "item9", "item10", "item11", "item12"],
+               "item5", "item6", "item7", "item8",
+               "item9", "item10", "item11", "item12"],
         fields=["stock_name", "last_price", "time", "bid", "ask"],
         adapter="QUOTE_ADAPTER")
-
 
     # A simple function acting as a Subscription listener
     def on_item_update(item_update):
         print("{stock_name:<19}: Last{last_price:>6} - Time {time:<8} - "
-            "Bid {bid:>5} - Ask {ask:>5}".format(**item_update["values"]))
+              "Bid {bid:>5} - Ask {ask:>5}".format(**item_update["values"]))
 
     # Adding the "on_item_update" function to Subscription
     subscription.addlistener(on_item_update)
