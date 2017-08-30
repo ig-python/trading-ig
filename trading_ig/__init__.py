@@ -16,3 +16,8 @@ from .version import (__author__, __copyright__, __credits__, __license__,
 
 from .rest import IGService
 from .stream import IGStreamService
+
+__all__ = ['IGService', 'IGStreamService', '__author__',
+           '__copyright__', '__credits__', '__license__',
+           '__version__', '__maintainer__', '__email__',
+           '__status__', '__url__']
