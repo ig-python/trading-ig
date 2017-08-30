@@ -124,6 +124,8 @@ Thanks to
 - `RRMXkun <https://github.com/RRMXkun>`__
 - `redbullpeter <https://github.com/redbullpeter>`__
 - `David Sabater Dinter <https://github.com/dsdinter>`__
+- `Oneirag <https://github.com/Oneirag>`__
+- `and all other contributors... <https://github.com/ig-python/ig-markets-api-python-library/graphs/contributors>`__
 
 Other related projects
 ----------------------
