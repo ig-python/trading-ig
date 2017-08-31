@@ -45,7 +45,7 @@ def main():
     ig_stream_service.connect(accountId)
 
     # Making a new Subscription in MERGE mode
-    subcription_prices = Subscription(
+    subscription_prices = Subscription(
         mode="MERGE",
         items=['L1:CS.D.GBPUSD.CFD.IP', 'L1:CS.D.USDJPY.CFD.IP'],
         fields=["UPDATE_TIME", "BID", "OFFER", "CHANGE", "MARKET_STATE"],
@@ -54,10 +54,10 @@ def main():
 
 
     # Adding the "on_price_update" function to Subscription
-    subcription_prices.addlistener(on_prices_update)
+    subscription_prices.addlistener(on_prices_update)
 
     # Registering the Subscription
-    sub_key_prices = ig_stream_service.ls_client.subscribe(subcription_prices)
+    sub_key_prices = ig_stream_service.ls_client.subscribe(subscription_prices)
 
 
     # Making an other Subscription in MERGE mode
