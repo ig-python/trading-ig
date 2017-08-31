@@ -38,6 +38,7 @@ def main():
     for account in accounts:
         if account[u'accountId'] == config.acc_number:
             accountId = account[u'accountId']
+            break
         else:
             print('Account not found: {0}'.format(config.acc_number))
             accountId = None
