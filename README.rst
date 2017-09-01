@@ -114,17 +114,18 @@ see :
 
 Thanks to
 ---------
--  `Lewis Barber <https://github.com/lewisbarber>`__
+-  `Lewis Barber <https://github.com/lewisbarber>`_
 -  ixta
 -  Chris
 -  colombao
--  `gianluca.finocchiaro <https://github.com/gfinocchiaro>`__
+-  `gianluca.finocchiaro <https://github.com/gfinocchiaro>`_
 -  Weswit
-- `Dimitri John Ledkov <https://github.com/xnox>`__
-- `RRMXkun <https://github.com/RRMXkun>`__
-- `redbullpeter <https://github.com/redbullpeter>`__
-- `David Sabater Dinter <https://github.com/dsdinter>`__
-- `Oneirag <https://github.com/Oneirag>`__
+- `Dimitri John Ledkov <https://github.com/xnox>`_
+- `RRMXkun <https://github.com/RRMXkun>`_
+- `redbullpeter <https://github.com/redbullpeter>`_
+- `David Sabater Dinter <https://github.com/dsdinter>`_
+- `Oneirag <https://github.com/Oneirag>`_
+- `Wez Pyke <https://github.com/wezpyke>`_
 - `and all other contributors... <https://github.com/ig-python/ig-markets-api-python-library/graphs/contributors>`__
 
 Other related projects
