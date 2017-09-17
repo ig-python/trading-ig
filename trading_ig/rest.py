@@ -76,6 +76,11 @@ class IGSessionCRUD(object):
         response = session.post(url,
                                 data=json.dumps(params),
                                 headers=self.HEADERS['BASIC'])
+        if response.ok:
+            pass
+        else:
+            raise(Exception("HTTP status code %s %s " %
+                            (response.status_code, response.text)))
         self._set_headers(response.headers, True)
         self.create = self._create_logged_in
         return response
