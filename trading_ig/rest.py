@@ -13,11 +13,13 @@ import json
 from requests import Session
 
 import logging
-logger = logging.getLogger(__name__)
 import time
 
 from .utils import (_HAS_PANDAS, _HAS_MUNCH)
 from .utils import (conv_resol, conv_datetime, conv_to_ms)
+
+
+logger = logging.getLogger(__name__)
 
 
 class IGException(Exception):
@@ -405,7 +407,9 @@ class IGService:
         for i in range(5):
             response = self._req(action, endpoint, params, session)
             if response.status_code == 404:
-                logger.info("Deal reference %s not found, retrying." % deal_reference)
+                logger.info(
+                    "Deal reference %s not found, retrying." % deal_reference
+                )
                 time.sleep(1)
             else:
                 break
