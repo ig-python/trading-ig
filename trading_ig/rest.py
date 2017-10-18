@@ -206,6 +206,9 @@ class IGService:
         if session is None:
             session = self.session  # requests Session
         else:
+            assert(isinstance(session, Session)), \
+                "session must be <requests.session.Session object> not %s" \
+                % type(session)
             session = session
         return session
 
