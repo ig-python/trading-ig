@@ -814,6 +814,9 @@ class IGService:
     def format_prices(self, prices, flag_calc_spread=False):
         """Format prices data as a DataFrame with hierarchical columns"""
 
+        if len(prices) == 0:
+            raise(Exception("Historical price data not found"))
+
         import pandas as pd
         from pandas.io.json import json_normalize
 
@@ -950,7 +953,7 @@ class IGService:
         action = 'read'
         response = self._req(action, endpoint, params, session)
         data = self.parse_response(response.text)
-        if self.return_dataframe:
+        if _HAS_PANDAS and self.return_dataframe:
             data['prices'] = self.format_prices(data['prices'])
         return data
 
