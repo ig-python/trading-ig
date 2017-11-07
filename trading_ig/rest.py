@@ -615,7 +615,7 @@ class IGService:
         action = 'create'
 
         self.crud_session.HEADERS['LOGGED_IN']['Version'] = str(VERSION)
-        print(params)
+        #print(params)
         response = self._req(action, endpoint, params, session)
         del(self.crud_session.HEADERS['LOGGED_IN']['Version'])
 
