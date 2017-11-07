@@ -181,7 +181,7 @@ class IGService:
 
         try:
             self.BASE_URL = self.D_BASE_URL[acc_type.lower()]
-        except:
+        except Exception:
             raise(Exception("Invalid account type specified, please provide"
                             "LIVE or DEMO."))
 
@@ -615,7 +615,7 @@ class IGService:
         action = 'create'
 
         self.crud_session.HEADERS['LOGGED_IN']['Version'] = str(VERSION)
-        print(params)
+        # print(params)
         response = self._req(action, endpoint, params, session)
         del(self.crud_session.HEADERS['LOGGED_IN']['Version'])
 
