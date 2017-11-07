@@ -98,5 +98,5 @@ def remove(cache):
         filename = "%s.sqlite" % cache
         print("remove %s" % filename)
         os.remove(filename)
-    except:
+    except Exception:
         pass

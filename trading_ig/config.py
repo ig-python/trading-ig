@@ -33,13 +33,13 @@ class ConfigEnvVar(object):
 try:
     from trading_ig_config import config
     logger.info("import config from %s" % CONFIG_FILE_NAME)
-except:
+except Exception:
     logger.warning("can't import config from config file")
     try:
         config = ConfigEnvVar(ENV_VAR_ROOT)
         logger.info("import config from environment variables '%s_...'"
                     % ENV_VAR_ROOT)
-    except:
+    except Exception:
         logger.warning("can't import config from environment variables")
         raise("""Can't import config - you might create a '%s' filename or use
 environment variables such as '%s_...'""" % (CONFIG_FILE_NAME, ENV_VAR_ROOT))
