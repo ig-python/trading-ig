@@ -672,7 +672,7 @@ class IGService:
         else:
             raise IGException(response.text)
 
-     def delete_dma_equity_working_order(self, deal_id, session=None):
+    def delete_dma_equity_working_order(self, deal_id, session=None):
         """Deletes a DMA Equity working order"""
         params = {}
         url_params = {
@@ -726,7 +726,7 @@ class IGService:
             'timeInForce': time_in_force,
             'type': order_type
         }
-         if limit_distance:
+        if limit_distance:
             params['limitLevel'] = limit_distance
         if stop_distance:
             params['stopDistance'] = stop_distance
