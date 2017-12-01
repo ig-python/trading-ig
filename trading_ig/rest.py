@@ -625,6 +625,37 @@ class IGService:
         else:
             raise IGException(response.text)
 
+    def create_dma_equity_working_order(self, direction, epic, level, size, time_in_force,  order_type, limit_distance=None, stop_distance=None, session=None):
+        """Creates an DMA Equity working order"""
+        VERSION = 1
+
+        params = {
+            'direction': direction,
+            'epic': epic,
+            'level': level,
+            'size': size,
+            'timeInForce': time_in_force,
+            'type': order_type
+        }
+        if limit_distance:
+            params['limitLevel'] = limit_distance
+        if stop_distance:
+            params['stopDistance'] = stop_distance
+
+        endpoint = '/workingorders/dma/equity'
+        action = 'create'
+
+        self.crud_session.HEADERS['LOGGED_IN']['Version'] = str(VERSION)
+        # print(params)
+        response = self._req(action, endpoint, params, session)
+        del(self.crud_session.HEADERS['LOGGED_IN']['Version'])
+
+        if response.status_code == 200:
+            deal_reference = json.loads(response.text)['dealReference']
+            return deal_reference
+        else:
+            raise IGException(response.text)
+
     def delete_working_order(self, deal_id, session=None):
         """Deletes an OTC working order"""
         params = {}
@@ -632,6 +663,22 @@ class IGService:
             'deal_id': deal_id
         }
         endpoint = '/workingorders/otc/{deal_id}'.format(**url_params)
+        action = 'delete'
+        response = self._req(action, endpoint, params, session)
+
+        if response.status_code == 200:
+            deal_reference = json.loads(response.text)['dealReference']
+            return self.fetch_deal_by_deal_reference(deal_reference)
+        else:
+            raise IGException(response.text)
+
+    def delete_dma_equity_working_order(self, deal_id, session=None):
+        """Deletes a DMA Equity working order"""
+        params = {}
+        url_params = {
+            'deal_id': deal_id
+        }
+        endpoint = '/workingorders/dma/equity/{deal_id}'.format(**url_params)
         action = 'delete'
         response = self._req(action, endpoint, params, session)
 
@@ -659,6 +706,34 @@ class IGService:
             'deal_id': deal_id
         }
         endpoint = '/workingorders/otc/{deal_id}'.format(**url_params)
+        action = 'update'
+        response = self._req(action, endpoint, params, session)
+
+        if response.status_code == 200:
+            deal_reference = json.loads(response.text)['dealReference']
+            return self.fetch_deal_by_deal_reference(deal_reference)
+        else:
+            raise IGException(response.text)
+
+    def update_dma_equity_working_order(self, epic, level, size, time_in_force, order_type, deal_id,
+                             limit_distance=None, stop_distance=None, 
+                             session=None):
+        """Updates a DMA Equity working order"""
+        params = {
+            'epic': epic,
+            'level': level,
+            'size': size,
+            'timeInForce': time_in_force,
+            'type': order_type
+        }
+        if limit_distance:
+            params['limitLevel'] = limit_distance
+        if stop_distance:
+            params['stopDistance'] = stop_distance
+        url_params = {
+            'deal_id': deal_id
+        }
+        endpoint = '/workingorders/dma/equity/{deal_id}'.format(**url_params)
         action = 'update'
         response = self._req(action, endpoint, params, session)
 
