@@ -63,7 +63,7 @@ def main():
     # Making an other Subscription in MERGE mode
     subscription_account = Subscription(
         mode="MERGE",
-        items='ACCOUNT:'+accountId,
+        items=['ACCOUNT:'+accountId],
         fields=["AVAILABLE_CASH"],
         )
     #    #adapter="QUOTE_ADAPTER")

@@ -878,7 +878,7 @@ class IGService:
         """Returns a list of historical prices for the given epic, resolution,
         number of points"""
         params = {}
-        if resolution:
+        if resolution and _HAS_PANDAS and self.return_dataframe:
             params['resolution'] = conv_resol(resolution)
         if start_date:
             params['from'] = start_date
@@ -905,7 +905,8 @@ class IGService:
                                                        session=None):
         """Returns a list of historical prices for the given epic, resolution,
         number of points"""
-        resolution = conv_resol(resolution)
+        if _HAS_PANDAS and self.return_dataframe:
+            resolution = conv_resol(resolution)
         params = {}
         url_params = {
             'epic': epic,
@@ -926,7 +927,8 @@ class IGService:
                                                        session=None):
         """Returns a list of historical prices for the given epic, resolution,
         multiplier and date range"""
-        resolution = conv_resol(resolution)
+        if _HAS_PANDAS and self.return_dataframe:
+            resolution = conv_resol(resolution)
 
         # v2
         # start_date = conv_datetime(start_date, 2)
