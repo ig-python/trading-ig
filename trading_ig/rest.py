@@ -410,8 +410,10 @@ class IGService:
         }
         endpoint = '/confirms/{deal_reference}'.format(**url_params)
         action = 'read'
+        self.crud_session.HEADERS['LOGGED_IN']['Version'] = "1"
         for i in range(5):
             response = self._req(action, endpoint, params, session)
+            del (self.crud_session.HEADERS['LOGGED_IN']['Version'])
             if response.status_code == 404:
                 logger.info(
                     "Deal reference %s not found, retrying." % deal_reference
@@ -522,7 +524,9 @@ class IGService:
         }
         endpoint = '/positions/otc/{deal_id}'.format(**url_params)
         action = 'update'
+        self.crud_session.HEADERS['LOGGED_IN']['Version'] = "2"
         response = self._req(action, endpoint, params, session)
+        del (self.crud_session.HEADERS['LOGGED_IN']['Version'])
 
         if response.status_code == 200:
             deal_reference = json.loads(response.text)['dealReference']
