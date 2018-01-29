@@ -513,7 +513,7 @@ class IGService:
             raise IGException(response.text)
 
     def update_open_position(self, limit_level, stop_level, trailing_stop,
-                             trailing_stop_distance,trailing_stop_increment,
+                             trailing_stop_distance, trailing_stop_increment,
                              deal_id, session=None):
         """Updates an OTC position"""
         params = {
@@ -528,7 +528,6 @@ class IGService:
         self.crud_session.HEADERS['LOGGED_IN']['Version'] = "2"
         response = self._req(action, endpoint, params, session)
         del (self.crud_session.HEADERS['LOGGED_IN']['Version'])
-
         if response.status_code == 200:
             deal_reference = json.loads(response.text)['dealReference']
             return self.fetch_deal_by_deal_reference(deal_reference)
