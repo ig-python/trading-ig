@@ -513,8 +513,8 @@ class IGService:
             raise IGException(response.text)
 
     def update_open_position(self, limit_level, stop_level,
-                             deal_id, trailing_stop, trailing_stop_distance,
-                             trailing_stop_increment, session=None):
+                             deal_id, trailing_stop=None, trailing_stop_distance=None,
+                             trailing_stop_increment=None, session=None):
         """Updates an OTC position"""
         params = {
             'limitLevel': limit_level,
