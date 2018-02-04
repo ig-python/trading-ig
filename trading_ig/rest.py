@@ -523,11 +523,11 @@ class IGService:
             'trailingStop': False,
         }
         if trailing_stop:
-            params = {
+            params.update({
                 'trailingStop': trailing_stop,
                 'trailingStopDistance': trailing_stop_distance,
                 'trailingStopIncrement': trailing_stop_increment,
-            }
+            })
         url_params = {
             'deal_id': deal_id
         }
