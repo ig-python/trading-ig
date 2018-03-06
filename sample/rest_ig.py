@@ -6,8 +6,8 @@ IG Markets REST API sample with Python
 2015 FemtoTrader
 """
 
-from trading_ig import IGService
-from trading_ig.config import config
+from pyIG.rest import IGService
+from pyIG.config import config
 import logging
 
 logger = logging.getLogger(__name__)
@@ -15,14 +15,14 @@ logger.setLevel(logging.DEBUG)
 
 # if you need to cache to DB your requests
 from datetime import timedelta
-import requests_cache
+# import requests_cache
 
 
 def main():
     logging.basicConfig(level=logging.DEBUG)
 
     expire_after = timedelta(hours=1)
-    session = requests_cache.CachedSession(cache_name='cache', backend='sqlite', expire_after=expire_after)
+    # session = requests_cache.CachedSession(cache_name='cache', backend='sqlite', expire_after=expire_after)
     # set expire_after=None if you don't want cache expiration
     # set expire_after=0 if you don't want to cache queries
 
@@ -61,7 +61,8 @@ def main():
     #resolution = '1Min'
 
     num_points = 10
-    response = ig_service.fetch_historical_prices_by_epic_and_num_points(epic, resolution, num_points)
+    response = ig_service.fetch_account_activity_by_period(1000*60*60*24*30) # 30 days
+    print("activity:\n%s" % response)
     #Exception: error.public-api.exceeded-account-historical-data-allowance
 
     # if you want to cache this query

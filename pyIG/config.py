@@ -5,7 +5,7 @@ import os
 import logging
 
 ENV_VAR_ROOT = "IG_SERVICE"
-CONFIG_FILE_NAME = "trading_ig_config.py"
+CONFIG_FILE_NAME = "pyIG_config.py"
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ class ConfigEnvVar(object):
 
 
 try:
-    from trading_ig_config import config
+    from pyIG_config import config
     logger.info("import config from %s" % CONFIG_FILE_NAME)
 except Exception:
     logger.warning("can't import config from config file")

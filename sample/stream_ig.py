@@ -11,9 +11,10 @@ import sys
 import traceback
 import logging
 
-from trading_ig import (IGService, IGStreamService)
-from trading_ig.config import config
-from trading_ig.lightstreamer import Subscription
+from pyIG.stream import (IGStreamService)
+from pyIG.rest import (IGService)
+from pyIG.config import config
+from pyIG.lightstreamer import Subscription
 
 
 # A simple function acting as a Subscription listener

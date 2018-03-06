@@ -17,7 +17,7 @@
 import sys
 import traceback
 import logging
-from trading_ig.lightstreamer import LSClient, Subscription
+from pyIG.lightstreamer import LSClient, Subscription
 
 
 # A simple function acting as a Subscription listener

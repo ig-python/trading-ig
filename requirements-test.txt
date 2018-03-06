@@ -2,6 +2,5 @@ pytest
 nose
 pandas
 requests
-requests-cache
 munch
 six

@@ -10,16 +10,15 @@ import os
 
 import pandas as pd
 import requests
-import requests_cache
 from datetime import datetime, timedelta
 import six
 import time
 # import pprint
 
-import trading_ig
-from trading_ig import IGService
-from trading_ig.utils import remove
-from trading_ig.config import config
+import pyIG
+from pyIG.rest import IGService
+from pyIG.utils import remove
+from pyIG.config import config
 
 """
 Environment variables must be set using
@@ -38,24 +37,19 @@ remove(CACHE_NAME)
 
 def test_ig_service():
 
-    delay_for_ig = 30
+    delay_for_ig = 5
 
     def wait(delay):
         print("Wait %s s to avoid 'error.public-api.exceeded-account-allowance'"
               % delay)
         time.sleep(delay)
-
-    session_cached = requests_cache.CachedSession(cache_name=CACHE_NAME,
-                                                  backend='sqlite',
-                                                  expire_after=timedelta(
-                                                      hours=1))
     session_not_cached = requests.Session()
 
-    for i, session in enumerate([session_cached, session_cached, session_not_cached]):
+    for i, session in enumerate([session_not_cached, session_not_cached]):
 
         # pp = pprint.PrettyPrinter(indent=4)
 
-        assert(isinstance(trading_ig.__version__, six.string_types))
+
 
         # ig_service = IGService(config.username, config.password,
         #                        config.api_key, config.acc_type)
