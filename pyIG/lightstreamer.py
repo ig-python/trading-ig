@@ -17,6 +17,7 @@
 import logging
 import threading
 import traceback
+import ssl
 
 from six.moves.urllib.request import urlopen as _urlopen
 from six.moves.urllib.parse import (urlparse as parse_url, urljoin, urlencode)
@@ -144,7 +145,8 @@ class LSClient(object):
         # Combines the "base_url" with the
         # required "url" to be used for the specific request.
         url = urljoin(base_url.geturl(), url)
-        return _urlopen(url, data=self._encode_params(body))
+        context = ssl._create_unverified_context()
+        return _urlopen(url, data=self._encode_params(body), context=context)
 
     def _set_control_link_url(self, custom_address=None):
         """Set the address to use for the Control Connection
