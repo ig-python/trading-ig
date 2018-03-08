@@ -25,7 +25,7 @@ setup(
 
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
 
-    install_requires=['pandas', 'requests', 'six', 'munch', 'nose'],
+    install_requires=['pandas', 'requests', 'six', 'munch', 'nose', 'aiohttp', 'async_timeout'],
 
     extras_require={
         'dev': ['check-manifest', 'nose'],
