@@ -45,13 +45,14 @@ class IGParams(object):
 
 
 class Order(object):
-    def __init__(self, epic, side, size, ordType, maturity, stop):
+    def __init__(self, epic, side, money, ordType, maturity, stop=None):
         self.Side = side
-        self.Size = float(size)
+        self.Size = float(money.Amount)
         self.OrdType = ordType
-        self.Maturity = datetime.strptime(maturity, '%Y%m').strftime('%b-%y').upper()
+        # self.Maturity = datetime.strptime(maturity, '%Y%m').strftime('%b-%y').upper()
+        self.Maturity = maturity
         self.Epic = epic
-        self.Ccy = ''
+        self.Ccy = money.Ccy
         self.StopDistance = stop
 
 

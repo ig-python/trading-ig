@@ -11,6 +11,11 @@ Usage
 
 .. code:: python
 
+    import logging
+    from pyIG.rest import IGParams, IGClient, Order, OrderType, Side, Money
+    import os
+    import asyncio
+
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
@@ -21,15 +26,21 @@ Usage
     params.Password = os.environ['PASSWORD']
 
 
-    async with IGClient(params, logger) as client:
-        auth = await client.Login()
-        print(auth)
+    async def main():
+        async with IGClient(params, logger) as client:
+            auth = await client.Login()
+            print(auth)
 
-        order = Order() # populate epic etc.
-        deal = await client.CreatePosition(order)
-        print(deal)
+            order = Order('IX.D.SPTRD.DAILY.IP', Side.Buy, Money(100, 'GBP'), OrderType.Market, 'DFB')
 
-        await client.Logout()
+            deal = await client.CreatePosition(order)
+            print(deal)
+
+            await client.Logout()
+
+    if __name__ == '__main__':
+        app_loop = asyncio.get_event_loop()
+        app_loop.run_until_complete(main())
 
 More
 ----
