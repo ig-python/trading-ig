@@ -22,6 +22,16 @@ async def main():
 
         deal = await client.CreatePosition(order)
         print(deal)
+        
+        activities = await client.GetActivities('2018-02-05', True)
+        print(activities)
+        if 'activities' in activities:
+            stopTriggered = [tran for tran in activities['activities']
+                             if tran['channel'] == 'SYSTEM' and 'details' in tran
+                             for action in tran['details']['actions'] if action['actionType'] == 'POSITION_CLOSED']
+
+            for stop in stopTriggered:
+                print(stop)
 
         await client.Logout()
 

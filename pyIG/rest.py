@@ -161,6 +161,22 @@ class IGClient:
             return None
 
     @Connection.ioreliable
+    async def GetActivities(self, fromDate, details=False):
+        try:
+            url = '%s/history/activity?from=%s&detailed=%s' % (self.__url, fromDate, details)
+            with async_timeout.timeout(self.__timeout):
+                self.__logger.info('Calling GetActivities ...')
+                tokens = copy.deepcopy(self.__tokens)
+                tokens['Version'] = "3"
+                response = await self.__connection.get(url=url, headers=tokens)
+                self.__logger.info('GetActivities Response Code: {}'.format(response.status))
+                payload = await response.json()
+                return payload
+        except Exception as e:
+            self.__logger.error('GetActivities: %s, %s' % (self.__url, e))
+            return None
+
+    @Connection.ioreliable
     async def GetPosition(self, dealId):
         try:
             url = '%s/positions/%s' % (self.__url, dealId)
