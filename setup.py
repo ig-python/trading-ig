@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from setuptools import setup, find_packages  # Always prefer setuptools over distutils
+# Always prefer setuptools over distutils
+from setuptools import setup, find_packages
 from codecs import open  # To use a consistent encoding
 from os import path
 import io
@@ -13,10 +14,12 @@ with open(filename) as f:
 
 here = path.abspath(path.dirname(__file__))
 
+
 def readme():
     filename = path.join(here, 'README.rst')
     with io.open(filename, 'rt', encoding='UTF-8') as f:
         return f.read()
+
 
 setup(
     name=NAME,
@@ -24,7 +27,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/development.html#single-sourcing-the-version
-    #version='0.0.1',
+    # version='0.0.1',
     version=__version__,
 
     description='trading with Python and IG markets API',
@@ -50,7 +53,7 @@ setup(
 
         # Indicate who your project is intended for
         'Environment :: Console',
-        #'Topic :: Software Development :: Build Tools',
+        # 'Topic :: Software Development :: Build Tools',
         'Intended Audience :: Science/Research',
         'Operating System :: OS Independent',
 
@@ -59,11 +62,11 @@ setup(
         'Programming Language :: Cython',
 
         'Programming Language :: Python',
-        #'Programming Language :: Python :: 2',
-        #'Programming Language :: Python :: 2.6',
+        # 'Programming Language :: Python :: 2',
+        # 'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
-        #'Programming Language :: Python :: 3',
-        #'Programming Language :: Python :: 3.2',
+        # 'Programming Language :: Python :: 3',
+        # 'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
 
@@ -85,12 +88,13 @@ setup(
     # project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/technical.html#install-requires-vs-requirements-files
-    install_requires=['pandas', 'requests', 'requests-cache', 'six', 'munch'], # bunch->lunch->infi.bunch->munch
+    install_requires=['pandas', 'requests', 'requests-cache',
+                      'six', 'munch'],  # bunch->lunch->infi.bunch->munch
 
     # List additional groups of dependencies here (e.g. development dependencies).
     # You can install these using the following syntax, for example:
     # $ pip install -e .[dev,test]
-    extras_require = {
+    extras_require={
         'dev': ['check-manifest', 'nose'],
         'test': ['coverage', 'nose'],
     },
@@ -98,7 +102,7 @@ setup(
     # If there are data files included in your packages that need to be
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
-    #package_data={
+    # package_data={
     #    'sample': ['logging.conf'],
     #},
 

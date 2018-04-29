@@ -36,13 +36,16 @@ CACHE_NAME = 'cache'
 
 remove(CACHE_NAME)
 
+
 def test_ig_service():
 
     delay_for_ig = 30
 
     def wait(delay):
-        print("Wait %s s to avoid 'error.public-api.exceeded-account-allowance'"
-              % delay)
+        print(
+            "Wait %s s to avoid 'error.public-api.exceeded-account-allowance'"
+            % delay
+        )
         time.sleep(delay)
 
     session_cached = requests_cache.CachedSession(cache_name=CACHE_NAME,
@@ -51,7 +54,8 @@ def test_ig_service():
                                                       hours=1))
     session_not_cached = requests.Session()
 
-    for i, session in enumerate([session_cached, session_cached, session_not_cached]):
+    for i, session in enumerate(
+            [session_cached, session_cached, session_not_cached]):
 
         # pp = pprint.PrettyPrinter(indent=4)
 
@@ -59,8 +63,14 @@ def test_ig_service():
 
         # ig_service = IGService(config.username, config.password,
         #                        config.api_key, config.acc_type)
-        ig_service = IGService(config.username, config.password, config.api_key,
-                               config.acc_type, session)
+        ig_service = IGService(
+            config.username,
+            config.password,
+            config.api_key,
+            config.acc_type,
+            session
+        )
+
         ig_service.create_session()
 
         print("%d - fetch_accounts" % i)
@@ -206,11 +216,13 @@ def test_ig_service():
         wait(delay_for_ig)
 
         print("fetch_historical_prices_by_epic_and_date_range")
-        end_date = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        end_date = datetime.utcnow().replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
         start_date = end_date - timedelta(days=3)
-        response = ig_service.\
-            fetch_historical_prices_by_epic_and_date_range(epic, resolution,
-                                                           start_date, end_date)
+        response = ig_service.fetch_historical_prices_by_epic_and_date_range(
+            epic, resolution, start_date, end_date
+        )
         print(response)
         assert(isinstance(response['allowance'], dict))
         # assert(isinstance(response['prices']['volume'], pd.Series))
@@ -219,5 +231,6 @@ def test_ig_service():
 
         print("")
         wait(delay_for_ig)
+
 
 remove(CACHE_NAME)

@@ -177,18 +177,18 @@ class LSClient(object):
         """
 
         if not notify:
-            log.warning("systemd.daemon not available, " +
-                        "no watchdog notifications will be sent.")
+            log.warning("systemd.daemon not available, "
+                        + "no watchdog notifications will be sent.")
 
         self._stream_connection = self._call(
             self._base_url,
             CONNECTION_URL_PATH,
             {
-             "LS_op2": 'create',
-             "LS_cid": 'mgQkwtwdysogQz2BJ4Ji kOj2Bg',
-             "LS_adapter_set": self._adapter_set,
-             "LS_user": self._user,
-             "LS_password": self._password}
+                "LS_op2": 'create',
+                "LS_cid": 'mgQkwtwdysogQz2BJ4Ji kOj2Bg',
+                "LS_adapter_set": self._adapter_set,
+                "LS_user": self._user,
+                "LS_password": self._password}
         )
         stream_line = self._read_from_stream()
         self._handle_stream(stream_line)
@@ -201,8 +201,8 @@ class LSClient(object):
             self._control_url,
             BIND_URL_PATH,
             {
-             "LS_session": self._session["SessionId"]
-             }
+                "LS_session": self._session["SessionId"]
+            }
         )
 
         self._bind_counter += 1

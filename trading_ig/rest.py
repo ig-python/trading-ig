@@ -6,7 +6,7 @@ IG Markets REST API Library for Python
 http://labs.ig.com/rest-trading-api-reference
 Original version by Lewis Barber - 2014 - http://uk.linkedin.com/in/lewisbarber/
 Modified by Femto Trader - 2014-2015 - https://github.com/femtotrader/
-""" # noqa
+"""  # noqa
 
 import json
 
@@ -1119,9 +1119,11 @@ class IGService:
         return data
 
     def disable_client_app_key(self, session=None):
-        """Disables the current application key from processing further requests.
+        """
+        Disables the current application key from processing further requests.
         Disabled keys may be reenabled via the My Account section on
-        the IG Web Dealing Platform."""
+        the IG Web Dealing Platform.
+        """
         params = {}
         endpoint = '/operations/application/disable'
         action = 'update'

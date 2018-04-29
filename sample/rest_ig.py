@@ -22,14 +22,18 @@ def main():
     logging.basicConfig(level=logging.DEBUG)
 
     expire_after = timedelta(hours=1)
-    session = requests_cache.CachedSession(cache_name='cache', backend='sqlite', expire_after=expire_after)
+    session = requests_cache.CachedSession(
+        cache_name='cache', backend='sqlite', expire_after=expire_after
+    )
     # set expire_after=None if you don't want cache expiration
     # set expire_after=0 if you don't want to cache queries
 
     #config = IGServiceConfig()
 
     # no cache
-    ig_service = IGService(config.username, config.password, config.api_key, config.acc_type)
+    ig_service = IGService(
+        config.username, config.password, config.api_key, config.acc_type
+    )
 
     # if you want to globally cache queries
     #ig_service = IGService(config.username, config.password, config.api_key, config.acc_type, session)
@@ -40,7 +44,7 @@ def main():
     print("accounts:\n%s" % accounts)
 
     #account_info = ig_service.switch_account(config.acc_number, False)
-    #print(account_info)
+    # print(account_info)
 
     #open_positions = ig_service.fetch_open_positions()
     #print("open_positions:\n%s" % open_positions)
@@ -53,7 +57,7 @@ def main():
     print("")
 
     #epic = 'CS.D.EURUSD.MINI.IP'
-    epic = 'IX.D.ASX.IFM.IP' # US (SPY) - mini
+    epic = 'IX.D.ASX.IFM.IP'  # US (SPY) - mini
 
     resolution = 'D'
     # see from pandas.tseries.frequencies import to_offset
@@ -61,8 +65,10 @@ def main():
     #resolution = '1Min'
 
     num_points = 10
-    response = ig_service.fetch_historical_prices_by_epic_and_num_points(epic, resolution, num_points)
-    #Exception: error.public-api.exceeded-account-historical-data-allowance
+    response = ig_service.fetch_historical_prices_by_epic_and_num_points(
+        epic, resolution, num_points
+    )
+    # Exception: error.public-api.exceeded-account-historical-data-allowance
 
     # if you want to cache this query
     #response = ig_service.fetch_historical_prices_by_epic_and_num_points(epic, resolution, num_points, session)
