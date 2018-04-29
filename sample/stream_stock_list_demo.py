@@ -25,13 +25,14 @@ def on_item_update(item_update):
     print("{stock_name:<19}: Last{last_price:>6} - Time {time:<8} - "
           "Bid {bid:>5} - Ask {ask:>5}".format(**item_update["values"]))
 
+
 def main():
-    #logging.basicConfig(level=logging.DEBUG)
+    # logging.basicConfig(level=logging.DEBUG)
     logging.basicConfig(level=logging.INFO)
 
     # Establishing a new connection to Lightstreamer Server
     print("Starting connection")
-    #lightstreamer_client = LSClient("http://localhost:8080", "DEMO")
+    # lightstreamer_client = LSClient("http://localhost:8080", "DEMO")
     lightstreamer_client = LSClient("http://push.lightstreamer.com", "DEMO")
     try:
         lightstreamer_client.connect()
@@ -39,7 +40,6 @@ def main():
         print("Unable to connect to Lightstreamer Server")
         print(traceback.format_exc())
         sys.exit(1)
-
 
     # Making a new Subscription in MERGE mode
     subscription = Subscription(
@@ -49,7 +49,6 @@ def main():
                "item9", "item10", "item11", "item12"],
         fields=["stock_name", "last_price", "time", "bid", "ask"],
         adapter="QUOTE_ADAPTER")
-
 
     # Adding the "on_item_update" function to Subscription
     subscription.addlistener(on_item_update)
@@ -61,12 +60,13 @@ def main():
     LIGHTSTREAMER"))
 
     # Unsubscribing from Lightstreamer by using the subscription key
-    #lightstreamer_client.unsubscribe(sub_key)
+    # lightstreamer_client.unsubscribe(sub_key)
 
     lightstreamer_client.unsubscribe()
 
     # Disconnecting
     lightstreamer_client.disconnect()
+
 
 if __name__ == '__main__':
     main()
