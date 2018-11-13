@@ -17,6 +17,7 @@
 import logging
 import threading
 import traceback
+import sys
 
 from six.moves.urllib.request import urlopen as _urlopen
 from six.moves.urllib.parse import (urlparse as parse_url, urljoin, urlencode)
@@ -176,7 +177,7 @@ class LSClient(object):
         a new session.
         """
 
-        if not notify:
+        if not notify and sys.platform.startswith('linux'):
             log.warning("systemd.daemon not available, "
                         + "no watchdog notifications will be sent.")
 
