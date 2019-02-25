@@ -680,7 +680,8 @@ class IGService:
             url_params = {
                 'market_ids': market_ids
             }
-            endpoint = '/clientsentiment/?marketIds={market_ids}'.format(**url_params)
+            endpoint = '/clientsentiment/?marketIds={market_ids}'.\
+                format(**url_params)
         else:
             url_params = {
                 'market_id': market_id
