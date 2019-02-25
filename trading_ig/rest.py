@@ -682,10 +682,10 @@ class IGService:
             }
             endpoint = '/clientsentiment/?marketIds={market_ids}'.format(**url_params)
         else:
-	    url_params = {
-	        'market_id': market_id
-	    }
-	    endpoint = '/clientsentiment/{market_id}'.format(**url_params)
+            url_params = {
+                'market_id': market_id
+            }
+            endpoint = '/clientsentiment/{market_id}'.format(**url_params)
         action = 'read'
         response = self._req(action, endpoint, params, session)
         data = self.parse_response(response.text)
