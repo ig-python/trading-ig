@@ -395,7 +395,7 @@ if __name__ == "__main__":
     lightstreamer_client = LSClient("http://push.lightstreamer.com", "DEMO")
     try:
         lightstreamer_client.connect()
-    except Exception as e:
+    except Exception:
         print("Unable to connect to Lightstreamer Server")
         print(traceback.format_exc())
         import sys

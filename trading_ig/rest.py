@@ -675,10 +675,18 @@ class IGService:
     def fetch_client_sentiment_by_instrument(self, market_id, session=None):
         """Returns the client sentiment for the given instrument's market"""
         params = {}
-        url_params = {
-            'market_id': market_id
-        }
-        endpoint = '/clientsentiment/{market_id}'.format(**url_params)
+        if isinstance(market_id, (list,)):
+            market_ids = ','.join(market_id)
+            url_params = {
+                'market_ids': market_ids
+            }
+            endpoint = '/clientsentiment/?marketIds={market_ids}'.\
+                format(**url_params)
+        else:
+            url_params = {
+                'market_id': market_id
+            }
+            endpoint = '/clientsentiment/{market_id}'.format(**url_params)
         action = 'read'
         response = self._req(action, endpoint, params, session)
         data = self.parse_response(response.text)
