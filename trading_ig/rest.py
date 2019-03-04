@@ -151,7 +151,6 @@ class IGSessionCRUD(object):
             'X-SECURITY-TOKEN': self.SECURITY_TOKEN,
             'CST': self.CLIENT_TOKEN,
             'Content-Type': 'application/json',
-            'Version': '2',
             'Accept': 'application/json; charset=UTF-8'
         }
 
@@ -510,8 +509,9 @@ class IGService:
 
         endpoint = '/positions/otc'
         action = 'create'
+        #'Version': '2',
         response = self._req(action, endpoint, params, session)
-
+        #self.crud_session.HEADERS
         print(response.text)
 
         if response.status_code == 200:
