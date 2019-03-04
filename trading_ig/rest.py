@@ -216,8 +216,11 @@ class IGService:
 
     def _req(self, action, endpoint, params, session):
         """Creates a CRUD request and returns response"""
+        print('session')
         session = self._get_session(session)
+        print('crud')
         response = self.crud_session.req(action, endpoint, params, session)
+        print('response')
         return response
 
     # ---------- PARSE_RESPONSE ----------- #
@@ -501,15 +504,13 @@ class IGService:
             'size': size,
             'stopDistance': stop_distance,
             'stopLevel': stop_level,
-            'trailingStep': trailing_stop,
+            'trailingStop': trailing_stop,
             'trailingStopIncrement': trailing_stop_increment
         }
 
         endpoint = '/positions/otc'
         action = 'create'
-        print(params)
         response = self._req(action, endpoint, params, session)
-        print(response)
         if response.status_code == 200:
             deal_reference = json.loads(response.text)['dealReference']
             return self.fetch_deal_by_deal_reference(deal_reference)
