@@ -481,6 +481,7 @@ class IGService:
                              force_open, guaranteed_stop, level,
                              limit_distance, limit_level, order_type,
                              quote_id, size, stop_distance, stop_level,
+                             trailingStop, trailingStopIncrement,
                              session=None):
         """Creates an OTC position"""
         params = {
@@ -497,7 +498,9 @@ class IGService:
             'quoteId': quote_id,
             'size': size,
             'stopDistance': stop_distance,
-            'stopLevel': stop_level
+            'stopLevel': stop_level,
+            'trailingStop': trailingStop,
+            'trailingStopIncrement': trailingStopIncrement
         }
 
         endpoint = '/positions/otc'
