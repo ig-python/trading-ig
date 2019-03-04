@@ -75,10 +75,10 @@ class IGSessionCRUD(object):
         """Create first = POST with headers=BASIC_HEADERS"""
         url = self._url(endpoint)
         session = self._get_session(session)
+        print(params)
         response = session.post(url,
                                 data=json.dumps(params),
                                 headers=self.HEADERS['BASIC'])
-
         print(params)
         if not response.ok:
             raise(Exception("HTTP status code %s %s " %
