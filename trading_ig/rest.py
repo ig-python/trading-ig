@@ -516,6 +516,7 @@ class IGService:
 
         if response.status_code == 200:
             deal_reference = json.loads(response.text)['dealReference']
+            print(deal_reference)
             return self.fetch_deal_by_deal_reference(deal_reference)
         else:
             raise IGException(response.text)
