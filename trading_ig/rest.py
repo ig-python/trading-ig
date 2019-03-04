@@ -151,6 +151,7 @@ class IGSessionCRUD(object):
             'X-SECURITY-TOKEN': self.SECURITY_TOKEN,
             'CST': self.CLIENT_TOKEN,
             'Content-Type': 'application/json',
+            'Version': '2',
             'Accept': 'application/json; charset=UTF-8'
         }
 
@@ -159,6 +160,7 @@ class IGSessionCRUD(object):
             'X-SECURITY-TOKEN': self.SECURITY_TOKEN,
             'CST': self.CLIENT_TOKEN,
             'Content-Type': 'application/json',
+            'Version': '2',
             'Accept': 'application/json; charset=UTF-8',
             '_method': 'DELETE'
         }
