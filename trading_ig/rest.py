@@ -75,11 +75,9 @@ class IGSessionCRUD(object):
         """Create first = POST with headers=BASIC_HEADERS"""
         url = self._url(endpoint)
         session = self._get_session(session)
-        print(params)
         response = session.post(url,
                                 data=json.dumps(params),
                                 headers=self.HEADERS['BASIC'])
-        print(params)
         if not response.ok:
             raise(Exception("HTTP status code %s %s " %
                             (response.status_code, response.text)))
@@ -132,6 +130,8 @@ class IGSessionCRUD(object):
             'update': self.update,
             'delete': self.delete
         }
+        print(endpoint)
+        print(params)
         return d_actions[action](endpoint, params, session)
 
     def _set_headers(self, response_headers, update_cst):
