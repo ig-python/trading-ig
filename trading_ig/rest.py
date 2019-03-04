@@ -483,7 +483,7 @@ class IGService:
                              force_open, guaranteed_stop, level,
                              limit_distance, limit_level, order_type,
                              quote_id, size, stop_distance, stop_level,
-                              trailing_stop_increment,
+                             trailing_stop, trailing_stop_increment,
                              session=None):
         """Creates an OTC position"""
         params = {
@@ -501,7 +501,7 @@ class IGService:
             'size': size,
             'stopDistance': stop_distance,
             'stopLevel': stop_level,
-            #'trailingStep': trailing_stop,
+            'trailingStep': trailing_stop,
             'trailingStopIncrement': trailing_stop_increment
         }
 
@@ -509,7 +509,7 @@ class IGService:
         action = 'create'
         print(params)
         response = self._req(action, endpoint, params, session)
-        print(response.text)
+        print(response)
         if response.status_code == 200:
             deal_reference = json.loads(response.text)['dealReference']
             return self.fetch_deal_by_deal_reference(deal_reference)
