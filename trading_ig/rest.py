@@ -130,8 +130,6 @@ class IGSessionCRUD(object):
             'update': self.update,
             'delete': self.delete
         }
-        print(endpoint)
-        print(params)
         return d_actions[action](endpoint, params, session)
 
     def _set_headers(self, response_headers, update_cst):
@@ -216,11 +214,8 @@ class IGService:
 
     def _req(self, action, endpoint, params, session):
         """Creates a CRUD request and returns response"""
-        print('session')
         session = self._get_session(session)
-        print('crud')
         response = self.crud_session.req(action, endpoint, params, session)
-        print('response')
         return response
 
     # ---------- PARSE_RESPONSE ----------- #
@@ -507,6 +502,27 @@ class IGService:
             'trailingStop': trailing_stop,
             'trailingStopIncrement': trailing_stop_increment
         }
+        params = {
+            "epic": "CC.D.CL.UME.IP",
+            "expiry": "-",
+            "direction": "SELL",
+            "size": 3,
+            "orderType": "MARKET",
+            "timeInForce": None,
+            "level": None,
+            "guaranteedStop": False,
+            "stopLevel": None,
+            "stopDistance": 10,
+            "trailingStop": True,
+            "trailingStopIncrement": 10,
+            "forceOpen": "true",
+            "limitLevel": None,
+            "limitDistance": 30,
+            "quoteId": None,
+            "currencyCode": "EUR"
+        }
+
+
 
         endpoint = '/positions/otc'
         action = 'create'
