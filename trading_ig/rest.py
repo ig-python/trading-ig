@@ -78,8 +78,6 @@ class IGSessionCRUD(object):
         response = session.post(url,
                                 data=json.dumps(params),
                                 headers=self.HEADERS['BASIC'])
-
-        print('BASIC', self.HEADERS)
         if not response.ok:
             raise(Exception("HTTP status code %s %s " %
                             (response.status_code, response.text)))
@@ -91,7 +89,6 @@ class IGSessionCRUD(object):
         """Create when logged in = POST with headers=LOGGED_IN_HEADERS"""
         url = self._url(endpoint)
         session = self._get_session(session)
-        print('LOGGED_IN', self.HEADERS)
         response = session.post(url,
                                 data=json.dumps(params),
                                 headers=self.HEADERS['LOGGED_IN'])
@@ -508,16 +505,18 @@ class IGService:
 
         endpoint = '/positions/otc'
         action = 'create'
-        #self.crud_session.HEADERS['BASIC']['Version'] = '2'
+
+        # Trailing stop is supported in version 2
+        # Version headers should be include
+
         self.crud_session.HEADERS['LOGGED_IN']['Version'] = '2'
         response = self._req(action, endpoint, params, session)
-        #if 'Version' in self.crud_session.HEADERS['BASIC']: del self.crud_session.HEADERS['BASIC']['Version']
-        if 'Version' in self.crud_session.HEADERS['LOGGED_IN']: del self.crud_session.HEADERS['LOGGED_IN']['Version']
-        print(response.text)
+        if 'Version' in self.crud_session.HEADERS['LOGGED_IN']:
+            del self.crud_session.HEADERS['LOGGED_IN']['Version']
 
+        # Remove the header to back copatibility
         if response.status_code == 200:
             deal_reference = json.loads(response.text)['dealReference']
-            print(deal_reference)
             return self.fetch_deal_by_deal_reference(deal_reference)
         else:
             raise IGException(response.text)
