@@ -508,10 +508,10 @@ class IGService:
 
         endpoint = '/positions/otc'
         action = 'create'
-        self.crud_session.HEADERS['BASIC']['Version'] = '2'
+        #self.crud_session.HEADERS['BASIC']['Version'] = '2'
         self.crud_session.HEADERS['LOGGED_IN']['Version'] = '2'
         response = self._req(action, endpoint, params, session)
-        if 'Version' in self.crud_session.HEADERS['BASIC']: del self.crud_session.HEADERS['BASIC']['Version']
+        #if 'Version' in self.crud_session.HEADERS['BASIC']: del self.crud_session.HEADERS['BASIC']['Version']
         if 'Version' in self.crud_session.HEADERS['LOGGED_IN']: del self.crud_session.HEADERS['LOGGED_IN']['Version']
         print(response.text)
 
