@@ -151,6 +151,7 @@ class IGSessionCRUD(object):
             'X-SECURITY-TOKEN': self.SECURITY_TOKEN,
             'CST': self.CLIENT_TOKEN,
             'Content-Type': 'application/json',
+            'Version': '2',
             'Accept': 'application/json; charset=UTF-8'
         }
 
@@ -512,7 +513,7 @@ class IGService:
         response = self._req(action, endpoint, params, session)
 
         print(response.text)
-        
+
         if response.status_code == 200:
             deal_reference = json.loads(response.text)['dealReference']
             return self.fetch_deal_by_deal_reference(deal_reference)
