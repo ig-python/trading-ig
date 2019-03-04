@@ -501,7 +501,7 @@ class IGService:
             'size': size,
             'stopDistance': stop_distance,
             'stopLevel': stop_level,
-            'trailingStep': trailing_stop,
+            #'trailingStep': trailing_stop,
             'trailingStopIncrement': trailing_stop_increment
         }
 
