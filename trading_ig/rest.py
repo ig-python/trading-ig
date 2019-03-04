@@ -78,6 +78,10 @@ class IGSessionCRUD(object):
         response = session.post(url,
                                 data=json.dumps(params),
                                 headers=self.HEADERS['BASIC'])
+
+        print(url)
+        print(params)
+        print(self.HEADERS)
         if not response.ok:
             raise(Exception("HTTP status code %s %s " %
                             (response.status_code, response.text)))
@@ -502,27 +506,6 @@ class IGService:
             'trailingStop': trailing_stop,
             'trailingStopIncrement': trailing_stop_increment
         }
-        params = {
-            "epic": "CC.D.CL.UME.IP",
-            "expiry": "-",
-            "direction": "SELL",
-            "size": 3,
-            "orderType": "MARKET",
-            "timeInForce": None,
-            "level": None,
-            "guaranteedStop": False,
-            "stopLevel": None,
-            "stopDistance": 10,
-            "trailingStop": True,
-            "trailingStopIncrement": 10,
-            "forceOpen": "true",
-            "limitLevel": None,
-            "limitDistance": 30,
-            "quoteId": None,
-            "currencyCode": "EUR"
-        }
-
-
 
         endpoint = '/positions/otc'
         action = 'create'
