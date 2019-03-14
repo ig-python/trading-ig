@@ -481,6 +481,7 @@ class IGService:
                              force_open, guaranteed_stop, level,
                              limit_distance, limit_level, order_type,
                              quote_id, size, stop_distance, stop_level,
+                             trailing_stop, trailing_stop_increment,
                              session=None):
         """Creates an OTC position"""
         params = {
@@ -497,13 +498,23 @@ class IGService:
             'quoteId': quote_id,
             'size': size,
             'stopDistance': stop_distance,
-            'stopLevel': stop_level
+            'stopLevel': stop_level,
+            'trailingStop': trailing_stop,
+            'trailingStopIncrement': trailing_stop_increment
         }
 
         endpoint = '/positions/otc'
         action = 'create'
-        response = self._req(action, endpoint, params, session)
 
+        # Trailing stop is supported in version 2
+        # Version headers should be include
+
+        self.crud_session.HEADERS['LOGGED_IN']['Version'] = '2'
+        response = self._req(action, endpoint, params, session)
+        if 'Version' in self.crud_session.HEADERS['LOGGED_IN']:
+            del self.crud_session.HEADERS['LOGGED_IN']['Version']
+
+        # Remove the header to back compatibility
         if response.status_code == 200:
             deal_reference = json.loads(response.text)['dealReference']
             return self.fetch_deal_by_deal_reference(deal_reference)
