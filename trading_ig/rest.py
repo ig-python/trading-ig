@@ -514,7 +514,7 @@ class IGService:
         if 'Version' in self.crud_session.HEADERS['LOGGED_IN']:
             del self.crud_session.HEADERS['LOGGED_IN']['Version']
 
-        # Remove the header to back copatibility
+        # Remove the header to back compatibility
         if response.status_code == 200:
             deal_reference = json.loads(response.text)['dealReference']
             return self.fetch_deal_by_deal_reference(deal_reference)
