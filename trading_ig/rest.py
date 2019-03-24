@@ -16,7 +16,7 @@ import logging
 import time
 
 from .utils import (_HAS_PANDAS, _HAS_MUNCH)
-from .utils import (conv_resol, conv_datetime, conv_to_ms)
+from .utils import (conv_resol, conv_datetime, conv_to_ms, DATE_FORMATS)
 
 
 logger = logging.getLogger(__name__)
@@ -833,7 +833,7 @@ class IGService:
         prices['volume'] = ts_lastTradedVolume
         return prices
 
-    def format_prices(self, prices, flag_calc_spread=False):
+    def format_prices(self, prices, version, flag_calc_spread=False):
         """Format prices data as a DataFrame with hierarchical columns"""
 
         if len(prices) == 0:
@@ -854,7 +854,7 @@ class IGService:
             or prices[0]['closePrice']['lastTraded']
         df = json_normalize(prices)
         df = df.set_index('snapshotTime')
-        df.index = pd.to_datetime(df.index, format="%Y:%m:%d-%H:%M:%S")
+        df.index = pd.to_datetime(df.index, format=DATE_FORMATS[int(version)])
         df.index.name = 'DateTime'
 
         df_ask = df[['openPrice.ask', 'highPrice.ask',
@@ -893,7 +893,8 @@ class IGService:
                                         numpoints=None,
                                         pagesize=0,
                                         pagenumber=None,
-                                        session=None):
+                                        session=None,
+                                        version="3"):
         """Returns a list of historical prices for the given epic, resolution,
         number of points"""
         params = {}
@@ -911,17 +912,18 @@ class IGService:
             params['pageNumber'] = pagenumber
         endpoint = '/prices/' + epic
         action = 'read'
-        self.crud_session.HEADERS['LOGGED_IN']['Version'] = "3"
+        self.crud_session.HEADERS['LOGGED_IN']['Version'] = str(version)
         response = self._req(action, endpoint, params, session)
         del(self.crud_session.HEADERS['LOGGED_IN']['Version'])
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
-            data['prices'] = self.format_prices(data['prices'])
+            data['prices'] = self.format_prices(data['prices'], version)
         return(data)
 
     def fetch_historical_prices_by_epic_and_num_points(self, epic, resolution,
                                                        numpoints,
-                                                       session=None):
+                                                       session=None,
+                                                       version="1"):
         """Returns a list of historical prices for the given epic, resolution,
         number of points"""
         if _HAS_PANDAS and self.return_dataframe:
@@ -935,15 +937,18 @@ class IGService:
         endpoint = '/prices/{epic}/{resolution}/{numpoints}'.\
             format(**url_params)
         action = 'read'
+        self.crud_session.HEADERS['LOGGED_IN']['Version'] = str(version)
         response = self._req(action, endpoint, params, session)
+        del(self.crud_session.HEADERS['LOGGED_IN']['Version'])
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
-            data['prices'] = self.format_prices(data['prices'])
+            data['prices'] = self.format_prices(data['prices'], version)
         return(data)
 
     def fetch_historical_prices_by_epic_and_date_range(self, epic, resolution,
                                                        start_date, end_date,
-                                                       session=None):
+                                                       session=None,
+                                                       version="1"):
         """Returns a list of historical prices for the given epic, resolution,
         multiplier and date range"""
         if _HAS_PANDAS and self.return_dataframe:
@@ -975,10 +980,12 @@ class IGService:
         }
         endpoint = "/prices/{epic}/{resolution}".format(**url_params)
         action = 'read'
+        self.crud_session.HEADERS['LOGGED_IN']['Version'] = str(version)
         response = self._req(action, endpoint, params, session)
+        del(self.crud_session.HEADERS['LOGGED_IN']['Version'])
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
-            data['prices'] = self.format_prices(data['prices'])
+            data['prices'] = self.format_prices(data['prices'], version)
         return data
 
     # -------- END -------- #
