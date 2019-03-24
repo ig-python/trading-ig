@@ -25,6 +25,13 @@ else:
     _HAS_MUNCH = True
 
 
+DATE_FORMATS = {
+    1: "%Y:%m:%d-%H:%M:%S",
+    2: "%Y/%m/%d %H:%M:%S",
+    3: "%Y/%m/%d %H:%M:%S"
+}
+
+
 def conv_resol(resolution):
     """Returns a string for resolution (from a Pandas)
     """
@@ -61,17 +68,14 @@ def conv_datetime(dt, version=1):
     """Converts dt to string like
     version 1 = 2014:12:15-00:00:00
     version 2 = 2014/12/15 00:00:00
+    version 3 = 2014/12/15 00:00:00
     """
     try:
         if isinstance(dt, six.string_types):
             if _HAS_PANDAS:
                 dt = pd.to_datetime(dt)
 
-        d_formats = {
-            1: "%Y:%m:%d-%H:%M:%S",
-            2: "%Y/%m/%d %H:%M:%S"
-        }
-        fmt = d_formats[version]
+        fmt = DATE_FORMATS[int(version)]
         return dt.strftime(fmt)
     except (ValueError, TypeError):
         logger.error(traceback.format_exc())
