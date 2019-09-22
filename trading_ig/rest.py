@@ -10,6 +10,9 @@ Modified by Femto Trader - 2014-2015 - https://github.com/femtotrader/
 
 import json
 
+from base64 import b64encode, b64decode
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_v1_5
 from requests import Session
 
 import logging
@@ -1079,13 +1082,33 @@ class IGService:
         action = 'delete'
         self._req(action, endpoint, params, session)
 
-    def create_session(self, session=None):
+    def get_encryption_key(self, session=None):
+        """Get encryption key to encrypt the password"""
+        endpoint = '/session/encryptionKey'
+        session = self._get_session(session)
+        response = session.get(self.BASE_URL + endpoint,
+                               headers=self.crud_session.HEADERS['BASIC'])
+        if not response.ok:
+            raise IGException('Could not get encryption key for login.')
+        data = response.json()
+        return data['encryptionKey'], data['timeStamp']
+
+    def encrypted_password(self, session=None):
+        """Encrypt password for login"""
+        key, timestamp = self.get_encryption_key(session)
+        rsakey = RSA.importKey(b64decode(key))
+        message = b64encode(self.IG_PASSWORD + '|' + str(long(timestamp)))
+        return b64encode(PKCS1_v1_5.new(rsakey).encrypt(message))
+
+    def create_session(self, session=None, encryption=False):
         """Creates a trading session, obtaining session tokens for
         subsequent API access"""
+        password = self.encrypted_password(session) if encryption else self.IG_PASSWORD
         params = {
             'identifier': self.IG_USERNAME,
-            'password': self.IG_PASSWORD
+            'password':   password
         }
+        if encryption: params['encryptedPassword'] = True
         endpoint = '/session'
         action = 'create'
         # this is the first create (BASIC_HEADERS)
