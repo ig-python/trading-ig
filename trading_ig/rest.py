@@ -78,6 +78,7 @@ class IGSessionCRUD(object):
         """Create first = POST with headers=BASIC_HEADERS"""
         url = self._url(endpoint)
         session = self._get_session(session)
+        params['password'] = params['password'].decode()
         response = session.post(url,
                                 data=json.dumps(params),
                                 headers=self.HEADERS['BASIC'])
@@ -1097,7 +1098,8 @@ class IGService:
         """Encrypt password for login"""
         key, timestamp = self.get_encryption_key(session)
         rsakey = RSA.importKey(b64decode(key))
-        message = b64encode(self.IG_PASSWORD + '|' + str(long(timestamp)))
+        string = self.IG_PASSWORD + '|' + str(int(timestamp))
+        message = b64encode(string.encode())
         return b64encode(PKCS1_v1_5.new(rsakey).encrypt(message))
 
     def create_session(self, session=None, encryption=False):
@@ -1106,7 +1108,7 @@ class IGService:
         password = self.encrypted_password(session) if encryption else self.IG_PASSWORD
         params = {
             'identifier': self.IG_USERNAME,
-            'password':   password
+            'password': password
         }
         if encryption: params['encryptedPassword'] = True
         endpoint = '/session'
