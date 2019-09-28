@@ -18,8 +18,8 @@ class IGStreamService(object):
         self.ig_session = None
         self.ls_client = None
 
-    def create_session(self):
-        ig_session = self.ig_service.create_session()
+    def create_session(self, encryption=False):
+        ig_session = self.ig_service.create_session(encryption=encryption)
         self.ig_session = ig_session
         return ig_session
 
