@@ -88,7 +88,7 @@ Get latest version using Git
 
     $ git clone https://github.com/ig-python/ig-markets-api-python-library
     $ cd ig-markets-api-python-library
-    $ python setup.py install https://github.com/ig-python/ig-markets-api-python-library
+    $ python setup.py install
 
 or
 
