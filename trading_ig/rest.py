@@ -844,7 +844,7 @@ class IGService:
             raise(Exception("Historical price data not found"))
 
         import pandas as pd
-        from pandas.io.json import json_normalize
+        from pandas import json_normalize
 
         def cols(typ):
             return({
