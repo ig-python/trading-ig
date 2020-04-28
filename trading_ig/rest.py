@@ -76,7 +76,7 @@ class IGSessionCRUD(object):
         """Create first = POST with headers=BASIC_HEADERS"""
         url = self._url(endpoint)
         session = self._get_session(session)
-        params['password'] = params['password'].decode()
+        params['password'] = params['password'] # .decode()
         response = session.post(url,
                                 data=json.dumps(params),
                                 headers=self.HEADERS['BASIC'])
@@ -121,7 +121,7 @@ class IGSessionCRUD(object):
         """Delete = POST with DELETE_HEADERS"""
         url = self._url(endpoint)
         session = self._get_session(session)
-        self.HEADERS['LOGGED_IN']['VERSION'] = version
+        self.HEADERS['DELETE']['VERSION'] = version
         response = session.post(url,
                                 data=json.dumps(params),
                                 headers=self.HEADERS['DELETE'])
@@ -135,7 +135,6 @@ class IGSessionCRUD(object):
             'update': self.update,
             'delete': self.delete
         }
-        print("Using Version: ", version)
         return d_actions[action](endpoint, params, session, version)
 
     def _set_headers(self, response_headers, update_cst):
