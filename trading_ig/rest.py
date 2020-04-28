@@ -76,7 +76,10 @@ class IGSessionCRUD(object):
         """Create first = POST with headers=BASIC_HEADERS"""
         url = self._url(endpoint)
         session = self._get_session(session)
-        params['password'] = params['password'] # .decode()
+        if type(params['password']) is bytes:
+            params['password'] = params['password'].decode()
+        else:
+            params['password'] = params['password']
         response = session.post(url,
                                 data=json.dumps(params),
                                 headers=self.HEADERS['BASIC'])
