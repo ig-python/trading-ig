@@ -9,18 +9,16 @@ Modified by Femto Trader - 2014-2015 - https://github.com/femtotrader/
 """  # noqa
 
 import json
-
-from base64 import b64encode, b64decode
-from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_v1_5
-from requests import Session
-
 import logging
 import time
+from base64 import b64encode, b64decode
+
+from Crypto.Cipher import PKCS1_v1_5
+from Crypto.PublicKey import RSA
+from requests import Session
 
 from .utils import (_HAS_PANDAS, _HAS_MUNCH)
 from .utils import (conv_resol, conv_datetime, conv_to_ms, DATE_FORMATS)
-
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +72,7 @@ class IGSessionCRUD(object):
         """Returns url from endpoint and base url"""
         return self.BASE_URL + endpoint
 
-    def _create_first(self, endpoint, params, session):
+    def _create_first(self, endpoint, params, session, version):
         """Create first = POST with headers=BASIC_HEADERS"""
         url = self._url(endpoint)
         session = self._get_session(session)
@@ -89,44 +87,47 @@ class IGSessionCRUD(object):
         self.create = self._create_logged_in
         return response
 
-    def _create_logged_in(self, endpoint, params, session):
+    def _create_logged_in(self, endpoint, params, session, version):
         """Create when logged in = POST with headers=LOGGED_IN_HEADERS"""
         url = self._url(endpoint)
         session = self._get_session(session)
+        self.HEADERS['LOGGED_IN']['VERSION'] = version
         response = session.post(url,
                                 data=json.dumps(params),
                                 headers=self.HEADERS['LOGGED_IN'])
         return response
 
-    def read(self, endpoint, params, session):
+    def read(self, endpoint, params, session, version):
         """Read = GET with headers=LOGGED_IN_HEADERS"""
         url = self._url(endpoint)
-        # print(url, params)
         session = self._get_session(session)
+        self.HEADERS['LOGGED_IN']['VERSION'] = version
         response = session.get(url,
                                params=params,
                                headers=self.HEADERS['LOGGED_IN'])
         return response
 
-    def update(self, endpoint, params, session):
+    def update(self, endpoint, params, session, version):
         """Update = PUT with headers=LOGGED_IN_HEADERS"""
         url = self._url(endpoint)
         session = self._get_session(session)
+        self.HEADERS['LOGGED_IN']['VERSION'] = version
         response = session.put(url,
                                data=json.dumps(params),
                                headers=self.HEADERS['LOGGED_IN'])
         return response
 
-    def delete(self, endpoint, params, session):
+    def delete(self, endpoint, params, session, version):
         """Delete = POST with DELETE_HEADERS"""
         url = self._url(endpoint)
         session = self._get_session(session)
+        self.HEADERS['LOGGED_IN']['VERSION'] = version
         response = session.post(url,
                                 data=json.dumps(params),
                                 headers=self.HEADERS['DELETE'])
         return response
 
-    def req(self, action, endpoint, params, session):
+    def req(self, action, endpoint, params, session, version):
         """Send a request (CREATE READ UPDATE or DELETE)"""
         d_actions = {
             'create': self.create,
@@ -134,7 +135,8 @@ class IGSessionCRUD(object):
             'update': self.update,
             'delete': self.delete
         }
-        return d_actions[action](endpoint, params, session)
+        print("Using Version: ", version)
+        return d_actions[action](endpoint, params, session, version)
 
     def _set_headers(self, response_headers, update_cst):
         """Sets headers"""
@@ -216,10 +218,10 @@ class IGService:
             session = session
         return session
 
-    def _req(self, action, endpoint, params, session):
+    def _req(self, action, endpoint, params, session, version='2'):
         """Creates a CRUD request and returns response"""
         session = self._get_session(session)
-        response = self.crud_session.req(action, endpoint, params, session)
+        response = self.crud_session.req(action, endpoint, params, session, version)
         return response
 
     # ---------- PARSE_RESPONSE ----------- #
@@ -280,7 +282,7 @@ class IGService:
         params = {}
         endpoint = '/accounts'
         action = 'read'
-        response = self._req(action, endpoint, params, session)
+        response = self._req(action, endpoint, params, session, version='1')
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
             import pandas as pd
@@ -415,7 +417,7 @@ class IGService:
         endpoint = '/confirms/{deal_reference}'.format(**url_params)
         action = 'read'
         for i in range(5):
-            response = self._req(action, endpoint, params, session)
+            response = self._req(action, endpoint, params, session, version='1')
             if response.status_code == 404:
                 logger.info(
                     "Deal reference %s not found, retrying." % deal_reference
@@ -431,7 +433,7 @@ class IGService:
         params = {}
         endpoint = '/positions'
         action = 'read'
-        response = self._req(action, endpoint, params, session)
+        response = self._req(action, endpoint, params, session, version='1')
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
             import pandas as pd
@@ -459,7 +461,7 @@ class IGService:
         return data
 
     def close_open_position(self, deal_id, direction, epic, expiry, level,
-                            order_type, quote_id, size, session=None):
+                            order_type, quote_id, size, version='1', session=None):
         """Closes one or more OTC positions"""
         params = {
             'dealId': deal_id,
@@ -473,7 +475,7 @@ class IGService:
         }
         endpoint = '/positions/otc'
         action = 'delete'
-        response = self._req(action, endpoint, params, session)
+        response = self._req(action, endpoint, params, session, version)
 
         if response.status_code == 200:
             deal_reference = json.loads(response.text)['dealReference']
@@ -513,8 +515,8 @@ class IGService:
         # Trailing stop is supported in version 2
         # Version headers should be include
 
-        self.crud_session.HEADERS['LOGGED_IN']['Version'] = '2'
-        response = self._req(action, endpoint, params, session)
+        # self.crud_session.HEADERS['LOGGED_IN']['Version'] = '2'
+        response = self._req(action, endpoint, params, session, version='2')
         if 'Version' in self.crud_session.HEADERS['LOGGED_IN']:
             del self.crud_session.HEADERS['LOGGED_IN']['Version']
 
@@ -629,9 +631,7 @@ class IGService:
         endpoint = '/workingorders/otc'
         action = 'create'
 
-        self.crud_session.HEADERS['LOGGED_IN']['Version'] = str(VERSION)
-        # print(params)
-        response = self._req(action, endpoint, params, session)
+        response = self._req(action, endpoint, params, session, VERSION)
         del(self.crud_session.HEADERS['LOGGED_IN']['Version'])
 
         if response.status_code == 200:
@@ -916,8 +916,7 @@ class IGService:
             params['pageNumber'] = pagenumber
         endpoint = '/prices/' + epic
         action = 'read'
-        self.crud_session.HEADERS['LOGGED_IN']['Version'] = str(version)
-        response = self._req(action, endpoint, params, session)
+        response = self._req(action, endpoint, params, session, version)
         del(self.crud_session.HEADERS['LOGGED_IN']['Version'])
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
@@ -941,8 +940,7 @@ class IGService:
         endpoint = '/prices/{epic}/{resolution}/{numpoints}'.\
             format(**url_params)
         action = 'read'
-        self.crud_session.HEADERS['LOGGED_IN']['Version'] = str(version)
-        response = self._req(action, endpoint, params, session)
+        response = self._req(action, endpoint, params, session, version)
         del(self.crud_session.HEADERS['LOGGED_IN']['Version'])
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
@@ -984,8 +982,7 @@ class IGService:
         }
         endpoint = "/prices/{epic}/{resolution}".format(**url_params)
         action = 'read'
-        self.crud_session.HEADERS['LOGGED_IN']['Version'] = str(version)
-        response = self._req(action, endpoint, params, session)
+        response = self._req(action, endpoint, params, session, version)
         del(self.crud_session.HEADERS['LOGGED_IN']['Version'])
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
