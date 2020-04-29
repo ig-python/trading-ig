@@ -78,8 +78,6 @@ class IGSessionCRUD(object):
         session = self._get_session(session)
         if type(params['password']) is bytes:
             params['password'] = params['password'].decode()
-        else:
-            params['password'] = params['password']
         response = session.post(url,
                                 data=json.dumps(params),
                                 headers=self.HEADERS['BASIC'])
