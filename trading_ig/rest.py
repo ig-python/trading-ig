@@ -78,7 +78,8 @@ class IGSessionCRUD(object):
         """Create first = POST with headers=BASIC_HEADERS"""
         url = self._url(endpoint)
         session = self._get_session(session)
-        params['password'] = params['password'].decode()
+        if type(params['password']) is bytes:
+            params['password'] = params['password'].decode()
         response = session.post(url,
                                 data=json.dumps(params),
                                 headers=self.HEADERS['BASIC'])
@@ -844,7 +845,10 @@ class IGService:
             raise(Exception("Historical price data not found"))
 
         import pandas as pd
-        from pandas import json_normalize
+        try:
+            from pandas import json_normalize
+        except ImportError:
+            from pandas.io.json import json_normalize
 
         def cols(typ):
             return({
