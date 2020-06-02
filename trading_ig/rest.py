@@ -1132,7 +1132,7 @@ class IGService:
         endpoint = "/prices/{epic}/{resolution}".format(**url_params)
         action = "read"
         response = self._req(action, endpoint, params, session, version)
-        del self.crud_session.HEADERS["LOGGED_IN"]["Version"]
+        del self.crud_session.HEADERS["LOGGED_IN"]["VERSION"]
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
             data["prices"] = self.format_prices(data["prices"], version)
