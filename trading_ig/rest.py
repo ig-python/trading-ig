@@ -647,7 +647,7 @@ class IGService:
         params = {}
         endpoint = "/workingorders"
         action = "read"
-        response = self._req(action, endpoint, params, session)
+        response = self._req(action, endpoint, params, session, version="1")
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
             import pandas as pd
