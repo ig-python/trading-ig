@@ -431,9 +431,9 @@ class IGService:
         endpoint = "/history/transactions"
         action = "read"
 
-        self.crud_session.HEADERS["LOGGED_IN"]["Version"] = "2"
+        self.crud_session.HEADERS["LOGGED_IN"]["VERSION"] = "2"
         response = self._req(action, endpoint, params, session)
-        del self.crud_session.HEADERS["LOGGED_IN"]["Version"]
+        del self.crud_session.HEADERS["LOGGED_IN"]["VERSION"]
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
             import pandas as pd
@@ -619,7 +619,7 @@ class IGService:
         # self.crud_session.HEADERS['LOGGED_IN']['Version'] = '2'
         response = self._req(action, endpoint, params, session, version="2")
         if "Version" in self.crud_session.HEADERS["LOGGED_IN"]:
-            del self.crud_session.HEADERS["LOGGED_IN"]["Version"]
+            del self.crud_session.HEADERS["LOGGED_IN"]["VERSION"]
 
         # Remove the header to back compatibility
         if response.status_code == 200:
@@ -731,7 +731,7 @@ class IGService:
         session=None,
     ):
         """Creates an OTC working order"""
-        VERSION = 2
+        VERSION = "2"
         if good_till_date is not None and type(good_till_date) is not int:
             good_till_date = conv_datetime(good_till_date, VERSION)
 
@@ -763,7 +763,7 @@ class IGService:
         action = "create"
 
         response = self._req(action, endpoint, params, session, VERSION)
-        del self.crud_session.HEADERS["LOGGED_IN"]["Version"]
+        del self.crud_session.HEADERS["LOGGED_IN"]["VERSION"]
 
         if response.status_code == 200:
             deal_reference = json.loads(response.text)["dealReference"]
@@ -1079,7 +1079,7 @@ class IGService:
         endpoint = "/prices/" + epic
         action = "read"
         response = self._req(action, endpoint, params, session, version)
-        del self.crud_session.HEADERS["LOGGED_IN"]["Version"]
+        del self.crud_session.HEADERS["LOGGED_IN"]["VERSION"]
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
             data["prices"] = self.format_prices(data["prices"], version)
@@ -1097,7 +1097,7 @@ class IGService:
         endpoint = "/prices/{epic}/{resolution}/{numpoints}".format(**url_params)
         action = "read"
         response = self._req(action, endpoint, params, session, version)
-        del self.crud_session.HEADERS["LOGGED_IN"]["Version"]
+        del self.crud_session.HEADERS["LOGGED_IN"]["VERSION"]
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
             data["prices"] = self.format_prices(data["prices"], version)
