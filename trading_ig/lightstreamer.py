@@ -19,7 +19,7 @@ import threading
 import traceback
 
 from six.moves.urllib.request import urlopen as _urlopen
-from six.moves.urllib.parse import (urlparse as parse_url, urljoin, urlencode)
+from six.moves.urllib.parse import urlparse as parse_url, urljoin, urlencode
 
 try:
     from systemd.daemon import notify
@@ -72,7 +72,7 @@ class Subscription(object):
         Lightstremar Text Protocol specifications.
         """
         if value == "$":
-            return u''
+            return u""
         elif value == "#":
             return None
         elif not value:
@@ -90,7 +90,7 @@ class Subscription(object):
         a new item event.
         """
         # Tokenize the item line as sent by Lightstreamer
-        toks = item_line.rstrip('\r\n').split('|')
+        toks = item_line.rstrip("\r\n").split("|")
         undecoded_item = dict(list(zip(self.field_names, toks[1:])))
 
         # Retrieve the previous item stored into the map, if present.
@@ -99,15 +99,17 @@ class Subscription(object):
         curr_item = self._items_map.get(item_pos, {})
         # Update the map with new values, merging with the
         # previous ones if any.
-        self._items_map[item_pos] = dict([
-            (k, self._decode(v, curr_item.get(k))) for k, v
-            in list(undecoded_item.items())
-        ])
+        self._items_map[item_pos] = dict(
+            [
+                (k, self._decode(v, curr_item.get(k)))
+                for k, v in list(undecoded_item.items())
+            ]
+        )
         # Make an item info as a new event to be passed to listeners
         item_info = {
-            'pos': item_pos,
-            'name': self.item_names[item_pos - 1],
-            'values': self._items_map[item_pos]
+            "pos": item_pos,
+            "name": self.item_names[item_pos - 1],
+            "values": self._items_map[item_pos],
         }
 
         # Update each registered listener with new event
@@ -129,13 +131,12 @@ class LSClient(object):
         self._stream_connection = None
         self._stream_connection_thread = None
         self._bind_counter = 0
+        self.content_length = 1000000000
 
     def _encode_params(self, params):
         """Encode the parameter for HTTP POST submissions, but
         only for non empty values..."""
-        return _url_encode(
-            dict([(k, v) for (k, v) in _iteritems(params) if v])
-        )
+        return _url_encode(dict([(k, v) for (k, v) in _iteritems(params) if v]))
 
     def _call(self, base_url, url, body):
         """Open a network connection and performs HTTP Post
@@ -154,9 +155,7 @@ class LSClient(object):
             self._control_url = self._base_url
         else:
             parsed_custom_address = parse_url("//" + custom_address)
-            self._control_url = parsed_custom_address._replace(
-                scheme=self._base_url[0]
-            )
+            self._control_url = parsed_custom_address._replace(scheme=self._base_url[0])
 
     def _control(self, params):
         """Create a Control Connection to send control commands
@@ -177,18 +176,22 @@ class LSClient(object):
         """
 
         if not notify:
-            log.warning("systemd.daemon not available, "
-                        + "no watchdog notifications will be sent.")
+            log.warning(
+                "systemd.daemon not available, "
+                + "no watchdog notifications will be sent."
+            )
 
         self._stream_connection = self._call(
             self._base_url,
             CONNECTION_URL_PATH,
             {
-                "LS_op2": 'create',
-                "LS_cid": 'mgQkwtwdysogQz2BJ4Ji kOj2Bg',
+                "LS_op2": "create",
+                "LS_cid": "mgQkwtwdysogQz2BJ4Ji kOj2Bg",
                 "LS_adapter_set": self._adapter_set,
                 "LS_user": self._user,
-                "LS_password": self._password}
+                "LS_password": self._password,
+                'LS_content_length': self.content_length
+            },
         )
         stream_line = self._read_from_stream()
         self._handle_stream(stream_line)
@@ -198,11 +201,7 @@ class LSClient(object):
         Session.
         """
         self._stream_connection = self._call(
-            self._control_url,
-            BIND_URL_PATH,
-            {
-                "LS_session": self._session["SessionId"]
-            }
+            self._control_url, BIND_URL_PATH, {"LS_session": self._session["SessionId"],'LS_content_length': self.content_length}
         )
 
         self._bind_counter += 1
@@ -227,7 +226,7 @@ class LSClient(object):
             # by Lightstreamer Server on the stream connection.
             self._stream_connection_thread = threading.Thread(
                 name="STREAM-CONN-THREAD-{0}".format(self._bind_counter),
-                target=self._receive
+                target=self._receive,
             )
             self._stream_connection_thread.setDaemon(True)
             self._stream_connection_thread.start()
@@ -277,14 +276,16 @@ class LSClient(object):
         self._subscriptions[self._current_subscription_key] = subscription
 
         # Send the control request to perform the subscription
-        server_response = self._control({
-            "LS_Table": self._current_subscription_key,
-            "LS_op": OP_ADD,
-            "LS_data_adapter": subscription.adapter,
-            "LS_mode": subscription.mode,
-            "LS_schema": " ".join(subscription.field_names),
-            "LS_id": " ".join(subscription.item_names),
-        })
+        server_response = self._control(
+            {
+                "LS_Table": self._current_subscription_key,
+                "LS_op": OP_ADD,
+                "LS_data_adapter": subscription.adapter,
+                "LS_mode": subscription.mode,
+                "LS_schema": " ".join(subscription.field_names),
+                "LS_id": " ".join(subscription.item_names),
+            }
+        )
         log.debug("Server response ---> <{0}>".format(server_response))
         return self._current_subscription_key
 
@@ -293,10 +294,9 @@ class LSClient(object):
         specified subscription_key.
         """
         if subcription_key in self._subscriptions:
-            server_response = self._control({
-                "LS_Table": subcription_key,
-                "LS_op": OP_DELETE
-            })
+            server_response = self._control(
+                {"LS_Table": subcription_key, "LS_op": OP_DELETE}
+            )
             log.debug("Server response ---> <{0}>".format(server_response))
 
             if server_response == OK_CMD:
@@ -305,15 +305,14 @@ class LSClient(object):
             else:
                 log.warning("Server error")
         else:
-            log.warning("No subscription key {0} found!".format(
-                        subcription_key))
+            log.warning("No subscription key {0} found!".format(subcription_key))
 
     def _forward_update_message(self, update_message):
         """Forwards the real time update to the relative
         Subscription instance for further dispatching to its listeners.
         """
         log.debug("Received update message ---> <{0}>".format(update_message))
-        tok = update_message.split(',', 1)
+        tok = update_message.split(",", 1)
         table, item = int(tok[0]), tok[1]
         if table in self._subscriptions:
             self._subscriptions[table].notifyupdate(item)
@@ -334,7 +333,7 @@ class LSClient(object):
                 message = None
 
             if notify:
-                notify('WATCHDOG=1')
+                notify("WATCHDOG=1")
 
             if message is None:
                 receive = False
@@ -384,50 +383,3 @@ class LSClient(object):
         else:
             log.debug("Binding to this active session")
             self.bind()
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-
-    # Establishing a new connection to Lightstreamer Server
-    print("Starting connection")
-    # lightstreamer_client = LSClient("http://localhost:8080", "DEMO")
-    lightstreamer_client = LSClient("http://push.lightstreamer.com", "DEMO")
-    try:
-        lightstreamer_client.connect()
-    except Exception:
-        print("Unable to connect to Lightstreamer Server")
-        print(traceback.format_exc())
-        import sys
-        sys.exit(1)
-
-    # Making a new Subscription in MERGE mode
-    subscription = Subscription(
-        mode="MERGE",
-        items=["item1", "item2", "item3", "item4",
-               "item5", "item6", "item7", "item8",
-               "item9", "item10", "item11", "item12"],
-        fields=["stock_name", "last_price", "time", "bid", "ask"],
-        adapter="QUOTE_ADAPTER")
-
-    # A simple function acting as a Subscription listener
-    def on_item_update(item_update):
-        print("{stock_name:<19}: Last{last_price:>6} - Time {time:<8} - "
-              "Bid {bid:>5} - Ask {ask:>5}".format(**item_update["values"]))
-
-    # Adding the "on_item_update" function to Subscription
-    subscription.addlistener(on_item_update)
-
-    # Registering the Subscription
-    sub_key = lightstreamer_client.subscribe(subscription)
-
-    def handler():
-        # Unsubscribing from Lightstreamer by using the subscription key
-        lightstreamer_client.unsubscribe(sub_key)
-        # Disconnecting
-        lightstreamer_client.disconnect()
-
-    import atexit
-    atexit.register(handler)
-
-    lightstreamer_client._join()
