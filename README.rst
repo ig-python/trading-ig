@@ -30,7 +30,7 @@
     :target: https://landscape.io/github/ig-python/ig-markets-api-python-library/master
     :alt: Code Health
 
-.. image:: https://travis-ci.org/github/bug-or-feature/ig-markets-api-python-library.svg?branch=master
+.. image:: https://travis-ci.org/bug-or-feature/ig-markets-api-python-library.svg?branch=master
     :target: https://travis-ci.org/github/bug-or-feature/ig-markets-api-python-library
 
 .. image:: https://readthedocs.org/projects/ig-markets-api-python-library/badge/?version=latest
