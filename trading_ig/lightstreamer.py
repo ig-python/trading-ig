@@ -131,6 +131,7 @@ class LSClient(object):
         self._stream_connection = None
         self._stream_connection_thread = None
         self._bind_counter = 0
+        self.content_length = 1000000000
 
     def _encode_params(self, params):
         """Encode the parameter for HTTP POST submissions, but
@@ -189,6 +190,7 @@ class LSClient(object):
                 "LS_adapter_set": self._adapter_set,
                 "LS_user": self._user,
                 "LS_password": self._password,
+                'LS_content_length': self.content_length
             },
         )
         stream_line = self._read_from_stream()
@@ -199,7 +201,7 @@ class LSClient(object):
         Session.
         """
         self._stream_connection = self._call(
-            self._control_url, BIND_URL_PATH, {"LS_session": self._session["SessionId"]}
+            self._control_url, BIND_URL_PATH, {"LS_session": self._session["SessionId"],'LS_content_length': self.content_length}
         )
 
         self._bind_counter += 1
@@ -348,8 +350,8 @@ class LSClient(object):
                 # A complete implementation should proceed with
                 # a rebind of the session.
                 log.debug("LOOP")
-                receive = False
                 rebind = True
+                receive = False
             elif message.startswith(SYNC_ERROR_CMD):
                 # Terminate the receiving loop on SYNC ERROR message.
                 # A complete implementation should create a new session
@@ -369,19 +371,19 @@ class LSClient(object):
             else:
                 self._forward_update_message(message)
 
-        self._stream_connection = None
         if not rebind:
             log.debug("Closing connection")
             # Clear internal data structures for session
             # and subscriptions management.
             self._stream_connection.close()
+            self._stream_connection = None
             self._session.clear()
             self._subscriptions.clear()
             self._current_subscription_key = 0
         else:
             log.debug("Binding to this active session")
+            self._stream_connection = None
             self.bind()
-
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

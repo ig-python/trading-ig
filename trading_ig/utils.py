@@ -61,7 +61,7 @@ def conv_resol(resolution):
         return resolution
 
 
-def conv_datetime(dt, version=1):
+def conv_datetime(dt, version=2):
     """Converts dt to string like
     version 1 = 2014:12:15-00:00:00
     version 2 = 2014/12/15 00:00:00

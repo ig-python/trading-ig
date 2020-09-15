@@ -1,15 +1,3 @@
-.. image:: http://unmaintained.tech/badge.svg
-    :target: http://unmaintained.tech
-    :alt: No Maintenance Intended
-
-.. image:: https://img.shields.io/pypi/v/trading_ig.svg
-    :target: https://pypi.python.org/pypi/trading_ig/
-    :alt: Latest Version
-
-.. image:: https://img.shields.io/pypi/pyversions/trading_ig.svg
-    :target: https://pypi.python.org/pypi/trading_ig/
-    :alt: Supported Python versions
-
 .. image:: https://img.shields.io/pypi/wheel/trading_ig.svg
     :target: https://pypi.python.org/pypi/trading_ig/
     :alt: Wheel format
@@ -22,31 +10,22 @@
     :target: https://pypi.python.org/pypi/trading_ig/
     :alt: Development Status
 
-.. image:: https://img.shields.io/pypi/dm/trading_ig.svg
-    :target: https://pypi.python.org/pypi/trading_ig/
-    :alt: Downloads monthly
-
-.. image:: https://requires.io/github/ig-python/ig-markets-api-python-library/requirements.svg?branch=master
-    :target: https://requires.io/github/ig-python/ig-markets-api-python-library/requirements/?branch=master
-    :alt: Requirements Status
-
-.. image:: https://sourcegraph.com/api/repos/github.com/ig-python/ig-markets-api-python-library/.badges/status.png
-    :target: https://sourcegraph.com/github.com/ig-python/ig-markets-api-python-library
-
-.. image:: https://badges.gitter.im/Join%20Chat.svg
-   :alt: Join the chat at https://gitter.im/ig-python/ig-markets-api-python-library
-   :target: https://gitter.im/ig-python/ig-markets-api-python-library?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
-
-.. image:: https://landscape.io/github/ig-python/ig-markets-api-python-library/master/landscape.svg?style=flat
-    :target: https://landscape.io/github/ig-python/ig-markets-api-python-library/master
-    :alt: Code Health
-
-.. image:: https://travis-ci.org/ig-python/ig-markets-api-python-library.svg?branch=master
-    :target: https://travis-ci.org/ig-python/ig-markets-api-python-library
+.. image:: https://travis-ci.org/bug-or-feature/ig-markets-api-python-library.svg?branch=master
+    :target: https://travis-ci.org/github/bug-or-feature/ig-markets-api-python-library
 
 .. image:: https://readthedocs.org/projects/ig-markets-api-python-library/badge/?version=latest
     :target: http://ig-markets-api-python-library.readthedocs.org/en/latest/?badge=latest
     :alt: Documentation Status
+
+Origination
+===============================
+
+This is a fork of
+
+https://github.com/ig-python/ig-markets-api-python-library/
+
+which is no longer maintained. Many thanks to `femtotrader <https://github.com/femtotrader>`__
+
 
 IG Markets API - Python Library
 ===============================
@@ -76,13 +55,6 @@ http://labs.ig.com/
 Install
 -------
 
-From Python package index
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    $ pip install trading_ig
-
 From source
 ~~~~~~~~~~~
 
@@ -90,7 +62,7 @@ Get latest version using Git
 
 ::
 
-    $ git clone https://github.com/ig-python/ig-markets-api-python-library
+    $ git clone https://github.com/bug-or-feature/ig-markets-api-python-library
     $ cd ig-markets-api-python-library
     $ python setup.py install
 
@@ -98,7 +70,7 @@ or
 
 ::
 
-    $ pip install git+https://github.com/ig-python/ig-markets-api-python-library
+    $ pip install git+https://github.com/bug-or-feature/ig-markets-api-python-library
 
 
 Work in progress
@@ -118,6 +90,7 @@ see :
 
 Thanks to
 ---------
+-  `femtotrader <https://github.com/femtotrader>`_
 -  `Lewis Barber <https://github.com/lewisbarber>`_
 -  ixta
 -  Chris
