@@ -75,7 +75,7 @@ setup(
     # https://packaging.python.org/en/latest/technical.html#install-requires-vs-requirements-files
     install_requires=[
         "pycryptodome",
-        "pandas",
+        "pandas>=1.0,<1.1",
         "requests",
         "requests-cache",
         "six",
