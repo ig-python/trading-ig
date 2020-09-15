@@ -1150,7 +1150,7 @@ class IGService:
         params = {}
         endpoint = "/watchlists"
         action = "read"
-        response = self._req(action, endpoint, params, session)
+        response = self._req(action, endpoint, params, session, version="1")
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
             import pandas as pd
@@ -1163,7 +1163,7 @@ class IGService:
         params = {"name": name, "epics": epics}
         endpoint = "/watchlists"
         action = "create"
-        response = self._req(action, endpoint, params, session)
+        response = self._req(action, endpoint, params, session, version="1")
         data = self.parse_response(response.text)
         return data
 
@@ -1182,7 +1182,7 @@ class IGService:
         url_params = {"watchlist_id": watchlist_id}
         endpoint = "/watchlists/{watchlist_id}".format(**url_params)
         action = "read"
-        response = self._req(action, endpoint, params, session)
+        response = self._req(action, endpoint, params, session, version="1")
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
             import pandas as pd
@@ -1196,7 +1196,7 @@ class IGService:
         url_params = {"watchlist_id": watchlist_id}
         endpoint = "/watchlists/{watchlist_id}".format(**url_params)
         action = "update"
-        response = self._req(action, endpoint, params, session)
+        response = self._req(action, endpoint, params, session, version="1")
         data = self.parse_response(response.text)
         return data
 
@@ -1206,7 +1206,7 @@ class IGService:
         url_params = {"watchlist_id": watchlist_id, "epic": epic}
         endpoint = "/watchlists/{watchlist_id}/{epic}".format(**url_params)
         action = "delete"
-        response = self._req(action, endpoint, params, session)
+        response = self._req(action, endpoint, params, session, version="1")
         return response.text
 
     # -------- END -------- #
@@ -1238,7 +1238,7 @@ class IGService:
         rsakey = RSA.importKey(b64decode(key))
         string = self.IG_PASSWORD + "|" + str(int(timestamp))
         message = b64encode(string.encode())
-        return b64encode(PKCS1_v1_5.new(rsakey).encrypt(message))
+        return b64encode(PKCS1_v1_5.new(rsakey).encrypt(message)).decode()
 
     def create_session(self, session=None, encryption=False):
         """Creates a trading session, obtaining session tokens for

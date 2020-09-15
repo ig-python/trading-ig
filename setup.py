@@ -34,8 +34,7 @@ setup(
     url=__url__,
     # Author details
     author=__author__,
-    author_email=__author_email__,
-    maintainer=__maintainer__,
+    author_email=__email__,
     # Choose your license
     license=__license__,
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
@@ -54,8 +53,13 @@ setup(
         # that you indicate whether you support Python 2, Python 3 or both.
         "Programming Language :: Cython",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.8",
+        # 'Programming Language :: Python :: 2',
+        # 'Programming Language :: Python :: 2.6',
+        "Programming Language :: Python :: 2.7",
+        # 'Programming Language :: Python :: 3',
+        # 'Programming Language :: Python :: 3.2',
+        "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.4",
         "Topic :: Scientific/Engineering",
         # Pick your license as you wish (should match "license" above)
         "License :: OSI Approved :: BSD License",
@@ -71,7 +75,7 @@ setup(
     # https://packaging.python.org/en/latest/technical.html#install-requires-vs-requirements-files
     install_requires=[
         "pycryptodome",
-        "pandas >= 1.0,<1.1",
+        "pandas>=1.0,<1.1",
         "requests",
         "requests-cache",
         "six",
