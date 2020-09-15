@@ -17,10 +17,18 @@
     :target: http://ig-markets-api-python-library.readthedocs.org/en/latest/?badge=latest
     :alt: Documentation Status
 
-IG Markets API - Python Library
+Origination
 ===============================
 
-This is a fork of https://github.com/ig-python/ig-markets-api-python-library/ which is no longer maintained.
+This is a fork of
+
+https://github.com/ig-python/ig-markets-api-python-library/
+
+which is no longer maintained. Many thanks to `femtotrader <https://github.com/femtotrader>`__
+
+
+IG Markets API - Python Library
+===============================
 
 A lightweight Python library that can be used to connect to the IG Markets REST and STREAM API with a LIVE or DEMO account.
 
