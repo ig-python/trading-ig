@@ -25,7 +25,9 @@ else:
     _HAS_MUNCH = True
 
 
-DATE_FORMATS = {1: "%Y:%m:%d-%H:%M:%S", 2: "%Y/%m/%d %H:%M:%S", 3: "%Y/%m/%d %H:%M:%S"}
+DATE_FORMATS = {1: "%Y:%m:%d-%H:%M:%S",
+                2: "%Y/%m/%d %H:%M:%S",
+                3: "%Y/%m/%d %H:%M:%S"}
 
 
 def conv_resol(resolution):

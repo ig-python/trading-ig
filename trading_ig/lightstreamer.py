@@ -136,7 +136,8 @@ class LSClient(object):
     def _encode_params(self, params):
         """Encode the parameter for HTTP POST submissions, but
         only for non empty values..."""
-        return _url_encode(dict([(k, v) for (k, v) in _iteritems(params) if v]))
+        return _url_encode(
+            dict([(k, v) for (k, v) in _iteritems(params) if v]))
 
     def _call(self, base_url, url, body):
         """Open a network connection and performs HTTP Post
@@ -155,7 +156,8 @@ class LSClient(object):
             self._control_url = self._base_url
         else:
             parsed_custom_address = parse_url("//" + custom_address)
-            self._control_url = parsed_custom_address._replace(scheme=self._base_url[0])
+            self._control_url = parsed_custom_address._replace(
+                scheme=self._base_url[0])
 
     def _control(self, params):
         """Create a Control Connection to send control commands
@@ -178,7 +180,7 @@ class LSClient(object):
         if not notify:
             log.warning(
                 "systemd.daemon not available, "
-                + "no watchdog notifications will be sent."
+                "no watchdog notifications will be sent."
             )
 
         self._stream_connection = self._call(
@@ -201,7 +203,9 @@ class LSClient(object):
         Session.
         """
         self._stream_connection = self._call(
-            self._control_url, BIND_URL_PATH, {"LS_session": self._session["SessionId"],'LS_content_length': self.content_length}
+            self._control_url, BIND_URL_PATH,
+            {"LS_session": self._session["SessionId"],
+             'LS_content_length': self.content_length}
         )
 
         self._bind_counter += 1
@@ -305,7 +309,8 @@ class LSClient(object):
             else:
                 log.warning("Server error")
         else:
-            log.warning("No subscription key {0} found!".format(subcription_key))
+            log.warning(
+                "No subscription key {0} found!".format(subcription_key))
 
     def _forward_update_message(self, update_message):
         """Forwards the real time update to the relative
@@ -384,6 +389,7 @@ class LSClient(object):
             log.debug("Binding to this active session")
             self._stream_connection = None
             self.bind()
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
