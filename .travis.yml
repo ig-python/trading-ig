@@ -14,3 +14,13 @@ script:
   - flake8 --version
   - flake8 trading_ig
 #  - nosetests  # should be fixed https://github.com/ig-python/ig-markets-api-python-library/issues/35
+
+# publish help pages to wiki
+after_success:
+  - git clone "https://${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/ig-markets-api-python-library.wiki.git"
+  - mv -vf docs/soure/rest.rst ig-markets-api-python-library.wiki/
+  - mv -vf docs/soure/stream.rst ig-markets-api-python-library.wiki/
+  - cd ig-markets-api-python-library.wiki
+  - git add .
+  - git commit -m "Generated Wiki via Travis-CI"
+  - git push
