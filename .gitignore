@@ -60,3 +60,10 @@ target/
 
 # Mac OS
 .DS_Store
+
+# IntelliJ / PyCharm
+.idea/
+
+# pipenv
+Pipfile
+Pipfile.lock
