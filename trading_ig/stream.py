@@ -35,7 +35,8 @@ class IGStreamService(object):
         # self.ls_client = LSClient("http://localhost:8080", "DEMO")
         # self.ls_client = LSClient("http://push.lightstreamer.com", "DEMO")
         self.ls_client = LSClient(
-            lightstreamerEndpoint, adapter_set="", user=accountId, password=ls_password
+            lightstreamerEndpoint, adapter_set="",
+            user=accountId, password=ls_password
         )
         try:
             self.ls_client.connect()
