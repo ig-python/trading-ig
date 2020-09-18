@@ -18,8 +18,8 @@ script:
 # publish help pages to wiki
 after_success:
   - git clone "https://${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/ig-markets-api-python-library.wiki.git"
-  - mv -vf docs/soure/rest.rst ig-markets-api-python-library.wiki/
-  - mv -vf docs/soure/stream.rst ig-markets-api-python-library.wiki/
+  - mv -vf docs/source/rest.rst ig-markets-api-python-library.wiki/
+  - mv -vf docs/source/stream.rst ig-markets-api-python-library.wiki/
   - cd ig-markets-api-python-library.wiki
   - git add .
   - git commit -m "Generated Wiki via Travis-CI"
