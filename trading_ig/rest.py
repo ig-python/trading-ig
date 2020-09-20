@@ -16,9 +16,11 @@ from base64 import b64encode, b64decode
 from Crypto.Cipher import PKCS1_v1_5
 from Crypto.PublicKey import RSA
 from requests import Session
+import pandas as pd
+from pandas import json_normalize
 
 from .utils import _HAS_PANDAS, _HAS_MUNCH
-from .utils import conv_resol, conv_datetime, conv_to_ms, DATE_FORMATS
+from .utils import conv_resol, conv_datetime, conv_to_ms, DATE_FORMATS, munchify
 
 logger = logging.getLogger(__name__)
 
@@ -291,7 +293,6 @@ class IGService:
         response = self._req(action, endpoint, params, session, version="1")
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
-            import pandas as pd
 
             data = pd.DataFrame(data["accounts"])
             d_cols = {"balance": [u"available", u"balance", u"deposit", u"profitLoss"]}
@@ -331,7 +332,6 @@ class IGService:
         response = self._req(action, endpoint, params, session)
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
-            import pandas as pd
 
             data = pd.DataFrame(data["activities"])
 
@@ -375,7 +375,6 @@ class IGService:
         response = self._req(action, endpoint, params, session)
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
-            import pandas as pd
 
             data = pd.DataFrame(data["transactions"])
 
@@ -436,7 +435,6 @@ class IGService:
         del self.crud_session.HEADERS["LOGGED_IN"]["VERSION"]
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
-            import pandas as pd
 
             data = pd.DataFrame(data["transactions"])
 
@@ -488,7 +486,6 @@ class IGService:
         response = self._req(action, endpoint, params, session, version="1")
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
-            import pandas as pd
 
             lst = data["positions"]
             data = pd.DataFrame(lst)
@@ -650,7 +647,6 @@ class IGService:
         response = self._req(action, endpoint, params, session, version="1")
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
-            import pandas as pd
 
             lst = data["workingOrders"]
             data = pd.DataFrame(lst)
@@ -841,7 +837,6 @@ class IGService:
         response = self._req(action, endpoint, params, session)
         data = self.parse_response(response.text)
         if self.return_munch:
-            from .utils import munchify
 
             data = munchify(data)
         return data
@@ -856,7 +851,6 @@ class IGService:
         response = self._req(action, endpoint, params, session)
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
-            import pandas as pd
 
             data = pd.DataFrame(data["clientSentiments"])
         return data
@@ -870,7 +864,6 @@ class IGService:
         response = self._req(action, endpoint, params, session)
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
-            import pandas as pd
 
             data["markets"] = pd.DataFrame(data["markets"])
             if len(data["markets"]) == 0:
@@ -915,7 +908,6 @@ class IGService:
         response = self._req(action, endpoint, params, session)
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
-            import pandas as pd
 
             data["markets"] = pd.DataFrame(data["markets"])
             data["nodes"] = pd.DataFrame(data["nodes"])
@@ -923,14 +915,12 @@ class IGService:
 
     def fetch_market_by_epic(self, epic, session=None):
         """Returns the details of the given market"""
-        params = {}
         url_params = {"epic": epic}
         endpoint = "/markets/{epic}".format(**url_params)
         action = "read"
-        response = self._req(action, endpoint, params, session)
+        response = self._req(action, endpoint, {}, session)
         data = self.parse_response(response.text)
         if _HAS_MUNCH and self.return_munch:
-            from .utils import munchify
 
             data = munchify(data)
         return data
@@ -943,20 +933,18 @@ class IGService:
         response = self._req(action, endpoint, params, session)
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
-            import pandas as pd
 
             data = pd.DataFrame(data["markets"])
         return data
 
     def format_prices_old(self, prices):
         """Format prices data as a dict with
-         - 'price' : a Pandas Panel
+         - 'price' : a Pandas dataframe
                 ask, bid, last as Items axis
                 date as Major_axis axis
                 Open High Low Close as Minor_axis axis
          - 'volume' : a timeserie for lastTradedVolume
         """
-        import pandas as pd
 
         df = pd.DataFrame(prices)
         df = df.set_index("snapshotTime")
@@ -995,9 +983,6 @@ class IGService:
 
         if len(prices) == 0:
             raise (Exception("Historical price data not found"))
-
-        import pandas as pd
-        from pandas import json_normalize
 
         def cols(typ):
             return {
@@ -1153,7 +1138,6 @@ class IGService:
         response = self._req(action, endpoint, params, session, version="1")
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
-            import pandas as pd
 
             data = pd.DataFrame(data["watchlists"])
         return data
@@ -1185,7 +1169,6 @@ class IGService:
         response = self._req(action, endpoint, params, session, version="1")
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
-            import pandas as pd
 
             data = pd.DataFrame(data["markets"])
         return data
