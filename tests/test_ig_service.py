@@ -6,8 +6,6 @@ Run unit tests using
 nosetests -s -v
 """
 
-import os
-
 import pandas as pd
 import requests
 import requests_cache

@@ -41,6 +41,7 @@ def main():
     except Exception as e:
         print("Unable to connect to Lightstreamer Server")
         print(traceback.format_exc())
+        print(e)
         sys.exit(1)
 
     # Making a new Subscription in MERGE mode
@@ -69,6 +70,7 @@ def main():
 
     # Registering the Subscription
     sub_key = lightstreamer_client.subscribe(subscription)
+    print(sub_key)
 
     input(
         "{0:-^80}\n".format(

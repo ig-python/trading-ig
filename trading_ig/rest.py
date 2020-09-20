@@ -85,8 +85,7 @@ class IGSessionCRUD(object):
         if not response.ok:
             raise (
                 Exception(
-                    "HTTP status code %s %s " %
-                    (response.status_code, response.text)
+                    "HTTP status code %s %s " % (response.status_code, response.text)
                 )
             )
         self._set_headers(response.headers, True)
@@ -108,8 +107,7 @@ class IGSessionCRUD(object):
         url = self._url(endpoint)
         session = self._get_session(session)
         self.HEADERS["LOGGED_IN"]["VERSION"] = version
-        response = session.get(url, params=params,
-                               headers=self.HEADERS["LOGGED_IN"])
+        response = session.get(url, params=params, headers=self.HEADERS["LOGGED_IN"])
         return response
 
     def update(self, endpoint, params, session, version):
@@ -181,8 +179,7 @@ class IGService:
     IG_USERNAME = None
     IG_PASSWORD = None
 
-    def __init__(self, username, password, api_key,
-                 acc_type="demo", session=None):
+    def __init__(self, username, password, api_key, acc_type="demo", session=None):
         """Constructor, calls the method required to connect to
         the API (accepts acc_type = LIVE or DEMO)"""
         self.API_KEY = api_key
@@ -193,8 +190,9 @@ class IGService:
             self.BASE_URL = self.D_BASE_URL[acc_type.lower()]
         except Exception:
             raise (
-                Exception("Invalid account type specified, "
-                          "please provide" "LIVE or DEMO.")
+                Exception(
+                    "Invalid account type specified, " "please provide" "LIVE or DEMO."
+                )
             )
 
         self.parse_response = self.parse_response_with_exception
@@ -207,8 +205,7 @@ class IGService:
         else:
             self.session = session
 
-        self.crud_session = IGSessionCRUD(self.BASE_URL,
-                                          self.API_KEY, self.session)
+        self.crud_session = IGSessionCRUD(self.BASE_URL, self.API_KEY, self.session)
 
     def _get_session(self, session):
         """Returns a Requests session (from self.session) if session is None
@@ -218,17 +215,18 @@ class IGService:
         if session is None:
             session = self.session  # requests Session
         else:
-            assert isinstance(session, Session), \
-                "session must be <requests.session.Session object> not %s" % \
-                type(session)
+            assert isinstance(
+                session, Session
+            ), "session must be <requests.session.Session object> not %s" % type(
+                session
+            )
             session = session
         return session
 
     def _req(self, action, endpoint, params, session, version="2"):
         """Creates a CRUD request and returns response"""
         session = self._get_session(session)
-        response = self.crud_session.req(action, endpoint, params,
-                                         session, version)
+        response = self.crud_session.req(action, endpoint, params, session, version)
         return response
 
     # ---------- PARSE_RESPONSE ----------- #
@@ -296,9 +294,7 @@ class IGService:
             import pandas as pd
 
             data = pd.DataFrame(data["accounts"])
-            d_cols = {"balance": [
-                u"available", u"balance", u"deposit", u"profitLoss"
-            ]}
+            d_cols = {"balance": [u"available", u"balance", u"deposit", u"profitLoss"]}
             data = self.expand_columns(data, d_cols, False)
 
             if len(data) == 0:
@@ -475,11 +471,9 @@ class IGService:
         endpoint = "/confirms/{deal_reference}".format(**url_params)
         action = "read"
         for i in range(5):
-            response = self._req(action, endpoint, params,
-                                 session, version="1")
+            response = self._req(action, endpoint, params, session, version="1")
             if response.status_code == 404:
-                logger.info("Deal reference %s not found, retrying." %
-                            deal_reference)
+                logger.info("Deal reference %s not found, retrying." % deal_reference)
                 time.sleep(1)
             else:
                 break
@@ -634,8 +628,7 @@ class IGService:
         else:
             raise IGException(response.text)
 
-    def update_open_position(self, limit_level, stop_level,
-                             deal_id, session=None):
+    def update_open_position(self, limit_level, stop_level, deal_id, session=None):
         """Updates an OTC position"""
         params = {"limitLevel": limit_level, "stopLevel": stop_level}
         url_params = {"deal_id": deal_id}
@@ -709,8 +702,7 @@ class IGService:
 
             col_overlap_allowed = ["epic"]
 
-            data = self.expand_columns(data, d_cols, False,
-                                       col_overlap_allowed)
+            data = self.expand_columns(data, d_cols, False, col_overlap_allowed)
 
             # d = data.to_dict()
             # data = pd.concat(list(map(pd.DataFrame, d.values())),
@@ -841,8 +833,7 @@ class IGService:
         if isinstance(market_id, (list,)):
             market_ids = ",".join(market_id)
             url_params = {"market_ids": market_ids}
-            endpoint = "/clientsentiment/?marketIds={market_ids}".format(
-                **url_params)
+            endpoint = "/clientsentiment/?marketIds={market_ids}".format(**url_params)
         else:
             url_params = {"market_id": market_id}
             endpoint = "/clientsentiment/{market_id}".format(**url_params)
@@ -855,8 +846,7 @@ class IGService:
             data = munchify(data)
         return data
 
-    def fetch_related_client_sentiment_by_instrument(self,
-                                                     market_id, session=None):
+    def fetch_related_client_sentiment_by_instrument(self, market_id, session=None):
         """Returns a list of related (also traded) client sentiment for
         the given instrument's market"""
         params = {}
@@ -971,12 +961,10 @@ class IGService:
         df = pd.DataFrame(prices)
         df = df.set_index("snapshotTime")
         df.index.name = "DateTime"
-        df_ask = df[[u"openPrice", u"highPrice",
-                     u"lowPrice", u"closePrice"]].applymap(
+        df_ask = df[[u"openPrice", u"highPrice", u"lowPrice", u"closePrice"]].applymap(
             lambda x: x["ask"]
         )
-        df_bid = df[[u"openPrice", u"highPrice",
-                     u"lowPrice", u"closePrice"]].applymap(
+        df_bid = df[[u"openPrice", u"highPrice", u"lowPrice", u"closePrice"]].applymap(
             lambda x: x["bid"]
         )
         df_lastTraded = df[
@@ -1020,23 +1008,19 @@ class IGService:
                 "lastTradedVolume": "Volume",
             }
 
-        last = \
-            prices[0]["lastTradedVolume"] \
-            or prices[0]["closePrice"]["lastTraded"]
+        last = prices[0]["lastTradedVolume"] or prices[0]["closePrice"]["lastTraded"]
         df = json_normalize(prices)
         df = df.set_index("snapshotTime")
         df.index = pd.to_datetime(df.index, format=DATE_FORMATS[int(version)])
         df.index.name = "DateTime"
 
         df_ask = df[
-            ["openPrice.ask", "highPrice.ask",
-             "lowPrice.ask", "closePrice.ask"]
+            ["openPrice.ask", "highPrice.ask", "lowPrice.ask", "closePrice.ask"]
         ]
         df_ask = df_ask.rename(columns=cols("ask"))
 
         df_bid = df[
-            ["openPrice.bid", "highPrice.bid",
-             "lowPrice.bid", "closePrice.bid"]
+            ["openPrice.bid", "highPrice.bid", "lowPrice.bid", "closePrice.bid"]
         ]
         df_bid = df_bid.rename(columns=cols("bid"))
 
@@ -1112,10 +1096,8 @@ class IGService:
         if _HAS_PANDAS and self.return_dataframe:
             resolution = conv_resol(resolution)
         params = {}
-        url_params = {"epic": epic, "resolution": resolution,
-                      "numpoints": numpoints}
-        endpoint = "/prices/{epic}/{resolution}/{numpoints}"\
-            .format(**url_params)
+        url_params = {"epic": epic, "resolution": resolution, "numpoints": numpoints}
+        endpoint = "/prices/{epic}/{resolution}/{numpoints}".format(**url_params)
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         del self.crud_session.HEADERS["LOGGED_IN"]["VERSION"]
@@ -1242,8 +1224,9 @@ class IGService:
         """Get encryption key to encrypt the password"""
         endpoint = "/session/encryptionKey"
         session = self._get_session(session)
-        response = session.get(self.BASE_URL + endpoint,
-                               headers=self.crud_session.HEADERS["BASIC"])
+        response = session.get(
+            self.BASE_URL + endpoint, headers=self.crud_session.HEADERS["BASIC"]
+        )
         if not response.ok:
             raise IGException("Could not get encryption key for login.")
         data = response.json()
@@ -1260,8 +1243,7 @@ class IGService:
     def create_session(self, session=None, encryption=False):
         """Creates a trading session, obtaining session tokens for
         subsequent API access"""
-        password = self.encrypted_password(session) \
-            if encryption else self.IG_PASSWORD
+        password = self.encrypted_password(session) if encryption else self.IG_PASSWORD
         params = {"identifier": self.IG_USERNAME, "password": password}
         if encryption:
             params["encryptedPassword"] = True
