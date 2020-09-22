@@ -26,8 +26,7 @@ class ConfigEnvVar(object):
         try:
             return os.environ[env_var]
         except KeyError:
-            raise Exception(
-                "Environment variable '%s' doesn't exist" % env_var)
+            raise Exception("Environment variable '%s' doesn't exist" % env_var)
 
 
 try:
@@ -38,8 +37,7 @@ except Exception:
     logger.warning("can't import config from config file")
     try:
         config = ConfigEnvVar(ENV_VAR_ROOT)
-        logger.info(
-            "import config from environment variables '%s_...'" % ENV_VAR_ROOT)
+        logger.info("import config from environment variables '%s_...'" % ENV_VAR_ROOT)
     except Exception:
         logger.warning("can't import config from environment variables")
         raise (
