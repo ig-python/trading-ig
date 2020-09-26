@@ -74,12 +74,12 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/technical.html#install-requires-vs-requirements-files
     install_requires=[
-        "pycryptodome",
-        "pandas>=1.0,<1.1",
-        "requests",
-        "requests-cache",
-        "six",
-        "munch",
+        "munch==2.5.0",
+        "pycryptodome==3.9.8",
+        "requests==2.24.0",
+        "requests-cache==0.5.2",
+        "six==1.15.0",
+        "pandas==1.0.5",
     ],  # bunch->lunch->infi.bunch->munch
     # List additional groups of dependencies here (e.g. development dependencies).
     # You can install these using the following syntax, for example:
