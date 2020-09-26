@@ -17,6 +17,8 @@ from Crypto.Cipher import PKCS1_v1_5
 from Crypto.PublicKey import RSA
 from requests import Session
 import pandas as pd
+
+import numpy as np
 from pandas import json_normalize
 
 from .utils import _HAS_PANDAS, _HAS_MUNCH
@@ -1071,6 +1073,7 @@ class IGService:
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
             data["prices"] = self.format_prices(data["prices"], version)
+            data['prices'] = data['prices'].fillna(value=np.nan)
         return data
 
     def fetch_historical_prices_by_epic_and_num_points(
@@ -1089,6 +1092,7 @@ class IGService:
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
             data["prices"] = self.format_prices(data["prices"], version)
+            data['prices'] = data['prices'].fillna(value=np.nan)
         return data
 
     def fetch_historical_prices_by_epic_and_date_range(
@@ -1124,6 +1128,7 @@ class IGService:
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
             data["prices"] = self.format_prices(data["prices"], version)
+            data['prices'] = data['prices'].fillna(value=np.nan)
         return data
 
     # -------- END -------- #
