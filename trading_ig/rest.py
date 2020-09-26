@@ -797,7 +797,7 @@ class IGService:
         session=None,
     ):
         """Updates an OTC working order"""
-        VERSION = 2
+        VERSION = "2"
         if good_till_date is not None and type(good_till_date) is not int:
             good_till_date = conv_datetime(good_till_date, VERSION)
         params = {
