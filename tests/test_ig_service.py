@@ -12,6 +12,7 @@ import requests_cache
 from datetime import datetime, timedelta
 import six
 import time
+import pytest
 
 # import pprint
 
@@ -35,7 +36,7 @@ CACHE_NAME = "cache"
 
 remove(CACHE_NAME)
 
-
+@pytest.mark.skip(reason="old nose test, ignoring")
 def test_ig_service():
 
     delay_for_ig = 30

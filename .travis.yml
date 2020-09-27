@@ -1,6 +1,7 @@
 language: python
 python:
   - "3.6"
+  - "3.7"
   - "3.8"
 
 # command to install dependencies
@@ -13,7 +14,7 @@ install:
 script:
   - flake8 --version
   - flake8 trading_ig
-#  - nosetests  # should  be fixed https://github.com/ig-python/ig-markets-api-python-library/issues/35
+  - pytest
 
 # publish help pages to wiki
 after_success:
