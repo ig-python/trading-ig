@@ -1228,7 +1228,7 @@ class IGService:
         message = b64encode(string.encode())
         return b64encode(PKCS1_v1_5.new(rsakey).encrypt(message)).decode()
 
-    def create_session(self, session=None, encryption=False):
+    def create_session(self, session=None, encryption=False, version='2'):
         """Creates a trading session, obtaining session tokens for
         subsequent API access"""
         password = self.encrypted_password(session) if encryption else self.IG_PASSWORD
@@ -1238,7 +1238,7 @@ class IGService:
         endpoint = "/session"
         action = "create"
         # this is the first create (BASIC_HEADERS)
-        response = self._req(action, endpoint, params, session)
+        response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
         self.ig_session = data  # store IG session
         return data

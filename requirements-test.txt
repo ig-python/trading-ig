@@ -4,3 +4,4 @@ requests
 requests-cache
 munch
 six
+responses
