@@ -210,24 +210,3 @@ def test_login_v2_encrypted_bad_key():
         result = ig_service.create_session(encryption=True)
         assert result['errorCode'] == 'error.security.api-key-invalid'
 
-# v3 login
-
-
-@responses.activate
-def test_login_v3_happy():
-
-    with open('tests/data/accounts3.json', 'r') as file:
-        response_body = json.loads(file.read())
-
-    responses.add(responses.POST, 'https://demo-api.ig.com/gateway/deal/session',
-                  headers = {'CST': 'abc123abc123abc123abc123abc123abc123'},
-                  json=response_body,
-                  status=200)
-
-    ig_service = IGService('username','password', 'api_key', 'DEMO')
-    result = ig_service.create_session(version='3')
-
-    assert result['clientId'] == '2001001'
-    assert result['accountId'] == 'ABC123'
-    assert result['oauthToken']['token_type'] == 'Bearer'
-    assert result['oauthToken']['expires_in'] == '60'
