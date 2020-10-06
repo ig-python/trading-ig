@@ -193,7 +193,8 @@ class IGService:
         try:
             self.BASE_URL = self.D_BASE_URL[acc_type.lower()]
         except Exception:
-            raise IGException("Invalid account type '%s', please provide LIVE or DEMO" % acc_type)
+            raise IGException("Invalid account type '%s', please provide LIVE or DEMO" %
+                              acc_type)
 
         self.parse_response = self.parse_response_with_exception
 

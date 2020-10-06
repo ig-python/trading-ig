@@ -1,3 +1,3 @@
 [flake8]
 max-line-length=88
-exclude = __pycache__,docs/source/conf.py,old,build,dist,setup.py,sample/stream_ig.py,sample/rest_ig.py
+exclude = __pycache__,docs/source/conf.py,old,build,dist,setup.py,sample/stream_ig.py,sample/*.py

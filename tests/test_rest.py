@@ -17,11 +17,11 @@ def test_login_v1_happy():
         response_body = json.loads(file.read())
 
     responses.add(responses.POST, 'https://demo-api.ig.com/gateway/deal/session',
-                  headers = {'CST': 'abc123', 'X-SECURITY-TOKEN': 'xyz987'},
+                  headers={'CST': 'abc123', 'X-SECURITY-TOKEN': 'xyz987'},
                   json=response_body,
                   status=200)
 
-    ig_service = IGService('username','password', 'api_key', 'DEMO')
+    ig_service = IGService('username', 'password', 'api_key', 'DEMO')
     result = ig_service.create_session()
 
     assert ig_service.crud_session.CLIENT_TOKEN == 'abc123'
@@ -35,12 +35,11 @@ def test_login_v1_happy():
     assert result['trailingStopsEnabled'] is True
 
 
-
 @responses.activate
 def test_login_v1_bad_api_key():
 
     responses.add(responses.POST, 'https://demo-api.ig.com/gateway/deal/session',
-                  headers = {},
+                  headers={},
                   json={'errorCode': 'error.security.api-key-invalid'},
                   status=403)
 
@@ -58,7 +57,7 @@ def test_login_v1_bad_credentials():
 
     responses.add(responses.POST,
                   'https://demo-api.ig.com/gateway/deal/session',
-                  headers = {},
+                  headers={},
                   json={'errorCode': 'error.security.invalid-details'},
                   status=401)
 
@@ -80,14 +79,14 @@ def test_login_v1_encrypted_happy():
     responses.add(responses.GET,
                   'https://demo-api.ig.com/gateway/deal/session/encryptionKey',
                   json={
-                      'encryptionKey': 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp9te7zwed8HhdRFsn47EI8exZ1Yi+bJoKtclGTiuaP1T+4AclNqB2mIya/Ik6IV6A2pt4FFVoqvrhJA46dWi4XgA4Ojhl2Xxw4++blAMgT3jU7N5nY13LdJzZuYv/oPZKRcEj6RrlBV68HjrTnjAMWARl0jFbVCiLWovTGJ0stx/zJAKX0GFyuUlsoaJISJJRYeOLUtZ8Z4BE6ZkmKnz4V8YNyyoWCyXQp+IKCZrfoEdlMOPBgsjbRy02Gh9xZqcm2erLsp40F+w3AjHUqQQi7eQuPQaPWq9Lhm8cVDH2CB2BtfM8Ew8T5/A36eqa5eoeQcZaMnLUQP5UYtG2Wd//wIDAQAB',
+                      'encryptionKey': 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp9te7zwed8HhdRFsn47EI8exZ1Yi+bJoKtclGTiuaP1T+4AclNqB2mIya/Ik6IV6A2pt4FFVoqvrhJA46dWi4XgA4Ojhl2Xxw4++blAMgT3jU7N5nY13LdJzZuYv/oPZKRcEj6RrlBV68HjrTnjAMWARl0jFbVCiLWovTGJ0stx/zJAKX0GFyuUlsoaJISJJRYeOLUtZ8Z4BE6ZkmKnz4V8YNyyoWCyXQp+IKCZrfoEdlMOPBgsjbRy02Gh9xZqcm2erLsp40F+w3AjHUqQQi7eQuPQaPWq9Lhm8cVDH2CB2BtfM8Ew8T5/A36eqa5eoeQcZaMnLUQP5UYtG2Wd//wIDAQAB', # noqa
                       'timeStamp': '1601218928621'
                   },
                   status=200)
 
     responses.add(responses.POST,
                   'https://demo-api.ig.com/gateway/deal/session',
-                  headers = {'CST': 'abc123', 'X-SECURITY-TOKEN': 'xyz987'},
+                  headers={'CST': 'abc123', 'X-SECURITY-TOKEN': 'xyz987'},
                   json=response_body,
                   status=200)
 
@@ -101,7 +100,7 @@ def test_login_v1_encrypted_happy():
     assert len(result['accounts']) == 2
     assert result['accounts'][1]['accountName'] == 'Demo-cfd'
     assert result['accounts'][1]['accountType'] == 'CFD'
-    assert result['trailingStopsEnabled'] == True
+    assert result['trailingStopsEnabled'] is True
 
 
 @responses.activate
@@ -131,11 +130,11 @@ def test_login_v2_happy():
         response_body = json.loads(file.read())
 
     responses.add(responses.POST, 'https://demo-api.ig.com/gateway/deal/session',
-                  headers = {'CST': 'abc123', 'X-SECURITY-TOKEN': 'xyz987'},
+                  headers={'CST': 'abc123', 'X-SECURITY-TOKEN': 'xyz987'},
                   json=response_body,
                   status=200)
 
-    ig_service = IGService('username','password', 'api_key', 'DEMO')
+    ig_service = IGService('username', 'password', 'api_key', 'DEMO')
     result = ig_service.create_session(version='2')
 
     assert ig_service.crud_session.CLIENT_TOKEN == 'abc123'
@@ -152,7 +151,7 @@ def test_login_v2_happy():
 def test_login_v2_bad_api_key():
 
     responses.add(responses.POST, 'https://demo-api.ig.com/gateway/deal/session',
-                  headers = {},
+                  headers={},
                   json={'errorCode': 'error.security.api-key-invalid'},
                   status=403)
 
@@ -170,7 +169,7 @@ def test_login_v2_bad_credentials():
 
     responses.add(responses.POST,
                   'https://demo-api.ig.com/gateway/deal/session',
-                  headers = {},
+                  headers={},
                   json={'errorCode': 'error.security.invalid-details'},
                   status=401)
 
@@ -192,14 +191,14 @@ def test_login_v2_encrypted_happy():
     responses.add(responses.GET,
                   'https://demo-api.ig.com/gateway/deal/session/encryptionKey',
                   json={
-                      'encryptionKey': 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp9te7zwed8HhdRFsn47EI8exZ1Yi+bJoKtclGTiuaP1T+4AclNqB2mIya/Ik6IV6A2pt4FFVoqvrhJA46dWi4XgA4Ojhl2Xxw4++blAMgT3jU7N5nY13LdJzZuYv/oPZKRcEj6RrlBV68HjrTnjAMWARl0jFbVCiLWovTGJ0stx/zJAKX0GFyuUlsoaJISJJRYeOLUtZ8Z4BE6ZkmKnz4V8YNyyoWCyXQp+IKCZrfoEdlMOPBgsjbRy02Gh9xZqcm2erLsp40F+w3AjHUqQQi7eQuPQaPWq9Lhm8cVDH2CB2BtfM8Ew8T5/A36eqa5eoeQcZaMnLUQP5UYtG2Wd//wIDAQAB',
+                      'encryptionKey': 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp9te7zwed8HhdRFsn47EI8exZ1Yi+bJoKtclGTiuaP1T+4AclNqB2mIya/Ik6IV6A2pt4FFVoqvrhJA46dWi4XgA4Ojhl2Xxw4++blAMgT3jU7N5nY13LdJzZuYv/oPZKRcEj6RrlBV68HjrTnjAMWARl0jFbVCiLWovTGJ0stx/zJAKX0GFyuUlsoaJISJJRYeOLUtZ8Z4BE6ZkmKnz4V8YNyyoWCyXQp+IKCZrfoEdlMOPBgsjbRy02Gh9xZqcm2erLsp40F+w3AjHUqQQi7eQuPQaPWq9Lhm8cVDH2CB2BtfM8Ew8T5/A36eqa5eoeQcZaMnLUQP5UYtG2Wd//wIDAQAB', # noqa
                       'timeStamp': '1601218928621'
                   },
                   status=200)
 
     responses.add(responses.POST,
                   'https://demo-api.ig.com/gateway/deal/session',
-                  headers = {'CST': 'abc123', 'X-SECURITY-TOKEN': 'xyz987'},
+                  headers={'CST': 'abc123', 'X-SECURITY-TOKEN': 'xyz987'},
                   json=response_body,
                   status=200)
 
