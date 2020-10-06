@@ -1,0 +1,8 @@
+{
+    "clientId": "100112233",
+    "accountId": "ABC123",
+    "timezoneOffset": 1,
+    "locale": "en_GB",
+    "currency": "GBP",
+    "lightstreamerEndpoint": "https://demo-apd.marketdatasystems.com"
+}

@@ -193,11 +193,7 @@ class IGService:
         try:
             self.BASE_URL = self.D_BASE_URL[acc_type.lower()]
         except Exception:
-            raise (
-                Exception(
-                    "Invalid account type specified, " "please provide" "LIVE or DEMO."
-                )
-            )
+            raise IGException("Invalid account type '%s', please provide LIVE or DEMO" % acc_type)
 
         self.parse_response = self.parse_response_with_exception
 
@@ -227,10 +223,11 @@ class IGService:
             session = session
         return session
 
-    def _req(self, action, endpoint, params, session, version="2"):
+    def _req(self, action, endpoint, params, session, version='1'):
         """Creates a CRUD request and returns response"""
         session = self._get_session(session)
         response = self.crud_session.req(action, endpoint, params, session, version)
+        response.encoding = 'utf-8'
         return response
 
     # ---------- PARSE_RESPONSE ----------- #
@@ -1259,6 +1256,8 @@ class IGService:
         endpoint = "/session"
         action = "read"
         response = self._req(action, endpoint, params, session)
+        if not response.ok:
+            raise IGException("Error in read_session() %s" % response.status_code)
         data = self.parse_response(response.text)
         return data
 
