@@ -14,7 +14,7 @@ install:
 script:
   - flake8 --version
   - flake8 trading_ig
-  - pytest
+  - pytest --ignore=tests/test_ig_service.py
 
 # publish help pages to wiki
 after_success:
