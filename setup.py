@@ -28,13 +28,13 @@ setup(
     # https://packaging.python.org/en/latest/development.html#single-sourcing-the-version
     # version='0.0.1',
     version=__version__,
-    description="trading with Python and IG markets API",
+    description="Python library to enable financial trading with the IG.com API",
     long_description=readme(),
     # The project's main homepage.
     url=__url__,
     # Author details
     author=__author__,
-    author_email=__email__,
+    author_email=__author_email__,
     # Choose your license
     license=__license__,
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
@@ -53,19 +53,16 @@ setup(
         # that you indicate whether you support Python 2, Python 3 or both.
         "Programming Language :: Cython",
         "Programming Language :: Python",
-        # 'Programming Language :: Python :: 2',
-        # 'Programming Language :: Python :: 2.6',
-        "Programming Language :: Python :: 2.7",
-        # 'Programming Language :: Python :: 3',
-        # 'Programming Language :: Python :: 3.2',
-        "Programming Language :: Python :: 3.3",
-        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Topic :: Scientific/Engineering",
         # Pick your license as you wish (should match "license" above)
         "License :: OSI Approved :: BSD License",
     ],
+    python_requires='>=3.6',
     # What does your project relate to?
-    keywords="trading",
+    keywords="trading, spread betting, CFDs",
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
     packages=find_packages(exclude=["contrib", "docs", "tests*"]),
