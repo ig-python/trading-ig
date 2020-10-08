@@ -17,7 +17,7 @@ from .version import (
     __license__,
     __version__,
     __maintainer__,
-    __email__,
+    __author_email__,
     __status__,
     __url__,
 )
@@ -34,7 +34,7 @@ __all__ = [
     "__license__",
     "__version__",
     "__maintainer__",
-    "__email__",
+    "__author_email__",
     "__status__",
     "__url__",
 ]
