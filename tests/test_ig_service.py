@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Run unit tests using
-nosetests -s -v
+integration tests
 """
 
 import pandas as pd
@@ -37,7 +36,6 @@ CACHE_NAME = "cache"
 remove(CACHE_NAME)
 
 
-@pytest.mark.skip(reason="old nose test, ignoring")
 def test_ig_service():
 
     delay_for_ig = 30
@@ -53,14 +51,13 @@ def test_ig_service():
     )
     session_not_cached = requests.Session()
 
-    for i, session in enumerate([session_cached, session_cached, session_not_cached]):
+    #for i, session in enumerate([session_cached, session_cached, session_not_cached]):
+    for i, session in enumerate([session_not_cached]):
 
         # pp = pprint.PrettyPrinter(indent=4)
 
         assert isinstance(trading_ig.__version__, six.string_types)
 
-        # ig_service = IGService(config.username, config.password,
-        #                        config.api_key, config.acc_type)
         ig_service = IGService(
             config.username, config.password, config.api_key, config.acc_type, session
         )
@@ -126,10 +123,10 @@ def test_ig_service():
 
         print("")
 
-        print("fetch_related_client_sentiment_by_instrument")
-        response = ig_service.fetch_related_client_sentiment_by_instrument(market_id)
-        print(response)
-        assert isinstance(response, pd.DataFrame)
+        #print("fetch_related_client_sentiment_by_instrument")
+        #response = ig_service.fetch_related_client_sentiment_by_instrument(market_id)
+        #print(response)
+        #assert isinstance(response, pd.DataFrame)
 
         print("")
 
@@ -178,7 +175,6 @@ def test_ig_service():
 
         print("")
         wait(delay_for_ig)
-        wait(delay_for_ig)
 
         print("fetch_historical_prices_by_epic_and_num_points")
 
@@ -221,5 +217,4 @@ def test_ig_service():
         print("")
         wait(delay_for_ig)
 
-
-remove(CACHE_NAME)
+        remove(CACHE_NAME)
