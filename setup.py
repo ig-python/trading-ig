@@ -28,7 +28,7 @@ setup(
     # https://packaging.python.org/en/latest/development.html#single-sourcing-the-version
     # version='0.0.1',
     version=__version__,
-    description="Python library to enable financial trading with the IG.com API",
+    description="A lightweight wrapper for the IG Markets API written in Python",
     long_description=readme(),
     # The project's main homepage.
     url=__url__,
