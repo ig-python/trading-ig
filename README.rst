@@ -25,10 +25,6 @@
 .. image:: https://requires.io/github/ig-python/ig-markets-api-python-library/requirements.svg?branch=master
     :target: https://requires.io/github/ig-python/ig-markets-api-python-library/requirements/?branch=master
     :alt: Requirements Status
-    
-.. image:: https://landscape.io/github/ig-python/ig-markets-api-python-library/master/landscape.svg?style=flat
-    :target: https://landscape.io/github/ig-python/ig-markets-api-python-library/master
-    :alt: Code Health
 
 .. image:: https://travis-ci.org/ig-python/ig-markets-api-python-library.svg?branch=master
     :target: https://travis-ci.org/ig-python/ig-markets-api-python-library
@@ -36,47 +32,36 @@
 .. image:: https://readthedocs.org/projects/trading-ig/badge/?version=latest
     :target: https://trading-ig.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
-    
 
-IG Markets API - Python Library
-===============================
+trading_ig
+==========
 
-A lightweight Python library that can be used to connect to the IG Markets REST and STREAM API with a LIVE or DEMO account.
+A lightweight wrapper for the IG Markets API written in Python. Simplifies access to the IG REST and streaming APIs
+with a live or demo account.
 
-IG Markets provide Retail Spread Betting and CFD accounts for trading Equities, Forex, Commodities, Indices and much more.
+What is it?
+-----------
 
-REST API
---------
+`IG Markets <https://www.ig.com/>`_ provides financial spread betting and CFD platforms for trading equities, forex,
+commodities, indices, cryptocurrencies, bonds, rates, options and more.
 
-You can use the IG Markets HTTP / REST API to submit trade orders, open positions, close positions and view market sentiment.
+IG provide APIs so that developers can access their platforms programmatically. Using the APIs you can
+get live and historical data, automate your trades, or create apps. For details about the IG APIs please see their site:
 
-STREAM API
-----------
+https://labs.ig.com/
 
-You can use the IG Markets STREAM API to get realtime price, balance...
+NOTE: this is not an IG project. Use it at your own risk
 
-More
-----
+Installation
+------------
 
-Full details about the API along with information about how to open an account with IG can be found at the link below:
-
-http://labs.ig.com/
-
-
-Install
--------
-
-From Python package index
-~~~~~~~~~~~~~~~~~~~~~~~~~
+From `Python package index <https://pypi.org/project/trading_ig/>`_
 
 ::
 
     $ pip install trading_ig
 
 From source
-~~~~~~~~~~~
-
-Get latest version using Git
 
 ::
 
@@ -90,42 +75,22 @@ or
 
     $ pip install git+https://github.com/ig-python/ig-markets-api-python-library
 
+Dependencies
+------------
 
-Work in progress
-----------------
+* `requests <https://pypi.org/project/requests/>`_
+* `pycryptodome <https://pypi.org/project/pycryptodome/>`_
+* `pandas 1.0.5 <https://pypi.org/project/pandas/1.0.5/>`_
 
-This project is not a `IG Markets <http://www.ig.com/>`__ project.
-Use it at your own risk.
+For full details, see `requirements.txt <https://github.com/ig-python/ig-markets-api-python-library/blob/master/requirements.txt>`_
 
-There is still some room for improvement, fix issue
+Docs
+----
 
-see :
+`<https://trading_ig.readthedocs.io/en/>`_
 
--  http://labs.ig.com/node/98
--  https://labs.ig.com/node/28
--  http://www.andlil.com/forum/script-api-ig-stream-rest-t10091-10.html
--  https://github.com/ig-python/ig-markets-api-python-library/issues
+License
+-------
 
-Thanks to
----------
--  `Lewis Barber <https://github.com/lewisbarber>`_
--  ixta
--  Chris
--  colombao
--  `gianluca.finocchiaro <https://github.com/gfinocchiaro>`_
--  Weswit
-- `Dimitri John Ledkov <https://github.com/xnox>`_
-- `RRMXkun <https://github.com/RRMXkun>`_
-- `redbullpeter <https://github.com/redbullpeter>`_
-- `David Sabater Dinter <https://github.com/dsdinter>`_
-- `Oscar Neira <https://github.com/Oneirag>`_
-- `Wez Pyke <https://github.com/wezpyke>`_
-- `and all other contributors... <https://github.com/ig-python/ig-markets-api-python-library/graphs/contributors>`__
+BSD (See `LICENSE <https://github.com/ig-python/ig-markets-api-python-library/blob/master/LICENSE>`_)
 
-Other related projects
-----------------------
-* igtrade (and forks)
-
-   * https://github.com/maroxe/igtrade
-   * https://github.com/falex69/igtrade
-   * https://github.com/yopibou/L3

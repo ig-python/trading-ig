@@ -1,4 +1,4 @@
-IG Markets REST API - Python Library
+REST API
 ====================================
 
 You can use the IG Markets HTTP / REST API to submit trade orders, open
