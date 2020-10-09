@@ -1,4 +1,4 @@
-IG Markets STREAM API - Python Library
+Streaming API
 ======================================
 
 You can use the IG Markets STREAM API to get realtime price, balance...

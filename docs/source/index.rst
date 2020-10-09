@@ -3,10 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive. fake edit
 
-trading-ig
-=========================================================
-
-.. include:: ../../README.rst
+.. include:: readme.rst
 
 See also
 --------
@@ -14,13 +11,8 @@ See also
 .. toctree::
    :maxdepth: 2
 
+   quickstart.rst
    rest.rst
    stream.rst
-   todo.rst
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   how.rst
+   faq.rst
