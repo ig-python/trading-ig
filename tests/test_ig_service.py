@@ -38,7 +38,7 @@ remove(CACHE_NAME)
 
 def test_ig_service():
 
-    delay_for_ig = 30
+    delay_for_ig = 5
 
     def wait(delay):
         print(
@@ -69,13 +69,6 @@ def test_ig_service():
         print(response)
         # assert(response['balance'][0]['available']>0)
         assert response["balance"][0] > 0
-
-        print("")
-
-        print("fetch_account_activity_by_period")
-        response = ig_service.fetch_account_activity_by_period(10000)
-        print(response)
-        assert isinstance(response, pd.DataFrame)
 
         print("")
 

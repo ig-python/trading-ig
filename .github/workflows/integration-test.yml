@@ -31,4 +31,4 @@ jobs:
         IG_SERVICE_ACC_TYPE:  ${{ secrets.IG_SERVICE_ACC_TYPE }}
         IG_SERVICE_ACC_NUMBER:  ${{ secrets.IG_SERVICE_ACC_NUMBER_1 }}
       run: |
-        pytest --ignore=tests/test_session.py --ignore=tests/test_utils.py
+        pytest tests/test_ig_service.py

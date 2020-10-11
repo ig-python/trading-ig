@@ -276,7 +276,7 @@ class IGService:
                         colname = col_lev1 + "_" + col
                     else:
                         colname = col
-                    data[colname] = ser.map(lambda x: x[col])
+                    data[colname] = ser.map(lambda x: x[col], na_action='ignore')
                 else:
                     raise (NotImplementedError("col overlap: %r" % col))
         return data
