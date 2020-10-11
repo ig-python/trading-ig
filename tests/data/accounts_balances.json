@@ -1,0 +1,33 @@
+{
+    "accounts": [
+        {
+            "accountId": "XYZ987",
+            "accountName": "Demo-SpreadBet",
+            "accountAlias": null,
+            "status": "ENABLED",
+            "accountType": "SPREADBET",
+            "preferred": false,
+            "balance": {
+                "balance": 1000.00,
+                "deposit": 500.00,
+                "profitLoss": 500.00,
+                "available": 1000.00
+            },
+            "currency": "GBP",
+            "canTransferFrom": true,
+            "canTransferTo": true
+        },
+        {
+            "accountId": "ABC123",
+            "accountName": "Demo-cfd",
+            "accountAlias": null,
+            "status": "ENABLED",
+            "accountType": "CFD",
+            "preferred": true,
+            "balance": null,
+            "currency": "GBP",
+            "canTransferFrom": true,
+            "canTransferTo": true
+        }
+    ]
+}
