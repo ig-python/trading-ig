@@ -4,7 +4,7 @@ import json
 import pytest
 
 """
-unit tests for rest module
+unit tests for session methods
 """
 
 
