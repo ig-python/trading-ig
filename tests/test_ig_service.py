@@ -7,11 +7,10 @@ integration tests
 
 import pandas as pd
 import requests
-import requests_cache
+# import requests_cache
 from datetime import datetime, timedelta
 import six
 import time
-import pytest
 
 # import pprint
 
@@ -46,12 +45,12 @@ def test_ig_service():
         )
         time.sleep(delay)
 
-    session_cached = requests_cache.CachedSession(
-        cache_name=CACHE_NAME, backend="sqlite", expire_after=timedelta(hours=1)
-    )
+    # session_cached = requests_cache.CachedSession(
+    #     cache_name=CACHE_NAME, backend="sqlite", expire_after=timedelta(hours=1)
+    # )
     session_not_cached = requests.Session()
 
-    #for i, session in enumerate([session_cached, session_cached, session_not_cached]):
+    # for i, session in enumerate([session_cached, session_cached, session_not_cached]):
     for i, session in enumerate([session_not_cached]):
 
         # pp = pprint.PrettyPrinter(indent=4)
@@ -116,10 +115,10 @@ def test_ig_service():
 
         print("")
 
-        #print("fetch_related_client_sentiment_by_instrument")
-        #response = ig_service.fetch_related_client_sentiment_by_instrument(market_id)
-        #print(response)
-        #assert isinstance(response, pd.DataFrame)
+        # print("fetch_related_client_sentiment_by_instrument")
+        # response = ig_service.fetch_related_client_sentiment_by_instrument(market_id)
+        # print(response)
+        # assert isinstance(response, pd.DataFrame)
 
         print("")
 
