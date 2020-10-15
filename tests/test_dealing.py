@@ -18,7 +18,8 @@ class TestDealing:
         with open('tests/data/workingorders.json', 'r') as file:
             response_body = json.loads(file.read())
 
-        responses.add(responses.GET, 'https://demo-api.ig.com/gateway/deal/workingorders',
+        responses.add(responses.GET,
+                      'https://demo-api.ig.com/gateway/deal/workingorders',
                       headers={'CST': 'abc123', 'X-SECURITY-TOKEN': 'xyz987'},
                       json=response_body,
                       status=200)
@@ -37,8 +38,3 @@ class TestDealing:
         assert result.iloc[0]['level'] == 2000.0
         assert result.iloc[0]['epic'] == 'CS.D.CFDGOLD.CFDGC.IP'
         assert result.iloc[0]['currencyCode'] == 'USD'
-
-
-
-
-

@@ -36,7 +36,6 @@ class TestSession:
         assert result['accounts'][1]['accountType'] == 'CFD'
         assert result['trailingStopsEnabled'] is True
 
-
     @responses.activate
     def test_login_v1_bad_api_key(self):
 
@@ -52,7 +51,6 @@ class TestSession:
             assert result['errorCode'] == 'error.security.api-key-invalid'
             assert ig_service.crud_session.CLIENT_TOKEN is None
             assert ig_service.crud_session.SECURITY_TOKEN is None
-
 
     @responses.activate
     def test_login_v1_bad_credentials(self):
@@ -70,7 +68,6 @@ class TestSession:
             assert result['errorCode'] == 'error.security.invalid-details'
             assert ig_service.crud_session.CLIENT_TOKEN is None
             assert ig_service.crud_session.SECURITY_TOKEN is None
-
 
     @responses.activate
     def test_login_v1_encrypted_happy(self):
@@ -104,7 +101,6 @@ class TestSession:
         assert result['accounts'][1]['accountType'] == 'CFD'
         assert result['trailingStopsEnabled'] is True
 
-
     @responses.activate
     def test_login_v1_encrypted_bad_key(self):
 
@@ -121,9 +117,7 @@ class TestSession:
             assert ig_service.crud_session.CLIENT_TOKEN is None
             assert ig_service.crud_session.SECURITY_TOKEN is None
 
-
     # login v2
-
 
     @responses.activate
     def test_login_v2_happy(self):
@@ -148,7 +142,6 @@ class TestSession:
         assert result['accounts'][1]['accountType'] == 'CFD'
         assert result['trailingStopsEnabled'] is True
 
-
     @responses.activate
     def test_login_v2_bad_api_key(self):
 
@@ -164,7 +157,6 @@ class TestSession:
             assert result['errorCode'] == 'error.security.api-key-invalid'
             assert ig_service.crud_session.CLIENT_TOKEN is None
             assert ig_service.crud_session.SECURITY_TOKEN is None
-
 
     @responses.activate
     def test_login_v2_bad_credentials(self):
@@ -182,7 +174,6 @@ class TestSession:
             assert result['errorCode'] == 'error.security.invalid-details'
             assert ig_service.crud_session.CLIENT_TOKEN is None
             assert ig_service.crud_session.SECURITY_TOKEN is None
-
 
     @responses.activate
     def test_login_v2_encrypted_happy(self):
@@ -216,7 +207,6 @@ class TestSession:
         assert result['accounts'][1]['accountType'] == 'CFD'
         assert result['trailingStopsEnabled'] is True
 
-
     @responses.activate
     def test_login_v2_encrypted_bad_key(self):
 
@@ -233,9 +223,7 @@ class TestSession:
             assert ig_service.crud_session.CLIENT_TOKEN is None
             assert ig_service.crud_session.SECURITY_TOKEN is None
 
-
     # session details
-
 
     @responses.activate
     def test_session_details(self):
@@ -261,9 +249,7 @@ class TestSession:
         assert result['accountId'] == 'ABC123'
         assert result['currency'] == 'GBP'
 
-
     # switch accounts
-
 
     @responses.activate
     def test_switch_account(self):
