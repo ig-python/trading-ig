@@ -1054,7 +1054,8 @@ class IGService:
         numpoints=None,
         pagesize=0,
         pagenumber=None,
-        session=None
+        session=None,
+        format_function=None
     ):
 
         """Returns a list of historical prices for the given epic, resolution,
@@ -1078,13 +1079,16 @@ class IGService:
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
+        if format_function is None:
+            format_function = self.format_prices
         if _HAS_PANDAS and self.return_dataframe:
-            data["prices"] = self.format_prices(data["prices"], version)
+            data["prices"] = format_function(data["prices"], version)
             data['prices'] = data['prices'].fillna(value=np.nan)
         return data
 
     def fetch_historical_prices_by_epic_and_num_points(self, epic, resolution,
-                                                       numpoints, session=None):
+                                                       numpoints, session=None,
+                                                       format_function=None):
         """Returns a list of historical prices for the given epic, resolution,
         number of points"""
         version = "2"
@@ -1096,13 +1100,15 @@ class IGService:
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
+        if format_function is None:
+            format_function = self.format_prices
         if _HAS_PANDAS and self.return_dataframe:
-            data["prices"] = self.format_prices(data["prices"], version)
+            data["prices"] = format_function(data["prices"], version)
             data['prices'] = data['prices'].fillna(value=np.nan)
         return data
 
     def fetch_historical_prices_by_epic_and_date_range(
-        self, epic, resolution, start_date, end_date, session=None
+        self, epic, resolution, start_date, end_date, session=None, format_function=None
     ):
         """Returns a list of historical prices for the given epic, resolution,
         multiplier and date range"""
@@ -1133,8 +1139,10 @@ class IGService:
         response = self._req(action, endpoint, params, session, version)
         del self.crud_session.HEADERS["LOGGED_IN"]["VERSION"]
         data = self.parse_response(response.text)
+        if format_function is None:
+            format_function = self.format_prices
         if _HAS_PANDAS and self.return_dataframe:
-            data["prices"] = self.format_prices(data["prices"], version)
+            data["prices"] = format_function(data["prices"], version)
             data['prices'] = data['prices'].fillna(value=np.nan)
         return data
 
