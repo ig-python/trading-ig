@@ -1045,6 +1045,33 @@ class IGService:
         df2 = pd.concat(data, axis=1, keys=keys)
         return df2
 
+    def format_prices_flat(self, prices, version):
+
+        """Format price data as a flat DataFrame, no hierarchy"""
+
+        if len(prices) == 0:
+            raise (Exception("Historical price data not found"))
+
+        df = json_normalize(prices)
+        df = df.set_index("snapshotTimeUTC")
+        df.index = pd.to_datetime(df.index, format="%Y-%m-%dT%H:%M:%S")
+        df.index.name = "DateTime"
+        df = df.drop(columns=['snapshotTime',
+                              'openPrice.lastTraded',
+                              'closePrice.lastTraded',
+                              'highPrice.lastTraded',
+                              'lowPrice.lastTraded'])
+        df = df.rename(columns={"openPrice.bid": "open.bid",
+                                "openPrice.ask": "open.ask",
+                                "closePrice.bid": "close.bid",
+                                "closePrice.ask": "close.ask",
+                                "highPrice.bid": "high.bid",
+                                "highPrice.ask": "high.ask",
+                                "lowPrice.bid": "low.bid",
+                                "lowPrice.ask": "low.ask",
+                                "lastTradedVolume": "volume"})
+        return df
+
     def fetch_historical_prices_by_epic(
         self,
         epic,
