@@ -1097,7 +1097,7 @@ class IGService:
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
-            data["prices"] = self.format_prices(data["prices"], version)
+            data["prices"] = self.format_prices(data["prices"], "1") # date format does not match version
             data['prices'] = data['prices'].fillna(value=np.nan)
         return data
 
