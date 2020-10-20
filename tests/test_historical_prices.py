@@ -336,7 +336,7 @@ class TestHistoricalPrices:
 
         responses.add(
             responses.GET,
-            'https://demo-api.ig.com/gateway/deal/prices/MT.D.GC.Month2.IP/DAY/5',
+            'https://demo-api.ig.com/gateway/deal/prices/MT.D.GC.Month2.IP/DAY/10',
             match_querystring=False,
             headers={'CST': 'abc123', 'X-SECURITY-TOKEN': 'xyz987'},
             json=response_body,
@@ -347,14 +347,14 @@ class TestHistoricalPrices:
         result = ig_service.fetch_historical_prices_by_epic_and_num_points(
             epic='MT.D.GC.Month2.IP',
             resolution='D',
-            numpoints=5)
+            numpoints=10)
 
         prices = result['prices']
         assert isinstance(result, dict)
         assert isinstance(prices, pd.DataFrame)
 
         # assert DataFrame shape
-        assert prices.shape[0] == 5
+        assert prices.shape[0] == 10
         assert prices.shape[1] == 13
 
         # assert time series rows are 1 day apart
