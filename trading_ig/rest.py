@@ -1130,8 +1130,8 @@ class IGService:
         if format_function is None:
             format_function = self.format_prices
         if _HAS_PANDAS and self.return_dataframe:
-            # date format does not match version
-            data["prices"] = format_function(data["prices"], "1")
+            data["prices"] = format_function(data["prices"], version)
+            data["prices"] = self.format_prices(data["prices"], version)
             data['prices'] = data['prices'].fillna(value=np.nan)
         return data
 
