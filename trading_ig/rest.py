@@ -945,47 +945,6 @@ class IGService:
             data = pd.DataFrame(data["markets"])
         return data
 
-    def format_prices_old(self, prices):
-        """Format prices data as a dict with
-         - 'price' : a Pandas dataframe
-                ask, bid, last as Items axis
-                date as Major_axis axis
-                Open High Low Close as Minor_axis axis
-         - 'volume' : a timeserie for lastTradedVolume
-        """
-
-        df = pd.DataFrame(prices)
-        df = df.set_index("snapshotTime")
-        df.index.name = "DateTime"
-        df_ask = df[[u"openPrice", u"highPrice", u"lowPrice", u"closePrice"]].applymap(
-            lambda x: x["ask"]
-        )
-        df_bid = df[[u"openPrice", u"highPrice", u"lowPrice", u"closePrice"]].applymap(
-            lambda x: x["bid"]
-        )
-        df_lastTraded = df[
-            [u"openPrice", u"highPrice", u"lowPrice", u"closePrice"]
-        ].applymap(lambda x: x["lastTraded"])
-        ts_lastTradedVolume = df["lastTradedVolume"]
-        # ts_lastTradedVolume.name = 'Volume'
-        panel = pd.Panel.from_dict(
-            {"ask": df_ask, "bid": df_bid, "last": df_lastTraded}
-        )
-        panel = panel.rename(
-            minor={
-                "openPrice": "Open",
-                "highPrice": "High",
-                "lowPrice": "Low",
-                "closePrice": "Close",
-            }
-        )
-        panel["spread"] = panel["ask"] - panel["bid"]
-        prices = {}
-        prices["price"] = panel
-
-        prices["volume"] = ts_lastTradedVolume
-        return prices
-
     def format_prices(self, prices, version, flag_calc_spread=False):
         """Format prices data as a DataFrame with hierarchical columns"""
 
