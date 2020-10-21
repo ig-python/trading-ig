@@ -945,47 +945,6 @@ class IGService:
             data = pd.DataFrame(data["markets"])
         return data
 
-    def format_prices_old(self, prices):
-        """Format prices data as a dict with
-         - 'price' : a Pandas dataframe
-                ask, bid, last as Items axis
-                date as Major_axis axis
-                Open High Low Close as Minor_axis axis
-         - 'volume' : a timeserie for lastTradedVolume
-        """
-
-        df = pd.DataFrame(prices)
-        df = df.set_index("snapshotTime")
-        df.index.name = "DateTime"
-        df_ask = df[[u"openPrice", u"highPrice", u"lowPrice", u"closePrice"]].applymap(
-            lambda x: x["ask"]
-        )
-        df_bid = df[[u"openPrice", u"highPrice", u"lowPrice", u"closePrice"]].applymap(
-            lambda x: x["bid"]
-        )
-        df_lastTraded = df[
-            [u"openPrice", u"highPrice", u"lowPrice", u"closePrice"]
-        ].applymap(lambda x: x["lastTraded"])
-        ts_lastTradedVolume = df["lastTradedVolume"]
-        # ts_lastTradedVolume.name = 'Volume'
-        panel = pd.Panel.from_dict(
-            {"ask": df_ask, "bid": df_bid, "last": df_lastTraded}
-        )
-        panel = panel.rename(
-            minor={
-                "openPrice": "Open",
-                "highPrice": "High",
-                "lowPrice": "Low",
-                "closePrice": "Close",
-            }
-        )
-        panel["spread"] = panel["ask"] - panel["bid"]
-        prices = {}
-        prices["price"] = panel
-
-        prices["volume"] = ts_lastTradedVolume
-        return prices
-
     def format_prices(self, prices, version, flag_calc_spread=False):
         """Format prices data as a DataFrame with hierarchical columns"""
 
@@ -1045,6 +1004,33 @@ class IGService:
         df2 = pd.concat(data, axis=1, keys=keys)
         return df2
 
+    def flat_prices(self, prices, version):
+
+        """Format price data as a flat DataFrame, no hierarchy"""
+
+        if len(prices) == 0:
+            raise (Exception("Historical price data not found"))
+
+        df = json_normalize(prices)
+        df = df.set_index("snapshotTimeUTC")
+        df.index = pd.to_datetime(df.index, format="%Y-%m-%dT%H:%M:%S")
+        df.index.name = "DateTime"
+        df = df.drop(columns=['snapshotTime',
+                              'openPrice.lastTraded',
+                              'closePrice.lastTraded',
+                              'highPrice.lastTraded',
+                              'lowPrice.lastTraded'])
+        df = df.rename(columns={"openPrice.bid": "open.bid",
+                                "openPrice.ask": "open.ask",
+                                "closePrice.bid": "close.bid",
+                                "closePrice.ask": "close.ask",
+                                "highPrice.bid": "high.bid",
+                                "highPrice.ask": "high.ask",
+                                "lowPrice.bid": "low.bid",
+                                "lowPrice.ask": "low.ask",
+                                "lastTradedVolume": "volume"})
+        return df
+
     def fetch_historical_prices_by_epic(
         self,
         epic,
@@ -1054,7 +1040,8 @@ class IGService:
         numpoints=None,
         pagesize=0,
         pagenumber=None,
-        session=None
+        session=None,
+        format=None
     ):
 
         """Returns a list of historical prices for the given epic, resolution,
@@ -1078,13 +1065,16 @@ class IGService:
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
+        if format is None:
+            format = self.format_prices
         if _HAS_PANDAS and self.return_dataframe:
-            data["prices"] = self.format_prices(data["prices"], version)
+            data["prices"] = format(data["prices"], version)
             data['prices'] = data['prices'].fillna(value=np.nan)
         return data
 
     def fetch_historical_prices_by_epic_and_num_points(self, epic, resolution,
-                                                       numpoints, session=None):
+                                                       numpoints, session=None,
+                                                       format=None):
         """Returns a list of historical prices for the given epic, resolution,
         number of points"""
         version = "2"
@@ -1096,13 +1086,15 @@ class IGService:
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
+        if format is None:
+            format = self.format_prices
         if _HAS_PANDAS and self.return_dataframe:
-            data["prices"] = self.format_prices(data["prices"], version)
+            data["prices"] = format(data["prices"], version)
             data['prices'] = data['prices'].fillna(value=np.nan)
         return data
 
     def fetch_historical_prices_by_epic_and_date_range(
-        self, epic, resolution, start_date, end_date, session=None
+        self, epic, resolution, start_date, end_date, session=None, format=None
     ):
         """Returns a list of historical prices for the given epic, resolution,
         multiplier and date range"""
@@ -1133,8 +1125,10 @@ class IGService:
         response = self._req(action, endpoint, params, session, version)
         del self.crud_session.HEADERS["LOGGED_IN"]["VERSION"]
         data = self.parse_response(response.text)
+        if format is None:
+            format = self.format_prices
         if _HAS_PANDAS and self.return_dataframe:
-            data["prices"] = self.format_prices(data["prices"], version)
+            data["prices"] = format(data["prices"], version)
             data['prices'] = data['prices'].fillna(value=np.nan)
         return data
 
