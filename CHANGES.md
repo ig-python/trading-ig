@@ -11,6 +11,7 @@
 * unit tests for v1, v2 historic prices methods
 * allowing historic prices format to be defined at runtime
 * new optional flatter format for historic prices
+* release notes
 
 ## 0.0.7
 
