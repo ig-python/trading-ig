@@ -65,9 +65,8 @@ def test_ig_service():
 
         print("%d - fetch_accounts" % i)
         response = ig_service.fetch_accounts()
-        print(response)
-        # assert(response['balance'][0]['available']>0)
-        assert response["balance"][0] > 0
+        preferred = response.loc[response["preferred"] == True]
+        assert all(preferred["balance"] > 0)
 
         print("")
 
