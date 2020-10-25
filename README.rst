@@ -87,7 +87,7 @@ For full details, see `requirements.txt <https://github.com/ig-python/ig-markets
 Docs
 ----
 
-`<https://trading_ig.readthedocs.io/en/>`_
+`<https://trading_ig.readthedocs.io/>`_
 
 License
 -------
