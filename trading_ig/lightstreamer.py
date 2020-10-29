@@ -234,6 +234,8 @@ class LSClient(object):
                 target=self._receive,
             )
             self._stream_connection_thread.setDaemon(True)
+            # Add "active connection" attribute to running thread
+            setattr(self._stream_connection_thread, "active_connection", True)
             self._stream_connection_thread.start()
         else:
             lines = self._stream_connection.readlines()
@@ -245,6 +247,7 @@ class LSClient(object):
         """Await the natural STREAM-CONN-THREAD termination."""
         if self._stream_connection_thread:
             log.debug("Waiting for thread to terminate")
+            self._stream_connection_thread.active_connection = False
             self._stream_connection_thread.join()
             self._stream_connection_thread = None
             log.debug("Thread terminated")
@@ -254,8 +257,8 @@ class LSClient(object):
         the connect() invocation.
         """
         if self._stream_connection is not None:
-            # Close the HTTP connection
-            self._stream_connection.close()
+            # Exits stream thread loop, joins and exits stream thread, closes connection
+            self._join()
             log.debug("Connection closed")
             print("DISCONNECTED FROM LIGHTSTREAMER")
         else:
@@ -327,7 +330,7 @@ class LSClient(object):
     def _receive(self):
         rebind = False
         receive = True
-        while receive:
+        while receive and self._stream_connection_thread.active_connection:
             log.debug("Waiting for a new message")
             try:
                 message = self._read_from_stream()
@@ -450,5 +453,3 @@ if __name__ == "__main__":
     import atexit
 
     atexit.register(handler)
-
-    lightstreamer_client._join()
