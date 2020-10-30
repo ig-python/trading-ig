@@ -1038,7 +1038,7 @@ class IGService:
         start_date=None,
         end_date=None,
         numpoints=None,
-        pagesize=0,
+        pagesize=20,
         pagenumber=None,
         session=None,
         format=None
@@ -1056,8 +1056,7 @@ class IGService:
             params["to"] = end_date
         if numpoints:
             params["max"] = numpoints
-        if pagesize:
-            params["pageSize"] = pagesize
+        params["pageSize"] = pagesize
         if pagenumber:
             params["pageNumber"] = pagenumber
         url_params = {"epic": epic}
