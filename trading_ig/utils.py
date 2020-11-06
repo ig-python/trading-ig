@@ -35,6 +35,7 @@ def conv_resol(resolution):
         from pandas.tseries.frequencies import to_offset
 
         d = {
+            to_offset("1s"): "SECOND",
             to_offset("1Min"): "MINUTE",
             to_offset("2Min"): "MINUTE_2",
             to_offset("3Min"): "MINUTE_3",

@@ -1082,8 +1082,7 @@ class IGService:
             params["to"] = end_date
         if numpoints:
             params["max"] = numpoints
-        if pagesize != 20:
-            params["pageSize"] = pagesize
+        params["pageSize"] = pagesize
         url_params = {"epic": epic}
         endpoint = "/prices/{epic}".format(**url_params)
         action = "read"
