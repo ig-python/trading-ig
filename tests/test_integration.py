@@ -1,6 +1,7 @@
 from trading_ig import IGService
 from trading_ig.config import config
 import pandas as pd
+import datetime
 import pytest
 from random import randint
 
@@ -85,7 +86,7 @@ class TestIntegration:
         response = ig_service.search_markets(search_term)
         assert isinstance(response, pd.DataFrame)
 
-    def test_fetch_historical_prices_by_epic_and_num_points(self, ig_service):
+    def test_fetch_historical_prices_by_epic_and_numpoints(self, ig_service):
         response = ig_service.fetch_historical_prices_by_epic_and_num_points(
             "CS.D.EURUSD.MINI.IP", "H", 4
         )
@@ -100,3 +101,70 @@ class TestIntegration:
         assert isinstance(response["allowance"], dict)
         assert isinstance(response["prices"], pd.DataFrame)
         assert len(response["prices"]) == 4
+
+    def test_fetch_historical_prices_by_epic_dates(self, ig_service):
+        result = ig_service.fetch_historical_prices_by_epic(
+            epic='MT.D.GC.Month2.IP',
+            resolution='D',
+            start_date='2020-09-01T00:00:00',
+            end_date='2020-09-04T23:59:59')
+
+        prices = result['prices']
+        assert isinstance(result, dict)
+        assert isinstance(prices, pd.DataFrame)
+        assert prices.shape[0] == 4
+        assert prices.shape[1] == 13
+
+        # assert time series rows are 1 day apart
+        prices['tvalue'] = prices.index
+        prices['delta'] = (prices['tvalue'] - prices['tvalue'].shift())
+        assert any(prices["delta"].dropna() == datetime.timedelta(days=1))
+
+        # assert default paging
+        assert result['metadata']['pageData']['pageSize'] == 20
+        assert result['metadata']['pageData']['pageNumber'] == 1
+        assert result['metadata']['pageData']['totalPages'] == 1
+
+    def test_fetch_historical_prices_by_epic_numpoints(self, ig_service):
+        result = ig_service.fetch_historical_prices_by_epic(
+            epic='MT.D.GC.Month2.IP',
+            resolution='W',
+            numpoints=10)
+
+        prices = result['prices']
+        assert isinstance(result, dict)
+        assert isinstance(prices, pd.DataFrame)
+
+        # assert DataFrame shape
+        assert prices.shape[0] == 10
+        assert prices.shape[1] == 13
+
+        # assert time series rows are 1 week apart
+        prices['tvalue'] = prices.index
+        prices['delta'] = (prices['tvalue'] - prices['tvalue'].shift())
+        assert any(prices["delta"].dropna() == datetime.timedelta(weeks=1))
+
+    def test_fetch_historical_prices_by_epic_numpoints_default_paged(
+            self,
+            ig_service):
+        result = ig_service.fetch_historical_prices_by_epic(
+            epic='MT.D.GC.Month2.IP',
+            resolution='W',
+            numpoints=25)
+
+        # assert default paged row count
+        assert result['prices'].shape[0] == 25
+        assert result['metadata']['pageData']['pageNumber'] == 2
+
+    def test_fetch_historical_prices_by_epic_numpoints_custom_paged(
+            self,
+            ig_service):
+        result = ig_service.fetch_historical_prices_by_epic(
+            epic='MT.D.GC.Month2.IP',
+            resolution='W',
+            numpoints=10,
+            pagesize=2)
+
+        # assert default paged row count
+        assert result['prices'].shape[0] == 10
+        assert result['metadata']['pageData']['pageNumber'] == 5

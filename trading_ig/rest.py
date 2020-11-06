@@ -20,7 +20,7 @@ import pandas as pd
 
 import numpy as np
 from pandas import json_normalize
-
+from datetime import timedelta, datetime
 from .utils import _HAS_PANDAS, _HAS_MUNCH
 from .utils import conv_resol, conv_datetime, conv_to_ms, DATE_FORMATS, munchify
 
@@ -1038,14 +1038,40 @@ class IGService:
         start_date=None,
         end_date=None,
         numpoints=None,
-        pagesize=0,
-        pagenumber=None,
+        pagesize=20,
         session=None,
         format=None
     ):
 
-        """Returns a list of historical prices for the given epic, resolution,
-        number of points"""
+        """
+        Fetches historical prices for the given epic.
+
+        This method wraps the IG v3 /prices/{epic} endpoint. With this method you can
+        choose to get either a fixed number of prices in the past, or to get the
+        prices between two points in time. By default it will return the last 10
+        prices at 1 minute resolution.
+
+        If the result set spans multiple 'pages', this method will automatically
+        get all the results and bundle them into one object.
+
+        :param epic: (str) The epic key for which historical prices are being
+            requested
+        :param resolution: (str, optional) timescale resolution. Expected values
+            are 1Min, 2Min, 3Min, 5Min, 10Min, 15Min, 30Min, 1H, 2H, 3H, 4H, D,
+            W, M. Default is 1Min
+        :param start_date: (datetime, optional) date range start, format
+            yyyy-MM-dd'T'HH:mm:ss
+        :param end_date: (datetime, optional) date range end, format
+            yyyy-MM-dd'T'HH:mm:ss
+        :param numpoints: (int, optional) number of data points. Default is 10
+        :param pagesize: (int, optional) number of data points. Default is 20
+        :param session: (Session, optional) session object
+        :param format: (function, optional) function to convert the raw
+            JSON response
+        :returns: Pandas DataFrame if configured, otherwise a dict
+        :raises Exception: raises an exception if any error is encountered
+        """
+
         version = "3"
         params = {}
         if resolution and _HAS_PANDAS and self.return_dataframe:
@@ -1056,20 +1082,34 @@ class IGService:
             params["to"] = end_date
         if numpoints:
             params["max"] = numpoints
-        if pagesize:
+        if pagesize != 20:
             params["pageSize"] = pagesize
-        if pagenumber:
-            params["pageNumber"] = pagenumber
         url_params = {"epic": epic}
         endpoint = "/prices/{epic}".format(**url_params)
         action = "read"
-        response = self._req(action, endpoint, params, session, version)
-        data = self.parse_response(response.text)
+        prices = []
+        pagenumber = 1
+        more_results = True
+
+        while more_results:
+            params["pageNumber"] = pagenumber
+            response = self._req(action, endpoint, params, session, version)
+            data = self.parse_response(response.text)
+            prices.extend(data["prices"])
+            page_data = data["metadata"]["pageData"]
+            if page_data["pageNumber"] == page_data["totalPages"]:
+                more_results = False
+            else:
+                pagenumber += 1
+
+        data["prices"] = prices
+
         if format is None:
             format = self.format_prices
         if _HAS_PANDAS and self.return_dataframe:
             data["prices"] = format(data["prices"], version)
             data['prices'] = data['prices'].fillna(value=np.nan)
+        self.log_allowance(data["metadata"])
         return data
 
     def fetch_historical_prices_by_epic_and_num_points(self, epic, resolution,
@@ -1131,6 +1171,13 @@ class IGService:
             data["prices"] = format(data["prices"], version)
             data['prices'] = data['prices'].fillna(value=np.nan)
         return data
+
+    def log_allowance(self, data):
+        remaining_allowance = data['allowance']['remainingAllowance']
+        allowance_expiry_secs = data['allowance']['allowanceExpiry']
+        allowance_expiry = datetime.today() + timedelta(seconds=allowance_expiry_secs)
+        logger.info("Historic price data allowance: %s remaining until %s" %
+                    (remaining_allowance, allowance_expiry))
 
     # -------- END -------- #
 
