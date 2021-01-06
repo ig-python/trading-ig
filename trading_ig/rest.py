@@ -1040,7 +1040,8 @@ class IGService:
         numpoints=None,
         pagesize=20,
         session=None,
-        format=None
+        format=None,
+        wait=1
     ):
 
         """
@@ -1068,6 +1069,8 @@ class IGService:
         :param session: (Session, optional) session object
         :param format: (function, optional) function to convert the raw
             JSON response
+        :param wait: (int, optional) how many seconds to wait between successive
+            calls in a multi-page scenario. Default is 1
         :returns: Pandas DataFrame if configured, otherwise a dict
         :raises Exception: raises an exception if any error is encountered
         """
@@ -1096,10 +1099,12 @@ class IGService:
             data = self.parse_response(response.text)
             prices.extend(data["prices"])
             page_data = data["metadata"]["pageData"]
-            if page_data["pageNumber"] == page_data["totalPages"]:
+            if page_data["totalPages"] == 0 or \
+                    (page_data["pageNumber"] == page_data["totalPages"]):
                 more_results = False
             else:
                 pagenumber += 1
+            time.sleep(wait)
 
         data["prices"] = prices
 
