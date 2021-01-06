@@ -1,4 +1,4 @@
-from trading_ig import IGService
+from trading_ig.rest import IGService
 from trading_ig.config import config
 import pandas as pd
 import datetime
