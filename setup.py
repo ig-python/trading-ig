@@ -76,7 +76,7 @@ setup(
         "requests==2.24.0",
         "requests-cache==0.5.2",
         "six==1.15.0",
-        "pandas==1.0.5",
+        "pandas==1.2.0",
     ],  # bunch->lunch->infi.bunch->munch
     # List additional groups of dependencies here (e.g. development dependencies).
     # You can install these using the following syntax, for example:
