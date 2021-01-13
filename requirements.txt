@@ -3,4 +3,5 @@ pycryptodome==3.9.8
 requests==2.24.0
 requests-cache==0.5.2
 six==1.15.0
-pandas==1.0.5
+pandas==1.2.0 ; python_version >= '3.7.1'
+pandas==1.1.5 ; python_version < '3.7.1'
