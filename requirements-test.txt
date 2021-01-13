@@ -1,7 +1,2 @@
 pytest
-pandas==1.0.5
-requests
-requests-cache
-munch
-six
-responses
+-r requirements.txt
