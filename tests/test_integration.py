@@ -9,6 +9,8 @@ from random import randint
 @pytest.fixture(scope="module")
 def ig_service():
     """test fixture logs into IG with the configured credentials"""
+    if config.acc_type == 'LIVE':
+        pytest.fail('this integration test should not be executed with a LIVE account')
     ig_service = IGService(config.username, config.password,
                            config.api_key, config.acc_type)
     ig_service.create_session()
