@@ -642,7 +642,11 @@ class IGService:
     def fetch_working_orders(self, session=None):
         """Returns all open working orders for the active account"""
         # TODO: Update to v2
-        version = "1"
+        # *************************
+        # Byod0 : Need to check v2 |
+        # https://labs.ig.com/rest-trading-api-reference/service-detail?id=555
+        # *************************
+        version = "2"
         params = {}
         endpoint = "/workingorders"
         action = "read"
@@ -674,23 +678,21 @@ class IGService:
                     u"scalingFactor",
                 ],
                 "workingOrderData": [
-                    u"size",
-                    u"trailingStopDistance",
-                    u"direction",
-                    u"level",
-                    u"requestType",
-                    u"currencyCode",
-                    u"contingentLimit",
-                    u"trailingTriggerIncrement",
-                    u"dealId",
-                    u"contingentStop",
-                    u"goodTill",
-                    u"controlledRisk",
-                    u"trailingStopIncrement",
                     u"createdDate",
-                    u"epic",
-                    u"trailingTriggerDistance",
+                    u"currencyCode",
+                    u"dealId",
+                    u"direction",
                     u"dma",
+                    u"epic",
+                    u"goodTillDate",
+                    u"goodTillDateISO",
+                    u"guaranteedStop",
+                    u"limitDistance",
+                    u"orderLevel",
+                    u"orderSize",
+                    u"orderType",
+                    u"stopDistance",
+                    u"timeInForce",
                 ],
             }
 
