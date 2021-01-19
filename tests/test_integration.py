@@ -69,7 +69,7 @@ class TestIntegration:
     def test_fetch_all_watchlists(self, watchlists):
         assert isinstance(watchlists, pd.DataFrame)
         default = watchlists[watchlists["defaultSystemWatchlist"]]
-        assert any(default["name"] == "Popular Markets")
+        assert any(default["id"] == "Popular Markets")
 
     def test_fetch_watchlist_markets(self, ig_service, watchlists):
         rand_index = randint(0, len(watchlists) - 1)
