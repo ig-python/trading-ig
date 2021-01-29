@@ -58,7 +58,6 @@ def main():
         items=["L1:CS.D.GBPUSD.CFD.IP", "L1:CS.D.USDJPY.CFD.IP"],
         fields=["UPDATE_TIME", "BID", "OFFER", "CHANGE", "MARKET_STATE"],
     )
-    # adapter="QUOTE_ADAPTER")
 
     # Adding the "on_price_update" function to Subscription
     subscription_prices.addlistener(on_prices_update)
@@ -70,7 +69,6 @@ def main():
     subscription_account = Subscription(
         mode="MERGE", items=["ACCOUNT:" + accountId], fields=["AVAILABLE_CASH"],
     )
-    #    #adapter="QUOTE_ADAPTER")
 
     # Adding the "on_balance_update" function to Subscription
     subscription_account.addlistener(on_account_update)

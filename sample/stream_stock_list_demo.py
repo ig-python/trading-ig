@@ -62,7 +62,6 @@ def main():
             "item12",
         ],
         fields=["stock_name", "last_price", "time", "bid", "ask"],
-        adapter="QUOTE_ADAPTER",
     )
 
     # Adding the "on_item_update" function to Subscription
