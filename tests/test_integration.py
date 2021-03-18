@@ -156,10 +156,10 @@ class TestIntegration:
             ig_service,
             epic='MT.D.GC.Month2.IP',
             resolution='W',
-            numpoints=25)
+            numpoints=21)
 
         # assert default paged row count
-        assert result['prices'].shape[0] == 25
+        assert result['prices'].shape[0] == 21
         assert result['metadata']['pageData']['pageNumber'] == 2
 
     def test_fetch_historical_prices_by_epic_numpoints_custom_paged(
@@ -169,12 +169,12 @@ class TestIntegration:
             ig_service,
             epic='MT.D.GC.Month2.IP',
             resolution='W',
-            numpoints=10,
+            numpoints=6,
             pagesize=2)
 
         # assert default paged row count
-        assert result['prices'].shape[0] == 10
-        assert result['metadata']['pageData']['pageNumber'] == 5
+        assert result['prices'].shape[0] == 6
+        assert result['metadata']['pageData']['pageNumber'] == 3
 
     @sleep_and_retry
     @limits(calls=30, period=60)
