@@ -4,6 +4,7 @@ import pandas as pd
 import datetime
 import pytest
 from random import randint
+from ratelimit import limits, sleep_and_retry
 
 
 @pytest.fixture(scope="module")
@@ -105,7 +106,8 @@ class TestIntegration:
         assert len(response["prices"]) == 4
 
     def test_fetch_historical_prices_by_epic_dates(self, ig_service):
-        result = ig_service.fetch_historical_prices_by_epic(
+        result = self.wrap_rate_limit_hist(
+            ig_service,
             epic='MT.D.GC.Month2.IP',
             resolution='D',
             start_date='2020-09-01T00:00:00',
@@ -128,7 +130,8 @@ class TestIntegration:
         assert result['metadata']['pageData']['totalPages'] == 1
 
     def test_fetch_historical_prices_by_epic_numpoints(self, ig_service):
-        result = ig_service.fetch_historical_prices_by_epic(
+        result = self.wrap_rate_limit_hist(
+            ig_service,
             epic='MT.D.GC.Month2.IP',
             resolution='W',
             numpoints=10)
@@ -149,7 +152,8 @@ class TestIntegration:
     def test_fetch_historical_prices_by_epic_numpoints_default_paged(
             self,
             ig_service):
-        result = ig_service.fetch_historical_prices_by_epic(
+        result = self.wrap_rate_limit_hist(
+            ig_service,
             epic='MT.D.GC.Month2.IP',
             resolution='W',
             numpoints=25)
@@ -161,7 +165,8 @@ class TestIntegration:
     def test_fetch_historical_prices_by_epic_numpoints_custom_paged(
             self,
             ig_service):
-        result = ig_service.fetch_historical_prices_by_epic(
+        result = self.wrap_rate_limit_hist(
+            ig_service,
             epic='MT.D.GC.Month2.IP',
             resolution='W',
             numpoints=10,
@@ -170,3 +175,16 @@ class TestIntegration:
         # assert default paged row count
         assert result['prices'].shape[0] == 10
         assert result['metadata']['pageData']['pageNumber'] == 5
+
+    @sleep_and_retry
+    @limits(calls=30, period=60)
+    def wrap_rate_limit_hist(self, ig_service, epic, resolution, start_date=None, end_date=None,
+                             numpoints=None, pagesize=None, wait=2):
+        return ig_service.fetch_historical_prices_by_epic(
+            epic=epic,
+            resolution=resolution,
+            start_date=start_date,
+            end_date=end_date,
+            numpoints=numpoints,
+            pagesize=pagesize,
+            wait=wait)
