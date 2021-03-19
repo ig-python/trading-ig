@@ -1,5 +1,14 @@
 # Release notes
 
+## 0.0.9
+
+* integration and unit tests improved
+* remove reference to adapter (#190)
+* pandas 1.2.0 (#184)
+* paged historical data can be captured with one request (#183)
+* paging fixed for historical data (#175)
+* error fixed when closing stream (#174)
+
 ## 0.0.8
 
 * docs restructured and reintegrated with readthedocs.io
