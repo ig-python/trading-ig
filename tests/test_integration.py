@@ -179,7 +179,7 @@ class TestIntegration:
     @sleep_and_retry
     @limits(calls=30, period=60)
     def wrap_rate_limit_hist(self, ig_service, epic, resolution, start_date=None, end_date=None,
-                             numpoints=None, pagesize=None, wait=2):
+                             numpoints=None, pagesize=None, wait=3):
         return ig_service.fetch_historical_prices_by_epic(
             epic=epic,
             resolution=resolution,
