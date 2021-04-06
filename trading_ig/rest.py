@@ -480,6 +480,23 @@ class IGService:
                 break
         data = self.parse_response(response.text)
         return data
+    
+    def fetch_open_position_by_deal_id(self, deal_id, session=None):
+        """Return the open position by deal id for the active account"""
+        version = "2"
+        params = {}
+        url_params = {"deal_id": deal_id}
+        endpoint = "/positions/{deal_id}".format(**url_params)
+        action = "read"
+        for i in range(5):
+            response = self._req(action, endpoint, params, session, version)
+            if response.status_code == 404:
+                logger.info("Deal id %s not found, retrying." % deal_id)
+                time.sleep(1)
+            else:
+                break
+        data = self.parse_response(response.text)
+        return data
 
     def fetch_open_positions(self, session=None):
         """Returns all open positions for the active account"""
