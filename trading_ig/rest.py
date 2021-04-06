@@ -480,7 +480,7 @@ class IGService:
                 break
         data = self.parse_response(response.text)
         return data
-    
+
     def fetch_open_position_by_deal_id(self, deal_id, session=None):
         """Return the open position by deal id for the active account"""
         version = "2"
