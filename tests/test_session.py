@@ -26,9 +26,6 @@ class TestSession:
         ig_service = IGService('username', 'password', 'api_key', 'DEMO')
         result = ig_service.create_session(version='1')
 
-        assert ig_service.crud_session.CLIENT_TOKEN == 'abc123'
-        assert ig_service.crud_session.SECURITY_TOKEN == 'xyz987'
-
         assert result['accountType'] == 'SPREADBET'
         assert result['currentAccountId'] == 'ABC123'
         assert len(result['accounts']) == 2
@@ -49,8 +46,6 @@ class TestSession:
         with pytest.raises(Exception):
             result = ig_service.create_session(version='1')
             assert result['errorCode'] == 'error.security.api-key-invalid'
-            assert ig_service.crud_session.CLIENT_TOKEN is None
-            assert ig_service.crud_session.SECURITY_TOKEN is None
 
     @responses.activate
     def test_login_v1_bad_credentials(self):
@@ -66,8 +61,6 @@ class TestSession:
         with pytest.raises(Exception):
             result = ig_service.create_session(version='1')
             assert result['errorCode'] == 'error.security.invalid-details'
-            assert ig_service.crud_session.CLIENT_TOKEN is None
-            assert ig_service.crud_session.SECURITY_TOKEN is None
 
     @responses.activate
     def test_login_v1_encrypted_happy(self):
@@ -92,8 +85,6 @@ class TestSession:
         ig_service = IGService('username', 'password', 'api_key', 'DEMO')
         result = ig_service.create_session(encryption=True, version='1')
 
-        assert ig_service.crud_session.CLIENT_TOKEN == 'abc123'
-        assert ig_service.crud_session.SECURITY_TOKEN == 'xyz987'
         assert result['accountType'] == 'SPREADBET'
         assert result['currentAccountId'] == 'ABC123'
         assert len(result['accounts']) == 2
@@ -114,8 +105,6 @@ class TestSession:
         with pytest.raises(IGException):
             result = ig_service.create_session(encryption=True, version='1')
             assert result['errorCode'] == 'error.security.api-key-invalid'
-            assert ig_service.crud_session.CLIENT_TOKEN is None
-            assert ig_service.crud_session.SECURITY_TOKEN is None
 
     # login v2
 
@@ -133,8 +122,6 @@ class TestSession:
         ig_service = IGService('username', 'password', 'api_key', 'DEMO')
         result = ig_service.create_session(version='2')
 
-        assert ig_service.crud_session.CLIENT_TOKEN == 'abc123'
-        assert ig_service.crud_session.SECURITY_TOKEN == 'xyz987'
         assert result['accountType'] == 'SPREADBET'
         assert result['currentAccountId'] == 'ABC123'
         assert len(result['accounts']) == 2
@@ -155,8 +142,6 @@ class TestSession:
         with pytest.raises(Exception):
             result = ig_service.create_session(version='2')
             assert result['errorCode'] == 'error.security.api-key-invalid'
-            assert ig_service.crud_session.CLIENT_TOKEN is None
-            assert ig_service.crud_session.SECURITY_TOKEN is None
 
     @responses.activate
     def test_login_v2_bad_credentials(self):
@@ -172,8 +157,6 @@ class TestSession:
         with pytest.raises(Exception):
             result = ig_service.create_session(version='2')
             assert result['errorCode'] == 'error.security.invalid-details'
-            assert ig_service.crud_session.CLIENT_TOKEN is None
-            assert ig_service.crud_session.SECURITY_TOKEN is None
 
     @responses.activate
     def test_login_v2_encrypted_happy(self):
@@ -198,8 +181,6 @@ class TestSession:
         ig_service = IGService('username', 'password', 'api_key', 'DEMO')
         result = ig_service.create_session(encryption=True, version='2')
 
-        assert ig_service.crud_session.CLIENT_TOKEN == 'abc123'
-        assert ig_service.crud_session.SECURITY_TOKEN == 'xyz987'
         assert result['accountType'] == 'SPREADBET'
         assert result['currentAccountId'] == 'ABC123'
         assert len(result['accounts']) == 2
@@ -220,8 +201,6 @@ class TestSession:
         with pytest.raises(IGException):
             result = ig_service.create_session(encryption=True, version='2')
             assert result['errorCode'] == 'error.security.api-key-invalid'
-            assert ig_service.crud_session.CLIENT_TOKEN is None
-            assert ig_service.crud_session.SECURITY_TOKEN is None
 
     # session details
 

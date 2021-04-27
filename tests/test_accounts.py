@@ -24,7 +24,6 @@ class TestAccounts:
                       status=200)
 
         ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-        ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
         result = ig_service.fetch_accounts()
 
         pd.set_option('display.max_columns', 13)

@@ -27,7 +27,6 @@ class TestHistoricalPrices:
                       status=200)
 
         ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-        ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
         result = ig_service.fetch_historical_prices_by_epic(epic='MT.D.GC.Month2.IP')
         prices = result['prices']
 
@@ -59,7 +58,6 @@ class TestHistoricalPrices:
                       status=200)
 
         ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-        ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
         result = ig_service.fetch_historical_prices_by_epic(
             epic='MT.D.GC.Month2.IP',
             resolution='D',
@@ -100,7 +98,6 @@ class TestHistoricalPrices:
                       status=200)
 
         ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-        ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
         result = ig_service.fetch_historical_prices_by_epic(epic='MT.D.GC.Month2.IP',
                                                             resolution='W',
                                                             numpoints=10)
@@ -132,7 +129,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic(
                 epic='MT.D.GC.Month2.IP',
                 resolution='X',
@@ -156,7 +152,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(ValueError) as excinfo:
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             ig_service.fetch_historical_prices_by_epic(
                 epic='MT.D.GC.Month2.IP',
                 resolution='X',
@@ -176,7 +171,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic(epic='MT.D.X.Month1.IP')
             assert result['errorCode'] == 'error.error.price-history.io-error'
 
@@ -194,7 +188,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic(
                 epic='MT.D.GC.Month2.IP',
                 resolution='D',
@@ -215,7 +208,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic(
                 epic='MT.D.GC.Month2.IP',
                 resolution='D',
@@ -240,7 +232,6 @@ class TestHistoricalPrices:
             status=200)
 
         ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-        ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
         result = ig_service.fetch_historical_prices_by_epic_and_date_range(
             epic='MT.D.GC.Month2.IP',
             resolution='D',
@@ -274,7 +265,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic_and_date_range(
                 epic='MT.D.X.Month1.IP',
                 resolution='D',
@@ -296,7 +286,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic_and_date_range(
                 epic='MT.D.GC.Month2.IP',
                 resolution='D',
@@ -318,7 +307,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic_and_date_range(
                 epic='MT.D.GC.Month2.IP',
                 resolution='D',
@@ -343,7 +331,6 @@ class TestHistoricalPrices:
             status=200)
 
         ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-        ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
         result = ig_service.fetch_historical_prices_by_epic_and_num_points(
             epic='MT.D.GC.Month2.IP',
             resolution='D',
@@ -376,7 +363,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic(
                         epic='MT.D.X.Month2.IP',
                         resolution='W',
@@ -398,7 +384,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic_and_num_points(
                 epic='MT.D.GC.Month2.IP',
                 resolution='D',
@@ -420,7 +405,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(ValueError) as excinfo:
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             ig_service.fetch_historical_prices_by_epic_and_num_points(
                 epic='MT.D.GC.Month2.IP',
                 resolution='X',

@@ -5,3 +5,4 @@ requests-cache==0.5.2
 six==1.15.0
 pandas==1.2.0 ; python_version >= '3.7.1'
 pandas==1.1.5 ; python_version < '3.7.1'
+tenacity==7.0.0

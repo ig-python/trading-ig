@@ -3,8 +3,8 @@
 
 """
 IG Markets REST API Library for Python
-http://labs.ig.com/rest-trading-api-reference
-Original version by Lewis Barber - 2014 - http://uk.linkedin.com/in/lewisbarber/
+https://labs.ig.com/rest-trading-api-reference
+Original version by Lewis Barber - 2014 - https://uk.linkedin.com/in/lewisbarber/
 Modified by Femto Trader - 2014-2015 - https://github.com/femtotrader/
 """  # noqa
 
@@ -23,8 +23,14 @@ from pandas import json_normalize
 from datetime import timedelta, datetime
 from .utils import _HAS_PANDAS, _HAS_MUNCH
 from .utils import conv_resol, conv_datetime, conv_to_ms, DATE_FORMATS, munchify
+import tenacity
 
 logger = logging.getLogger(__name__)
+
+
+class ApiExceededException(Exception):
+    """Raised when our code hits the IG endpoint too often"""
+    pass
 
 
 class IGException(Exception):
@@ -34,30 +40,18 @@ class IGException(Exception):
 class IGSessionCRUD(object):
     """Session with CRUD operation"""
 
-    CLIENT_TOKEN = None
-    SECURITY_TOKEN = None
-
-    BASIC_HEADERS = None
-    LOGGED_IN_HEADERS = None
-    DELETE_HEADERS = None
-
     BASE_URL = None
-
-    HEADERS = {}
 
     def __init__(self, base_url, api_key, session):
         self.BASE_URL = base_url
         self.API_KEY = api_key
-
-        self.HEADERS["BASIC"] = {
-            "X-IG-API-KEY": self.API_KEY,
-            "Content-Type": "application/json",
-            "Accept": "application/json; charset=UTF-8",
-        }
-
         self.session = session
 
-        self.create = self._create_first
+        self.session.headers.update({
+            "X-IG-API-KEY": self.API_KEY,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json; charset=UTF-8'
+        })
 
     def _get_session(self, session):
         """Returns a Requests session if session is None
@@ -77,61 +71,50 @@ class IGSessionCRUD(object):
         """Returns url from endpoint and base url"""
         return self.BASE_URL + endpoint
 
-    def _create_first(self, endpoint, params, session, version):
-        """Create first = POST with headers=BASIC_HEADERS"""
+    def create(self, endpoint, params, session, version):
+        """Create = POST"""
         url = self._url(endpoint)
         session = self._get_session(session)
-        if type(params["password"]) is bytes:
-            params["password"] = params["password"].decode()
-        response = session.post(
-            url, data=json.dumps(params), headers=self.HEADERS["BASIC"]
-        )
-        if not response.ok:
-            raise (
-                Exception(
-                    "HTTP status code %s %s " % (response.status_code, response.text)
-                )
-            )
-        self._set_headers(response.headers, True)
-        self.create = self._create_logged_in
-        return response
+        session.headers.update({'VERSION': version})
+        response = session.post(url, data=json.dumps(params))
+        if response.status_code in [401, 403]:
+            if 'exceeded-api-key-allowance' in response.text:
+                raise ApiExceededException()
+            else:
+                raise IGException(f"HTTP error: {response.status_code} {response.text}")
 
-    def _create_logged_in(self, endpoint, params, session, version):
-        """Create when logged in = POST with headers=LOGGED_IN_HEADERS"""
-        url = self._url(endpoint)
-        session = self._get_session(session)
-        self.HEADERS["LOGGED_IN"]["VERSION"] = version
-        response = session.post(
-            url, data=json.dumps(params), headers=self.HEADERS["LOGGED_IN"]
-        )
+        if "CST" in response.headers:
+            session.headers.update({'CST': response.headers['CST']})
+
+        if "X-SECURITY-TOKEN" in response.headers:
+            session.headers.update({'X-SECURITY-TOKEN': response.headers['X-SECURITY-TOKEN']})
+
         return response
 
     def read(self, endpoint, params, session, version):
-        """Read = GET with headers=LOGGED_IN_HEADERS"""
+        """Read = GET"""
         url = self._url(endpoint)
         session = self._get_session(session)
-        self.HEADERS["LOGGED_IN"]["VERSION"] = version
-        response = session.get(url, params=params, headers=self.HEADERS["LOGGED_IN"])
+        session.headers.update({'VERSION': version})
+        response = session.get(url, params=params)
         return response
 
     def update(self, endpoint, params, session, version):
-        """Update = PUT with headers=LOGGED_IN_HEADERS"""
+        """Update = PUT"""
         url = self._url(endpoint)
         session = self._get_session(session)
-        self.HEADERS["LOGGED_IN"]["VERSION"] = version
-        response = session.put(
-            url, data=json.dumps(params), headers=self.HEADERS["LOGGED_IN"]
-        )
+        session.headers.update({'VERSION': version})
+        response = session.put(url, data=json.dumps(params))
         return response
 
     def delete(self, endpoint, params, session, version):
-        """Delete = POST with DELETE_HEADERS"""
+        """Delete = POST"""
         url = self._url(endpoint)
         session = self._get_session(session)
-        self.HEADERS["DELETE"]["VERSION"] = version
-        response = session.post(
-            url, data=json.dumps(params), headers=self.HEADERS["DELETE"]
-        )
+        session.headers.update({'VERSION': version})
+        session.headers.update({'_method': 'DELETE'})
+        response = session.post(url, data=json.dumps(params))
+        del session.headers['_method']
         return response
 
     def req(self, action, endpoint, params, session, version):
@@ -143,33 +126,6 @@ class IGSessionCRUD(object):
             "delete": self.delete,
         }
         return d_actions[action](endpoint, params, session, version)
-
-    def _set_headers(self, response_headers, update_cst):
-        """Sets headers"""
-        if update_cst:
-            self.CLIENT_TOKEN = response_headers["CST"]
-
-        if "X-SECURITY-TOKEN" in response_headers:
-            self.SECURITY_TOKEN = response_headers["X-SECURITY-TOKEN"]
-        else:
-            self.SECURITY_TOKEN = None
-
-        self.HEADERS["LOGGED_IN"] = {
-            "X-IG-API-KEY": self.API_KEY,
-            "X-SECURITY-TOKEN": self.SECURITY_TOKEN,
-            "CST": self.CLIENT_TOKEN,
-            "Content-Type": "application/json",
-            "Accept": "application/json; charset=UTF-8",
-        }
-
-        self.HEADERS["DELETE"] = {
-            "X-IG-API-KEY": self.API_KEY,
-            "X-SECURITY-TOKEN": self.SECURITY_TOKEN,
-            "CST": self.CLIENT_TOKEN,
-            "Content-Type": "application/json",
-            "Accept": "application/json; charset=UTF-8",
-            "_method": "DELETE",
-        }
 
 
 class IGService:
@@ -195,8 +151,6 @@ class IGService:
         except Exception:
             raise IGException("Invalid account type '%s', please provide LIVE or DEMO" %
                               acc_type)
-
-        self.parse_response = self.parse_response_with_exception
 
         self.return_dataframe = _HAS_PANDAS
         self.return_munch = _HAS_MUNCH
@@ -224,23 +178,21 @@ class IGService:
             session = session
         return session
 
+    @tenacity.retry(wait=tenacity.wait_exponential(),
+                    retry=tenacity.retry_if_exception_type(ApiExceededException))
     def _req(self, action, endpoint, params, session, version='1'):
         """Creates a CRUD request and returns response"""
         session = self._get_session(session)
         response = self.crud_session.req(action, endpoint, params, session, version)
         response.encoding = 'utf-8'
+        if 'exceeded-api-key-allowance' in response.text:
+            raise (ApiExceededException())
         return response
 
     # ---------- PARSE_RESPONSE ----------- #
 
-    def parse_response_without_exception(self, *args, **kwargs):
-        """Parses JSON response
-        returns dict
-        no exception raised when error occurs"""
-        response = json.loads(*args, **kwargs)
-        return response
-
-    def parse_response_with_exception(self, *args, **kwargs):
+    @staticmethod
+    def parse_response(*args, **kwargs):
         """Parses JSON response
         returns dict
         exception raised when error occurs"""
@@ -857,7 +809,6 @@ class IGService:
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
         if self.return_munch:
-
             data = munchify(data)
         return data
 
@@ -872,7 +823,6 @@ class IGService:
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
-
             data = pd.DataFrame(data["clientSentiments"])
         return data
 
@@ -1184,7 +1134,7 @@ class IGService:
         endpoint = "/prices/{epic}/{resolution}".format(**url_params)
         action = "read"
         response = self._req(action, endpoint, params, session, version)
-        del self.crud_session.HEADERS["LOGGED_IN"]["VERSION"]
+        del self.session.headers["VERSION"]
         data = self.parse_response(response.text)
         if format is None:
             format = self.format_prices
@@ -1235,7 +1185,8 @@ class IGService:
         endpoint = "/watchlists/{watchlist_id}".format(**url_params)
         action = "delete"
         response = self._req(action, endpoint, params, session, version)
-        return response.text
+        data = self.parse_response(response.text)
+        return data
 
     def fetch_watchlist_markets(self, watchlist_id, session=None):
         """Returns the given watchlist's markets"""
@@ -1263,14 +1214,15 @@ class IGService:
         return data
 
     def remove_market_from_watchlist(self, watchlist_id, epic, session=None):
-        """Remove an market from a watchlist"""
+        """Remove a market from a watchlist"""
         version = "1"
         params = {}
         url_params = {"watchlist_id": watchlist_id, "epic": epic}
         endpoint = "/watchlists/{watchlist_id}/{epic}".format(**url_params)
         action = "delete"
         response = self._req(action, endpoint, params, session, version)
-        return response.text
+        data = self.parse_response(response.text)
+        return data
 
     # -------- END -------- #
 
@@ -1288,9 +1240,7 @@ class IGService:
         """Get encryption key to encrypt the password"""
         endpoint = "/session/encryptionKey"
         session = self._get_session(session)
-        response = session.get(
-            self.BASE_URL + endpoint, headers=self.crud_session.HEADERS["BASIC"]
-        )
+        response = session.get(self.BASE_URL + endpoint)
         if not response.ok:
             raise IGException("Could not get encryption key for login.")
         data = response.json()
@@ -1308,16 +1258,15 @@ class IGService:
         """Creates a trading session, obtaining session tokens for
         subsequent API access"""
         # TODO: Update to v3
+        logging.info(f"Creating new session for user '{self.IG_USERNAME}' at '{self.BASE_URL}'")
         password = self.encrypted_password(session) if encryption else self.IG_PASSWORD
         params = {"identifier": self.IG_USERNAME, "password": password}
         if encryption:
             params["encryptedPassword"] = True
         endpoint = "/session"
         action = "create"
-        # this is the first create (BASIC_HEADERS)
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
-        self.ig_session = data  # store IG session
         return data
 
     def switch_account(self, account_id, default_account, session=None):
@@ -1327,7 +1276,6 @@ class IGService:
         endpoint = "/session"
         action = "update"
         response = self._req(action, endpoint, params, session, version)
-        self.crud_session._set_headers(response.headers, False)
         data = self.parse_response(response.text)
         return data
 

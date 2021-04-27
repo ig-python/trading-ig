@@ -76,7 +76,6 @@ def conv_datetime(dt, version=2):
         fmt = DATE_FORMATS[int(version)]
         return dt.strftime(fmt)
     except (ValueError, TypeError):
-        logger.error(traceback.format_exc())
         logger.warning("conv_datetime returns %s" % dt)
         return dt
 

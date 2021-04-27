@@ -27,7 +27,6 @@ class TestHistoricalPricesFlat:
                       status=200)
 
         ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-        ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
         result = ig_service.fetch_historical_prices_by_epic(
             epic='MT.D.GC.Month2.IP',
             format=ig_service.flat_prices)
@@ -61,7 +60,6 @@ class TestHistoricalPricesFlat:
                       status=200)
 
         ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-        ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
         result = ig_service.fetch_historical_prices_by_epic(
             epic='MT.D.GC.Month2.IP',
             resolution='D',
@@ -103,7 +101,6 @@ class TestHistoricalPricesFlat:
                       status=200)
 
         ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-        ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
         result = ig_service.fetch_historical_prices_by_epic(
             epic='MT.D.GC.Month2.IP',
             resolution='W',
@@ -137,7 +134,6 @@ class TestHistoricalPricesFlat:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic(
                 epic='MT.D.GC.Month2.IP',
                 resolution='X',
@@ -162,7 +158,6 @@ class TestHistoricalPricesFlat:
 
         with pytest.raises(ValueError) as excinfo:
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             ig_service.fetch_historical_prices_by_epic(
                 epic='MT.D.GC.Month2.IP',
                 resolution='X',
@@ -183,7 +178,6 @@ class TestHistoricalPricesFlat:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic(
                 epic='MT.D.X.Month1.IP',
                 format=ig_service.flat_prices)
@@ -203,7 +197,6 @@ class TestHistoricalPricesFlat:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic(
                 epic='MT.D.GC.Month2.IP',
                 resolution='D',
@@ -225,7 +218,6 @@ class TestHistoricalPricesFlat:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic(
                 epic='MT.D.GC.Month2.IP',
                 resolution='D',
