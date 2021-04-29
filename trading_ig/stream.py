@@ -15,27 +15,29 @@ logger = logging.getLogger(__name__)
 class IGStreamService(object):
     def __init__(self, ig_service):
         self.ig_service = ig_service
-        self.ig_session = None
+        self.lightstreamerEndpoint = None
+        self.acc_number = None
         self.ls_client = None
 
-    def create_session(self, encryption=False):
-        ig_session = self.ig_service.create_session(encryption=encryption)
-        self.ig_session = ig_session
-        return ig_session
+    def create_session(self, encryption=False, version='2'):
+        ig_session = self.ig_service.create_session(encryption=encryption, version=version)
+        # if we have created a v3 session, we also need the session tokens
+        if version == '3':
+            self.ig_service.read_session(fetch_session_tokens='true')
+        self.lightstreamerEndpoint = ig_session['lightstreamerEndpoint']
 
-    def connect(self, accountId):
-        cst = self.ig_service.crud_session.CLIENT_TOKEN
-        xsecuritytoken = self.ig_service.crud_session.SECURITY_TOKEN
-        lightstreamerEndpoint = self.ig_session[u"lightstreamerEndpoint"]
-        # clientId = self.ig_session[u'clientId']
+    def connect(self, acc_number):
+        self.acc_number = acc_number
+        cst = self.ig_service.session.headers['CST']
+        xsecuritytoken = self.ig_service.session.headers['X-SECURITY-TOKEN']
         ls_password = "CST-%s|XST-%s" % (cst, xsecuritytoken)
 
         # Establishing a new connection to Lightstreamer Server
-        logger.info("Starting connection with %s" % lightstreamerEndpoint)
+        logger.info("Starting connection with %s" % self.lightstreamerEndpoint)
         # self.ls_client = LSClient("http://localhost:8080", "DEMO")
         # self.ls_client = LSClient("http://push.lightstreamer.com", "DEMO")
         self.ls_client = LSClient(
-            lightstreamerEndpoint, adapter_set="", user=accountId, password=ls_password
+            self.lightstreamerEndpoint, adapter_set="", user=self.acc_number, password=ls_password
         )
         try:
             self.ls_client.connect()

@@ -3,8 +3,9 @@ from trading_ig.config import config
 import pandas as pd
 import datetime
 import pytest
-from random import randint
+from random import randint, choice
 import logging
+import time
 
 
 @pytest.fixture(autouse=True)
@@ -13,13 +14,13 @@ def logging_setup():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 
-@pytest.fixture(scope="module")
-def ig_service():
-    """test fixture logs into IG with the configured credentials"""
+@pytest.fixture(scope="module", params=['2', '3'])
+def ig_service(request):
+    """test fixture logs into IG with the configured credentials. Tests both v2 and v3 types"""
     if config.acc_type == 'LIVE':
         pytest.fail('this integration test should not be executed with a LIVE account')
     ig_service = IGService(config.username, config.password, config.api_key, config.acc_type)
-    ig_service.create_session()
+    ig_service.create_session(version=request.param)
     yield ig_service
     ig_service.logout()
 
@@ -105,6 +106,62 @@ class TestIntegration:
 
     def test_fetch_top_level_navigation_nodes(self, top_level_nodes):
         assert isinstance(top_level_nodes, pd.DataFrame)
+
+    def test_create_session_v3(self):
+        ig_service = IGService(config.username, config.password, config.api_key, config.acc_type)
+        ig_service.create_session(version='3')
+        assert 'X-IG-API-KEY' in ig_service.session.headers
+        assert 'Authorization' in ig_service.session.headers
+        assert 'IG-ACCOUNT-ID' in ig_service.session.headers
+        assert len(ig_service.fetch_accounts()) == 2
+
+    @pytest.mark.slow  # will be skipped unless run with 'pytest --runslow'
+    def test_session_v3_refresh(self):
+        """
+        Tests refresh capability of v3 sessions. It makes repeated calls to the 'fetch_accounts'
+        endpoint, with random sleep times in between, to show/test the different scenarios. Will take
+        a long time to run
+        """
+        ig_service = IGService(config.username, config.password, config.api_key, config.acc_type)
+        ig_service.create_session(version='3')
+        delay_choice = [(1, 59), (60, 650)]
+        for count in range(1, 20):
+            data = ig_service.fetch_accounts()
+            logging.info(f"Account count: {len(data)}")
+            option = choice(delay_choice)
+            wait = randint(option[0], option[1])
+            logging.info(f"Waiting for {wait} seconds...")
+            time.sleep(wait)
+
+    def test_read_session(self, ig_service):
+        ig_service.read_session()
+        assert 'X-IG-API-KEY' in ig_service.session.headers
+
+        if ig_service.session.headers['VERSION'] == '2':
+            assert 'CST' in ig_service.session.headers
+            assert 'X-SECURITY-TOKEN' in ig_service.session.headers
+            assert 'Authorization' not in ig_service.session.headers
+            assert 'IG-ACCOUNT-ID' not in ig_service.session.headers
+
+        if ig_service.session.headers['VERSION'] == '3':
+            assert 'CST' not in ig_service.session.headers
+            assert 'X-SECURITY-TOKEN' not in ig_service.session.headers
+            assert 'Authorization' in ig_service.session.headers
+            assert 'IG-ACCOUNT-ID' in ig_service.session.headers
+
+    def test_read_session_fetch_session_tokens(self, ig_service):
+        ig_service.read_session(fetch_session_tokens='true')
+        assert 'X-IG-API-KEY' in ig_service.session.headers
+        assert 'CST' in ig_service.session.headers
+        assert 'X-SECURITY-TOKEN' in ig_service.session.headers
+
+        if ig_service.session.headers['VERSION'] == '2':
+            assert 'Authorization' not in ig_service.session.headers
+            assert 'IG-ACCOUNT-ID' not in ig_service.session.headers
+
+        if ig_service.session.headers['VERSION'] == '3':
+            assert 'Authorization' in ig_service.session.headers
+            assert 'IG-ACCOUNT-ID' in ig_service.session.headers
 
     @staticmethod
     def get_random_market_id(top_level_nodes):

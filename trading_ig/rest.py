@@ -77,17 +77,12 @@ class IGSessionCRUD(object):
         session = self._get_session(session)
         session.headers.update({'VERSION': version})
         response = session.post(url, data=json.dumps(params))
+        logging.info(f"POST '{endpoint}', resp {response.status_code}")
         if response.status_code in [401, 403]:
             if 'exceeded-api-key-allowance' in response.text:
                 raise ApiExceededException()
             else:
                 raise IGException(f"HTTP error: {response.status_code} {response.text}")
-
-        if "CST" in response.headers:
-            session.headers.update({'CST': response.headers['CST']})
-
-        if "X-SECURITY-TOKEN" in response.headers:
-            session.headers.update({'X-SECURITY-TOKEN': response.headers['X-SECURITY-TOKEN']})
 
         return response
 
@@ -97,6 +92,9 @@ class IGSessionCRUD(object):
         session = self._get_session(session)
         session.headers.update({'VERSION': version})
         response = session.get(url, params=params)
+        # handle 'read_session' with 'fetchSessionTokens=true'
+        handle_session_tokens(response, self.session)
+        logging.info(f"GET '{endpoint}', resp {response.status_code}")
         return response
 
     def update(self, endpoint, params, session, version):
@@ -105,6 +103,7 @@ class IGSessionCRUD(object):
         session = self._get_session(session)
         session.headers.update({'VERSION': version})
         response = session.put(url, data=json.dumps(params))
+        logging.info(f"PUT '{endpoint}', resp {response.status_code}")
         return response
 
     def delete(self, endpoint, params, session, version):
@@ -114,6 +113,7 @@ class IGSessionCRUD(object):
         session.headers.update({'VERSION': version})
         session.headers.update({'_method': 'DELETE'})
         response = session.post(url, data=json.dumps(params))
+        logging.info(f"DELETE (POST) '{endpoint}', resp {response.status_code}")
         del session.headers['_method']
         return response
 
@@ -138,6 +138,8 @@ class IGService:
     API_KEY = None
     IG_USERNAME = None
     IG_PASSWORD = None
+    _refresh_token = None
+    _valid_until = None
 
     def __init__(self, username, password, api_key, acc_type="demo", session=None):
         """Constructor, calls the method required to connect to
@@ -180,9 +182,11 @@ class IGService:
 
     @tenacity.retry(wait=tenacity.wait_exponential(),
                     retry=tenacity.retry_if_exception_type(ApiExceededException))
-    def _req(self, action, endpoint, params, session, version='1'):
+    def _req(self, action, endpoint, params, session, version='1', check=True):
         """Creates a CRUD request and returns response"""
         session = self._get_session(session)
+        if check:
+            self._check_session()
         response = self.crud_session.req(action, endpoint, params, session, version)
         response.encoding = 'utf-8'
         if 'exceeded-api-key-allowance' in response.text:
@@ -1235,6 +1239,7 @@ class IGService:
         endpoint = "/session"
         action = "delete"
         self._req(action, endpoint, params, session, version)
+        self.session.close()
 
     def get_encryption_key(self, session=None):
         """Get encryption key to encrypt the password"""
@@ -1255,19 +1260,99 @@ class IGService:
         return b64encode(PKCS1_v1_5.new(rsakey).encrypt(message)).decode()
 
     def create_session(self, session=None, encryption=False, version='2'):
-        """Creates a trading session, obtaining session tokens for
-        subsequent API access"""
-        # TODO: Update to v3
-        logging.info(f"Creating new session for user '{self.IG_USERNAME}' at '{self.BASE_URL}'")
+        """
+        Creates a session, obtaining tokens for subsequent API access
+
+        ** April 2021 v3 has been implemented, but is not the default for now
+
+        :param session: HTTP session
+        :type session: requests.Session
+        :param encryption: whether or not the password should be encrypted. Required for some regions
+        :type encryption: Boolean
+        :param version: API method version
+        :type version: str
+        :return: JSON response body, parsed into dict
+        :rtype: dict
+        """
+        logging.info(f"Creating new v{version} session for user '{self.IG_USERNAME}' at '{self.BASE_URL}'")
         password = self.encrypted_password(session) if encryption else self.IG_PASSWORD
         params = {"identifier": self.IG_USERNAME, "password": password}
         if encryption:
             params["encryptedPassword"] = True
         endpoint = "/session"
         action = "create"
-        response = self._req(action, endpoint, params, session, version)
+        response = self._req(action, endpoint, params, session, version, check=False)
+        self._manage_headers(response)
         data = self.parse_response(response.text)
         return data
+
+    def refresh_session(self, session=None, version='1'):
+        """
+        Refreshes a v3 session. Tokens only last for 60 seconds, so need to be renewed regularly
+        :param session: HTTP session object
+        :type session: requests.Session
+        :param version: API method version
+        :type version: str
+        :return: HTTP status code
+        :rtype: int
+        """
+        logging.info(f"Refreshing session '{self.IG_USERNAME}'")
+        params = {"refresh_token": self._refresh_token}
+        endpoint = "/session/refresh-token"
+        action = "create"
+        response = self._req(action, endpoint, params, session, version, check=False)
+        self._handle_oauth(json.loads(response.text))
+        return response.status_code
+
+    def _manage_headers(self, response):
+        """
+        Manages authentication headers - different behaviour depending on the session creation version
+        :param response: HTTP response
+        :type response: requests.Response
+        """
+        # handle v1 and v2 logins
+        handle_session_tokens(response, self.session)
+        # handle v3 logins
+        if response.text:
+            payload = json.loads(response.text)
+            if 'accountId' in payload:
+                self.session.headers.update({'IG-ACCOUNT-ID': payload['accountId']})
+            if 'oauthToken' in payload:
+                self._handle_oauth(payload['oauthToken'])
+
+    def _handle_oauth(self, oauth):
+        """
+        Handle the v3 headers during session creation and refresh
+        :param oauth: 'oauth' portion of the response body
+        :type oauth: dict
+        """
+        access_token = oauth['access_token']
+        token_type = oauth['token_type']
+        self.session.headers.update({'Authorization': f"{token_type} {access_token}"})
+        self._refresh_token = oauth['refresh_token']
+        validity = int(oauth['expires_in'])
+        self._valid_until = datetime.now() + timedelta(seconds=validity)
+
+    def _check_session(self):
+        """
+        Check the v3 session status before making an API request:
+            - v3 tokens only last for 60 seconds
+            - if possible, the session can be renewed with a special refresh token
+            - if not, a new session will be created
+        """
+        logging.info("Checking session status...")
+        if self._valid_until is not None and datetime.now() > self._valid_until:
+            if self._refresh_token:
+                # we are in a v3 session, need to refresh
+                try:
+                    logging.info("Current session has expired, refreshing...")
+                    self.refresh_session()
+                except IGException:
+                    logging.info("Refresh failed, logging in again...")
+                    self._refresh_token = None
+                    self._valid_until = None
+                    del self.session.headers['Authorization']
+                    self.create_session(version='3')
 
     def switch_account(self, account_id, default_account, session=None):
         """Switches active accounts, optionally setting the default account"""
@@ -1279,10 +1364,10 @@ class IGService:
         data = self.parse_response(response.text)
         return data
 
-    def read_session(self, session=None):
+    def read_session(self, fetch_session_tokens='false', session=None):
         """Retrieves current session details"""
         version = "1"
-        params = {}
+        params = {"fetchSessionTokens": fetch_session_tokens}
         endpoint = "/session"
         action = "read"
         response = self._req(action, endpoint, params, session, version)
@@ -1342,3 +1427,17 @@ class IGService:
         return data
 
     # -------- END -------- #
+
+
+def handle_session_tokens(response, session):
+    """
+    Copy session tokens from response to headers, so they will be present for all future requests
+    :param response: HTTP response object
+    :type response: requests.Response
+    :param session: HTTP session object
+    :type session: requests.Session
+    """
+    if "CST" in response.headers:
+        session.headers.update({'CST': response.headers['CST']})
+    if "X-SECURITY-TOKEN" in response.headers:
+        session.headers.update({'X-SECURITY-TOKEN': response.headers['X-SECURITY-TOKEN']})
