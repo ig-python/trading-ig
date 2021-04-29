@@ -220,9 +220,17 @@ class TestIntegration:
         assert isinstance(response["prices"], pd.DataFrame)
         assert len(response["prices"]) == 4
 
+    def test_fetch_historical_prices_by_epic_and_date_range_v1(self, ig_service):
+        response = ig_service.fetch_historical_prices_by_epic_and_date_range(
+            "CS.D.EURUSD.MINI.IP", "D", "2020:09:01-00:00:00", "2020:09:04-23:59:59", version='1'
+        )
+        assert isinstance(response["allowance"], dict)
+        assert isinstance(response["prices"], pd.DataFrame)
+        assert len(response["prices"]) == 4
+
     def test_fetch_historical_prices_by_epic_and_date_range(self, ig_service):
         response = ig_service.fetch_historical_prices_by_epic_and_date_range(
-            "CS.D.EURUSD.MINI.IP", "D", "2020:09:01-00:00:00", "2020:09:04-23:59:59"
+            "CS.D.EURUSD.MINI.IP", "D", "2020-09-01 00:00:00", "2020-09-04 23:59:59"
         )
         assert isinstance(response["allowance"], dict)
         assert isinstance(response["prices"], pd.DataFrame)

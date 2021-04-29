@@ -1100,33 +1100,42 @@ class IGService:
         return data
 
     def fetch_historical_prices_by_epic_and_date_range(
-        self, epic, resolution, start_date, end_date, session=None, format=None
+        self, epic, resolution, start_date, end_date, session=None, format=None, version='2'
     ):
-        """Returns a list of historical prices for the given epic, resolution,
-        multiplier and date range"""
+        """
+        Returns a list of historical prices for the given epic, resolution, multiplier and date range. Supports
+        both versions 1 and 2
+        :param epic: IG epic
+        :type epic: str
+        :param resolution: timescale for returned data. Expected values 'M', 'D', '1H' etc
+        :type resolution: str
+        :param start_date: start date for returned data. For v1, format '2020:09:01-00:00:00', for v2 use
+            '2020-09-01 00:00:00'
+        :type start_date: str
+        :param end_date: end date for returned data. For v1, format '2020:09:01-00:00:00', for v2 use
+            '2020-09-01 00:00:00'
+        :type end_date: str
+        :param session: HTTP session
+        :type session: requests.Session
+        :param format: function defining how the historic price data should be converted into a Dataframe
+        :type format: function
+        :param version: API method version
+        :type version: str
+        :return: historic data
+        :rtype: dict, with 'prices' element as pandas.Dataframe
+        """
         if _HAS_PANDAS and self.return_dataframe:
             resolution = conv_resol(resolution)
-        # TODO: Update to v2
-        version = "1"
-        # v2
-        # start_date = conv_datetime(start_date, 2)
-        # end_date = conv_datetime(end_date, 2)
-        # params = {}
-        # url_params = {
-        #     'epic': epic,
-        #     'resolution': resolution,
-        #     'start_date': start_date,
-        #     'end_date': end_date
-        # }
-        # endpoint = "/prices/{epic}/{resolution}/{startDate}/{endDate}".\
-        #     format(**url_params)
-
-        # v1
-        start_date = conv_datetime(start_date, version)
-        end_date = conv_datetime(end_date, version)
-        params = {"startdate": start_date, "enddate": end_date}
-        url_params = {"epic": epic, "resolution": resolution}
-        endpoint = "/prices/{epic}/{resolution}".format(**url_params)
+        params = {}
+        if version == '1':
+            start_date = conv_datetime(start_date, version)
+            end_date = conv_datetime(end_date, version)
+            params = {"startdate": start_date, "enddate": end_date}
+            url_params = {"epic": epic, "resolution": resolution}
+            endpoint = "/prices/{epic}/{resolution}".format(**url_params)
+        else:
+            url_params = {"epic": epic, "resolution": resolution, "startDate": start_date, "endDate": end_date}
+            endpoint = "/prices/{epic}/{resolution}/{startDate}/{endDate}".format(**url_params)
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         del self.session.headers["VERSION"]
