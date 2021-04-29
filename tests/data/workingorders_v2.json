@@ -1,0 +1,45 @@
+{
+    "workingOrders": [
+        {
+            "workingOrderData": {
+                "dealId": "ABCD1234",
+                "direction": "BUY",
+                "epic": "CS.D.CFDGOLD.CFDGC.IP",
+                "orderSize": 0.05,
+                "orderLevel": 2000.0,
+                "timeInForce": "GOOD_TILL_CANCELLED",
+                "createdDate": "2021/04/29 12:14:00:000",
+                "createdDateUTC": "2021-04-29T11:14:00",
+                "goodTillDate": null,
+                "goodTillDateISO": null,
+                "guaranteedStop": false,
+                "orderType": "STOP",
+                "stopDistance": 5.0,
+                "limitDistance": 25.0,
+                "currencyCode": "USD",
+                "dma": false,
+                "limitedRiskPremium": null
+            },
+            "marketData": {
+                "instrumentName": "Spot Gold",
+                "exchangeId": "FX_C_GCSI_ST",
+                "expiry": "-",
+                "marketStatus": "EDITS_ONLY",
+                "epic": "CS.D.CFDGOLD.CFDGC.IP",
+                "instrumentType": "CURRENCIES",
+                "lotSize": 100.0,
+                "high": 1960.0,
+                "low": 1920.0,
+                "percentageChange": 0.0,
+                "netChange": 0.0,
+                "bid": 1950.00,
+                "offer": 1951.00,
+                "updateTime": "2020/10/01 09:00:00:000",
+                "updateTimeUTC": "11:22:04",
+                "delayTime": 0,
+                "streamingPricesAvailable": true,
+                "scalingFactor": 1
+            }
+        }
+    ]
+}

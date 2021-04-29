@@ -612,10 +612,8 @@ class IGService:
         else:
             raise IGException(response.text)
 
-    def fetch_working_orders(self, session=None):
+    def fetch_working_orders(self, session=None, version='2'):
         """Returns all open working orders for the active account"""
-        # TODO: Update to v2
-        version = "1"
         params = {}
         endpoint = "/workingorders"
         action = "read"
@@ -625,6 +623,14 @@ class IGService:
 
             lst = data["workingOrders"]
             data = pd.DataFrame(lst)
+
+            col_names_v1 = [u"size", u"trailingStopDistance", u"direction", u"level", u"requestType", u"currencyCode",
+                            u"contingentLimit", u"trailingTriggerIncrement", u"dealId", u"contingentStop", u"goodTill",
+                            u"controlledRisk", u"trailingStopIncrement", u"createdDate", u"epic",
+                            u"trailingTriggerDistance", u"dma"]
+            col_names_v2 = [u"createdDate", u"currencyCode", u"dealId", u"direction", u"dma", u"epic",
+                            u"goodTillDate", u"goodTillDateISO", u"guaranteedStop", u"limitDistance",
+                            u"orderLevel", u"orderSize", u"orderType", u"stopDistance", u"timeInForce"]
 
             d_cols = {
                 "marketData": [
@@ -645,27 +651,13 @@ class IGService:
                     u"netChange",
                     u"instrumentType",
                     u"scalingFactor",
-                ],
-                "workingOrderData": [
-                    u"size",
-                    u"trailingStopDistance",
-                    u"direction",
-                    u"level",
-                    u"requestType",
-                    u"currencyCode",
-                    u"contingentLimit",
-                    u"trailingTriggerIncrement",
-                    u"dealId",
-                    u"contingentStop",
-                    u"goodTill",
-                    u"controlledRisk",
-                    u"trailingStopIncrement",
-                    u"createdDate",
-                    u"epic",
-                    u"trailingTriggerDistance",
-                    u"dma",
-                ],
+                ]
             }
+
+            if version == '1':
+                d_cols["workingOrderData"] = col_names_v1
+            else:
+                d_cols["workingOrderData"] = col_names_v2
 
             if len(data) == 0:
                 data = pd.DataFrame(columns=self.colname_unique(d_cols))
@@ -905,7 +897,6 @@ class IGService:
 
     def search_markets(self, search_term, session=None):
         """Returns all markets matching the search term"""
-        # TODO: Update to v2
         version = "1"
         endpoint = "/markets"
         params = {"searchTerm": search_term}
@@ -1167,7 +1158,6 @@ class IGService:
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
-
             data = pd.DataFrame(data["watchlists"])
         return data
 
@@ -1202,7 +1192,6 @@ class IGService:
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
-
             data = pd.DataFrame(data["markets"])
         return data
 
