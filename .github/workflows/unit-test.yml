@@ -32,7 +32,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python -m poetry install --extras
+        python -m poetry install --extras "pandas munch"
 
     - name: Lint with flake8
       run: |
