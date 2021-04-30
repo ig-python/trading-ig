@@ -30,10 +30,10 @@ jobs:
         poetry-version: 1.1.6
 
     - name: Install dependencies
-      run: poetry install
+      run: python -m poetry install
 
     - name: Lint with flake8
-      run: poetry run flake8 trading_ig
+      run: python -m poetry run flake8 trading_ig
 
     - name: Unit tests with pytest
-      run: poetry run pytest --ignore=tests/test_integration.py
+      run: python -m poetry python -m run pytest --ignore=tests/test_integration.py
