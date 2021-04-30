@@ -42,6 +42,7 @@ pandas = ["pandas"]
 munch = ["munch"]
 
 [tool.poetry.dev-dependencies]
+flake8 = "^3.9"
 pytest = "^6.2"
 responses = "^0.12"
 
