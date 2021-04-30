@@ -13,7 +13,8 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        python-version: [ 3.6, 3.7, 3.8, 3.9 ]
+        #python-version: [ 3.6, 3.7, 3.8, 3.9 ]
+        python-version: [ 3.8 ]
 
     steps:
 
@@ -31,7 +32,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python -m poetry install
+        python -m poetry install --extras
 
     - name: Lint with flake8
       run: |
@@ -39,4 +40,4 @@ jobs:
 
     - name: Unit tests with pytest
       run: |
-        python -m poetry python -m run pytest --ignore=tests/test_integration.py
+        python -m poetry run python -m pytest --ignore=tests/test_integration.py
