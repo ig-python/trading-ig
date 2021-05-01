@@ -141,12 +141,13 @@ class IGService:
     _refresh_token = None
     _valid_until = None
 
-    def __init__(self, username, password, api_key, acc_type="demo", session=None):
+    def __init__(self, username, password, api_key, acc_type="demo", acc_number=None, session=None):
         """Constructor, calls the method required to connect to
         the API (accepts acc_type = LIVE or DEMO)"""
         self.API_KEY = api_key
         self.IG_USERNAME = username
         self.IG_PASSWORD = password
+        self.ACC_NUMBER = acc_number
 
         try:
             self.BASE_URL = self.D_BASE_URL[acc_type.lower()]
@@ -1272,6 +1273,9 @@ class IGService:
         :return: JSON response body, parsed into dict
         :rtype: dict
         """
+        if version == '3' and self.ACC_NUMBER is None:
+            raise IGException('Account number must be set for v3 sessions')
+
         logging.info(f"Creating new v{version} session for user '{self.IG_USERNAME}' at '{self.BASE_URL}'")
         password = self.encrypted_password(session) if encryption else self.IG_PASSWORD
         params = {"identifier": self.IG_USERNAME, "password": password}
@@ -1312,9 +1316,8 @@ class IGService:
         handle_session_tokens(response, self.session)
         # handle v3 logins
         if response.text:
+            self.session.headers.update({'IG-ACCOUNT-ID': self.ACC_NUMBER})
             payload = json.loads(response.text)
-            if 'accountId' in payload:
-                self.session.headers.update({'IG-ACCOUNT-ID': payload['accountId']})
             if 'oauthToken' in payload:
                 self._handle_oauth(payload['oauthToken'])
 

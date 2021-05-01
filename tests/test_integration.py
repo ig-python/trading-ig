@@ -19,7 +19,11 @@ def ig_service(request):
     """test fixture logs into IG with the configured credentials. Tests both v2 and v3 types"""
     if config.acc_type == 'LIVE':
         pytest.fail('this integration test should not be executed with a LIVE account')
-    ig_service = IGService(config.username, config.password, config.api_key, config.acc_type)
+    if request.param == '2':
+        ig_service = IGService(config.username, config.password, config.api_key, config.acc_type)
+    else:
+        ig_service = IGService(config.username, config.password, config.api_key, config.acc_type,
+                               acc_number=config.acc_number)
     ig_service.create_session(version=request.param)
     yield ig_service
     ig_service.logout()
@@ -107,8 +111,14 @@ class TestIntegration:
     def test_fetch_top_level_navigation_nodes(self, top_level_nodes):
         assert isinstance(top_level_nodes, pd.DataFrame)
 
-    def test_create_session_v3(self):
+    def test_create_session_v3_no_acc_num(self):
         ig_service = IGService(config.username, config.password, config.api_key, config.acc_type)
+        with pytest.raises(IGException):
+            ig_service.create_session(version='3')
+
+    def test_create_session_v3(self):
+        ig_service = IGService(config.username, config.password, config.api_key, config.acc_type,
+                               acc_number=config.acc_number)
         ig_service.create_session(version='3')
         assert 'X-IG-API-KEY' in ig_service.session.headers
         assert 'Authorization' in ig_service.session.headers
@@ -122,7 +132,8 @@ class TestIntegration:
         endpoint, with random sleep times in between, to show/test the different scenarios. Will take
         a long time to run
         """
-        ig_service = IGService(config.username, config.password, config.api_key, config.acc_type)
+        ig_service = IGService(config.username, config.password, config.api_key, config.acc_type,
+                               acc_number=config.acc_number)
         ig_service.create_session(version='3')
         delay_choice = [(1, 59), (60, 650)]
         for count in range(1, 20):
