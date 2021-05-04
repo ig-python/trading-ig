@@ -274,9 +274,7 @@ class IGService:
         return s
 
     @staticmethod
-    def expand_columns(
-            data, d_cols, flag_col_prefix=False, col_overlap_allowed=None
-    ):
+    def expand_columns(data, d_cols, flag_col_prefix=False, col_overlap_allowed=None):
         """Expand columns"""
         if col_overlap_allowed is None:
             col_overlap_allowed = []
