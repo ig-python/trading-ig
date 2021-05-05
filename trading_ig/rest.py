@@ -184,13 +184,13 @@ class IGService:
     IG_PASSWORD = None
 
     def __init__(
-        self, 
-        username, 
-        password, 
-        api_key, 
-        acc_type="demo", 
-        session=None, 
-        return_dataframe=_HAS_PANDAS, 
+        self,
+        username,
+        password,
+        api_key,
+        acc_type="demo",
+        session=None,
+        return_dataframe=_HAS_PANDAS,
         return_munch=_HAS_MUNCH,
     ):
         """Constructor, calls the method required to connect to
