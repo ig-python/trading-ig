@@ -1,0 +1,74 @@
+{
+    "positions": [
+        {
+            "position": {
+                "contractSize": 1.0,
+                "createdDate": "2020/06/01 12:00:00:000",
+                "dealId": "ABCDE12345",
+                "dealSize": 10.0,
+                "direction": "BUY",
+                "limitLevel": null,
+                "openLevel": 17000.0,
+                "currency": "GBP",
+                "controlledRisk": false,
+                "stopLevel": null,
+                "trailingStep": null,
+                "trailingStopDistance": null,
+                "limitedRiskPremium": null
+            },
+            "market": {
+                "instrumentName": "Blah",
+                "expiry": "SEP-20",
+                "epic": "MT.D.ABC.Month1.IP",
+                "instrumentType": "COMMODITIES",
+                "lotSize": 1.0,
+                "high": 17100.0,
+                "low": 16900.0,
+                "percentageChange": 0.10,
+                "netChange": 40.0,
+                "bid": 17001.0,
+                "offer": 16999.0,
+                "updateTime": "12:00:00",
+                "delayTime": 0,
+                "streamingPricesAvailable": true,
+                "marketStatus": "TRADEABLE",
+                "scalingFactor": 1
+            }
+        },
+        {
+            "position": {
+                "contractSize": 1.0,
+                "createdDate": "2020/06/01 12:00:00:000",
+                "dealId": "ABCDE54321",
+                "dealSize": 15.00,
+                "direction": "BUY",
+                "limitLevel": null,
+                "openLevel": 1800.0,
+                "currency": "GBP",
+                "controlledRisk": false,
+                "stopLevel": null,
+                "trailingStep": null,
+                "trailingStopDistance": null,
+                "limitedRiskPremium": null
+            },
+            "market": {
+                "instrumentName": "Meh",
+                "expiry": "AUG-20",
+                "epic": "MT.D.XYZ.MONTH1.IP",
+                "instrumentType": "COMMODITIES",
+                "lotSize": 1.0,
+                "high": 1866.0,
+                "low": 1864.0,
+                "percentageChange": -0.1,
+                "netChange": -0.5,
+                "bid": 1865.3,
+                "offer": 1865.9,
+                "updateTime": "12:00:00",
+                "delayTime": 0,
+                "streamingPricesAvailable": true,
+                "marketStatus": "TRADEABLE",
+                "scalingFactor": 1
+            }
+        }
+    ]
+}

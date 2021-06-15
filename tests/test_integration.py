@@ -94,6 +94,10 @@ class TestIntegration:
         response = ig_service.fetch_open_positions()
         assert isinstance(response, pd.DataFrame)
 
+    def test_fetch_open_positions_v1(self, ig_service):
+        response = ig_service.fetch_open_positions(version='1')
+        assert isinstance(response, pd.DataFrame)
+
     def test_create_session_bad_username(self):
         ig_service = IGService('wrong', config.password, config.api_key, config.acc_type)
         with pytest.raises(IGException):

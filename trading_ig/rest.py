@@ -455,9 +455,8 @@ class IGService:
         data = self.parse_response(response.text)
         return data
 
-    def fetch_open_positions(self, session=None):
+    def fetch_open_positions(self, session=None, version='2'):
         """Returns all open positions for the active account"""
-        version = "1"
         params = {}
         endpoint = "/positions"
         action = "read"
@@ -465,49 +464,36 @@ class IGService:
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
 
-            lst = data["positions"]
-            data = pd.DataFrame(lst)
+            list = data["positions"]
+            data = pd.DataFrame(list)
 
-            d_cols = {
-                "market": [
-                    "bid",
-                    "delayTime",
-                    "epic",
-                    "expiry",
-                    "high",
-                    "instrumentName",
-                    "instrumentType",
-                    "lotSize",
-                    "low",
-                    "marketStatus",
-                    "netChange",
-                    "offer",
-                    "percentageChange",
-                    "scalingFactor",
-                    "streamingPricesAvailable",
-                    "updateTime",
-                ],
+            cols = {
                 "position": [
-                    "contractSize",
-                    "controlledRisk",
-                    "createdDate",
-                    "currency",
-                    "dealId",
-                    "dealSize",
-                    "direction",
-                    "limitLevel",
-                    "openLevel",
-                    "stopLevel",
-                    "trailingStep",
-                    "trailingStopDistance",
+                    "contractSize", "createdDate", "createdDateUTC", "dealId", "dealReference", "size", "direction",
+                    "limitLevel", "level", "currency", "controlledRisk", "stopLevel", "trailingStep",
+                    "trailingStopDistance", "limitedRiskPremium"
                 ],
+                "market": [
+                    "instrumentName", "expiry", "epic", "instrumentType", "lotSize", "high", "low",
+                    "percentageChange", "netChange", "bid", "offer", "updateTime", "updateTimeUTC",
+                    "delayTime", "streamingPricesAvailable", "marketStatus", "scalingFactor"
+                ]
             }
 
+            if version == '1':
+                cols['position'].remove('createdDateUTC')
+                cols['position'].remove('dealReference')
+                cols['position'].remove('size')
+                cols['position'].insert(3, 'dealSize')
+                cols['position'].remove('level')
+                cols['position'].insert(6, 'openLevel')
+                cols['market'].remove('updateTimeUTC')
+
             if len(data) == 0:
-                data = pd.DataFrame(columns=self.colname_unique(d_cols))
+                data = pd.DataFrame(columns=self.colname_unique(cols))
                 return data
 
-            # data = self.expand_columns(data, d_cols)
+            data = self.expand_columns(data, cols)
 
         return data
 
