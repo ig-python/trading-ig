@@ -456,7 +456,15 @@ class IGService:
         return data
 
     def fetch_open_positions(self, session=None, version='2'):
-        """Returns all open positions for the active account"""
+        """
+        Returns all open positions for the active account. Supports both v1 and v2
+        :param session: session object, otional
+        :type session: Session
+        :param version: API version, 1 or 2
+        :type version: str
+        :return: table of position data, one per row
+        :rtype: pd.Dataframe
+        """
         params = {}
         endpoint = "/positions"
         action = "read"
