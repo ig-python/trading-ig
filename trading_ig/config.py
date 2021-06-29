@@ -28,7 +28,6 @@ class ConfigEnvVar(object):
         except KeyError:
             raise Exception("Environment variable '%s' doesn't exist" % env_var)
 
-
 try:
     from trading_ig_config import config
 

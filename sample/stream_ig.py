@@ -11,10 +11,11 @@ import sys
 import traceback
 import logging
 
+sys.path.append('.') # required for scripts to run in the "sample" directory
+# pylint: disable=import-error
 from trading_ig import IGService, IGStreamService
 from trading_ig.config import config
 from trading_ig.lightstreamer import Subscription
-
 
 # A simple function acting as a Subscription listener
 def on_prices_update(item_update):
@@ -41,15 +42,22 @@ def main():
 
     ig_stream_service = IGStreamService(ig_service)
     ig_session = ig_stream_service.create_session()
+
     # Ensure configured account is selected
+    accountId = None
+    account_list = []
     accounts = ig_session[u"accounts"]
     for account in accounts:
         if account[u"accountId"] == config.acc_number:
             accountId = account[u"accountId"]
             break
-        else:
-            print("Account not found: {0}".format(config.acc_number))
-            accountId = None
+        account_list.append(account[u"accountId"])
+
+    if accountId is None:
+        print("Account not found: {0}".format(config.acc_number))
+        print("Available accounts:", account_list)
+        sys.exit()
+
     ig_stream_service.connect(accountId)
 
     # Making a new Subscription in MERGE mode

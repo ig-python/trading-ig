@@ -17,8 +17,10 @@
 import sys
 import traceback
 import logging
-from trading_ig.lightstreamer import LSClient, Subscription
 
+sys.path.append('.')
+# pylint: disable=import-error
+from trading_ig.lightstreamer import LSClient, Subscription
 
 # A simple function acting as a Subscription listener
 def on_item_update(item_update):
@@ -81,7 +83,7 @@ def main():
     # Unsubscribing from Lightstreamer by using the subscription key
     # lightstreamer_client.unsubscribe(sub_key)
 
-    lightstreamer_client.unsubscribe()
+    lightstreamer_client.unsubscribe(sub_key)
 
     # Disconnecting
     lightstreamer_client.disconnect()

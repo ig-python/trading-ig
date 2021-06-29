@@ -6,6 +6,10 @@ IG Markets REST API sample with Python
 2015 FemtoTrader
 """
 
+import sys
+
+sys.path.append('.') # required for scripts to run in the "sample" directory
+# pylint: disable=import-error
 from trading_ig import IGService
 from trading_ig.config import config
 import logging
