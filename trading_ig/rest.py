@@ -16,6 +16,7 @@ from base64 import b64encode, b64decode
 from Crypto.Cipher import PKCS1_v1_5
 from Crypto.PublicKey import RSA
 from requests import Session
+from urllib.parse import urlparse, parse_qs
 import pandas as pd
 
 import numpy as np
@@ -189,6 +190,10 @@ class IGService:
         if check:
             self._check_session()
         response = self.crud_session.req(action, endpoint, params, session, version)
+
+        if response.status_code >= 500:
+            raise (IGException(f"Server problem: status code: {response.status_code}, reason: {response.reason}"))
+
         response.encoding = 'utf-8'
         if 'exceeded-api-key-allowance' in response.text:
             raise (ApiExceededException())
@@ -296,26 +301,229 @@ class IGService:
 
             if len(data) == 0:
                 columns = [
-                    "actionStatus",
-                    "activity",
-                    "activityHistoryId",
-                    "channel",
-                    "currency",
-                    "date",
-                    "dealId",
-                    "epic",
-                    "level",
-                    "limit",
-                    "marketName",
-                    "period",
-                    "result",
-                    "size",
-                    "stop",
-                    "stopType",
-                    "time",
+                    "actionStatus", "activity", "activityHistoryId", "channel", "currency", "date",
+                    "dealId", "epic", "level", "limit", "marketName", "period", "result", "size",
+                    "stop", "stopType", "time"
                 ]
                 data = pd.DataFrame(columns=columns)
                 return data
+
+        return data
+
+    def fetch_account_activity_by_date(self, from_date: datetime, to_date: datetime, session=None):
+        """
+        Returns the account activity history for period between the specified dates
+        """
+        version = "1"
+        if from_date is None or to_date is None:
+            raise IGException("Both from_date and to_date must be specified")
+        if from_date > to_date:
+            raise IGException("from_date must be before to_date")
+
+        params = {}
+        url_params = {
+            "fromDate": from_date.strftime('%d-%m-%Y'),
+            "toDate": to_date.strftime('%d-%m-%Y')
+        }
+        endpoint = "/history/activity/{fromDate}/{toDate}".format(**url_params)
+        action = "read"
+        response = self._req(action, endpoint, params, session, version)
+        data = self.parse_response(response.text)
+        if _HAS_PANDAS and self.return_dataframe:
+
+            data = pd.DataFrame(data["activities"])
+
+            if len(data) == 0:
+                columns = [
+                    "actionStatus", "activity", "activityHistoryId", "channel", "currency", "date",
+                    "dealId", "epic", "level", "limit", "marketName", "period", "result", "size",
+                    "stop", "stopType", "time"
+                ]
+                data = pd.DataFrame(columns=columns)
+                return data
+
+        return data
+
+    def fetch_account_activity_v2(
+            self,
+            from_date: datetime = None,
+            to_date: datetime = None,
+            max_span_seconds: int = None,
+            page_size: int = 20,
+            session=None):
+
+        """
+        Returns the account activity history (v2)
+
+        If the result set spans multiple 'pages', this method will automatically get all the results and
+        bundle them into one object.
+
+        :param from_date: start date and time. Optional
+        :type from_date: datetime
+        :param to_date: end date and time. A date without time refers to the end of that day. Defaults to
+        today. Optional
+        :type to_date: datetime
+        :param max_span_seconds: Limits the timespan in seconds through to current time (not applicable if a
+        date range has been specified). Default 600. Optional
+        :type max_span_seconds: int
+        :param page_size: number of records per page. Default 20. Optional. Use 0 to turn off paging
+        :type page_size: int
+        :param session: session object. Optional
+        :type session: Session
+        :return: results set
+        :rtype: Pandas DataFrame if configured, otherwise a dict
+        """
+
+        version = "2"
+        params = {}
+        if from_date:
+            params["from"] = from_date.strftime('%Y-%m-%dT%H:%M:%S')
+        if to_date:
+            params["to"] = to_date.strftime('%Y-%m-%dT%H:%M:%S')
+        if max_span_seconds:
+            params["maxSpanSeconds"] = max_span_seconds
+        params["pageSize"] = page_size
+        endpoint = "/history/activity/"
+        action = "read"
+        data = {}
+        activities = []
+        pagenumber = 1
+        more_results = True
+
+        while more_results:
+            params["pageNumber"] = pagenumber
+            response = self._req(action, endpoint, params, session, version)
+            data = self.parse_response(response.text)
+            activities.extend(data["activities"])
+            page_data = data["metadata"]["pageData"]
+            if page_data["totalPages"] == 0 or \
+                    (page_data["pageNumber"] == page_data["totalPages"]):
+                more_results = False
+            else:
+                pagenumber += 1
+
+        data["activities"] = activities
+        if _HAS_PANDAS and self.return_dataframe:
+            data = pd.DataFrame(data["activities"])
+
+        return data
+
+    def fetch_account_activity(
+            self,
+            from_date: datetime = None,
+            to_date: datetime = None,
+            detailed=False,
+            deal_id: str = None,
+            fiql_filter: str = None,
+            page_size: int = 50,
+            session=None):
+
+        """
+        Returns the account activity history (v3)
+
+        If the result set spans multiple 'pages', this method will automatically get all the results and
+        bundle them into one object.
+
+        :param from_date: start date and time. Optional
+        :type from_date: datetime
+        :param to_date: end date and time. A date without time refers to the end of that day. Defaults to
+        today. Optional
+        :type to_date: datetime
+        :param detailed: Indicates whether to retrieve additional details about the activity. Default False. Optional
+        :type detailed: bool
+        :param deal_id: deal ID. Optional
+        :type deal_id: str
+        :param fiql_filter: FIQL filter (supported operators: ==|!=|,|;). Optional
+        :type fiql_filter: str
+        :param page_size: page size (min: 10, max: 500). Default 50. Optional
+        :type page_size: int
+        :param session: session object. Optional
+        :type session: Session
+        :return: results set
+        :rtype: Pandas DataFrame if configured, otherwise a dict
+        """
+
+        version = "3"
+        params = {}
+        if from_date:
+            params["from"] = from_date.strftime('%Y-%m-%dT%H:%M:%S')
+        if to_date:
+            params["to"] = to_date.strftime('%Y-%m-%dT%H:%M:%S')
+        if detailed:
+            params["detailed"] = "true"
+        if deal_id:
+            params["dealId"] = deal_id
+        if fiql_filter:
+            params["filter"] = fiql_filter
+        if page_size:
+            params["pageSize"] = page_size
+
+        params["pageSize"] = page_size
+        endpoint = "/history/activity/"
+        action = "read"
+        data = {}
+        activities = []
+        more_results = True
+
+        while more_results:
+            response = self._req(action, endpoint, params, session, version)
+            data = self.parse_response(response.text)
+            activities.extend(data["activities"])
+            paging = data["metadata"]["paging"]
+            if paging["next"] is None:
+                more_results = False
+            else:
+                parse_result = urlparse(paging["next"])
+                query = parse_qs(parse_result.query)
+                if 'from' in query:
+                    params["from"] = query["from"]
+                if 'to' in query:
+                    params["to"] = query["to"]
+
+        data["activities"] = activities
+        if _HAS_PANDAS and self.return_dataframe:
+            if detailed:
+                data = self.format_activities(data)
+            else:
+                data = pd.DataFrame(data["activities"])
+
+        return data
+
+    @staticmethod
+    def format_activities(data):
+        data = pd.json_normalize(data["activities"],
+                                 record_path=['details', ['actions']],
+                                 meta=['date', 'epic', 'period', 'dealId', 'channel', 'type', 'status', 'description',
+                                       ['details', 'marketName'],
+                                       ['details', 'goodTillDate'],
+                                       ['details', 'currency'],
+                                       ['details', 'direction'],
+                                       ['details', 'level'],
+                                       ['details', 'stopLevel'],
+                                       ['details', 'stopDistance'],
+                                       ['details', 'guaranteedStop'],
+                                       ['details', 'trailingStopDistance'],
+                                       ['details', 'trailingStep'],
+                                       ['details', 'limitLevel'],
+                                       ['details', 'limitDistance']],
+                                 )
+
+        data = data.rename(columns={'details.marketName': 'marketName',
+                                    'details.goodTillDate': 'goodTillDate',
+                                    'details.currency': 'currency',
+                                    'details.direction': 'direction',
+                                    'details.level': 'level',
+                                    'details.stopLevel': 'stopLevel',
+                                    'details.stopDistance': 'stopDistance',
+                                    'details.guaranteedStop': 'guaranteedStop',
+                                    'details.trailingStopDistance': 'trailingStopDistance',
+                                    'details.trailingStep': 'trailingStep',
+                                    'details.limitLevel': 'limitLevel',
+                                    'details.limitDistance': 'limitDistance'})
+
+        cols = data.columns.tolist()
+        cols = cols[2:] + cols[:2]
+        data = data[cols]
 
         return data
 
