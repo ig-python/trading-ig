@@ -1,7 +1,7 @@
 from trading_ig.rest import IGService, IGException
 from trading_ig.config import config
 import pandas as pd
-import datetime
+from datetime import datetime, timedelta
 import pytest
 from random import randint, choice
 import logging
@@ -47,7 +47,7 @@ def watchlist_id(ig_service):
     """test fixture creates a dummy watchlist for use in tests,
     and returns the ID. In teardown it also deletes the dummy watchlist"""
     epics = ['CS.D.GBPUSD.TODAY.IP', 'IX.D.FTSE.DAILY.IP']
-    now = datetime.datetime.now()
+    now = datetime.now()
     data = ig_service.create_watchlist(f"test_{now.strftime('%Y%m%d%H%H%S')}", epics)
     watchlist_id = data['watchlistId']
     yield watchlist_id
@@ -76,6 +76,59 @@ class TestIntegration:
     def test_fetch_account_activity_by_period(self, ig_service):
         response = ig_service.fetch_account_activity_by_period(10000)
         assert isinstance(response, pd.DataFrame)
+
+    def test_fetch_account_activity_by_date(self, ig_service):
+        to_date = datetime.now()
+        from_date = to_date - timedelta(days=7)
+        response = ig_service.fetch_account_activity_by_date(from_date, to_date)
+        assert isinstance(response, pd.DataFrame)
+
+    def test_fetch_account_activity_v2_span(self, ig_service):
+        period = 7 * 24 * 60 * 60  # 7 days
+        response = ig_service.fetch_account_activity_v2(max_span_seconds=period)
+        assert isinstance(response, pd.DataFrame)
+
+    def test_fetch_account_activity_v2_dates(self, ig_service):
+        to_date = datetime.now()
+        from_date = to_date - timedelta(days=7)
+        response = ig_service.fetch_account_activity_v2(from_date=from_date, to_date=to_date)
+        assert isinstance(response, pd.DataFrame)
+
+    def test_fetch_account_activity_from(self, ig_service):
+        to_date = datetime.now()
+        from_date = to_date - timedelta(days=7)
+        response = ig_service.fetch_account_activity(from_date=from_date)
+        assert isinstance(response, pd.DataFrame)
+        assert response.shape[1] == 9
+
+    def test_fetch_account_activity_from_to(self, ig_service):
+        to_date = datetime.now()
+        from_date = to_date - timedelta(days=7)
+        response = ig_service.fetch_account_activity(from_date=from_date, to_date=to_date)
+        assert isinstance(response, pd.DataFrame)
+        assert response.shape[1] == 9
+
+    def test_fetch_account_activity_detailed(self, ig_service):
+        to_date = datetime.now()
+        from_date = to_date - timedelta(days=7)
+        response = ig_service.fetch_account_activity(from_date=from_date, to_date=to_date, detailed=True)
+        assert isinstance(response, pd.DataFrame)
+        assert response.shape[1] == 22
+
+    def test_fetch_account_activity_old(self, ig_service):
+        from_date = datetime(1970, 1, 1)
+        to_date = from_date + timedelta(days=7)
+        response = ig_service.fetch_account_activity(from_date=from_date, to_date=to_date)
+        assert isinstance(response, pd.DataFrame)
+        assert response.shape[0] == 0
+
+    def test_fetch_account_activity_fiql(self, ig_service):
+        to_date = datetime.now()
+        from_date = to_date - timedelta(days=30)
+        response = ig_service.fetch_account_activity(from_date=from_date, to_date=to_date,
+                                                        fiql_filter='channel==PUBLIC_WEB_API')
+        assert isinstance(response, pd.DataFrame)
+        assert response.shape[1] == 9
 
     def test_init_bad_account_type(self):
         with pytest.raises(IGException):
@@ -267,7 +320,7 @@ class TestIntegration:
         # assert time series rows are 1 day apart
         prices['tvalue'] = prices.index
         prices['delta'] = (prices['tvalue'] - prices['tvalue'].shift())
-        assert any(prices["delta"].dropna() == datetime.timedelta(days=1))
+        assert any(prices["delta"].dropna() == timedelta(days=1))
 
         # assert default paging
         assert result['metadata']['pageData']['pageSize'] == 20
@@ -291,7 +344,7 @@ class TestIntegration:
         # assert time series rows are 1 week apart
         prices['tvalue'] = prices.index
         prices['delta'] = (prices['tvalue'] - prices['tvalue'].shift())
-        assert any(prices["delta"].dropna() == datetime.timedelta(weeks=1))
+        assert any(prices["delta"].dropna() == timedelta(weeks=1))
 
     def test_fetch_historical_prices_by_epic_numpoints_default_paged(
             self,
