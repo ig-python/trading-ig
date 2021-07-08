@@ -24,7 +24,7 @@ from pandas import json_normalize
 from datetime import timedelta, datetime
 from .utils import _HAS_PANDAS, _HAS_MUNCH
 from .utils import conv_resol, conv_datetime, conv_to_ms, DATE_FORMATS, munchify
-import tenacity
+from tenacity import Retrying
 
 logger = logging.getLogger(__name__)
 
@@ -142,13 +142,15 @@ class IGService:
     _refresh_token = None
     _valid_until = None
 
-    def __init__(self, username, password, api_key, acc_type="demo", acc_number=None, session=None):
+    def __init__(self, username, password, api_key, acc_type="demo", acc_number=None, session=None,
+                 retryer: Retrying = None):
         """Constructor, calls the method required to connect to
         the API (accepts acc_type = LIVE or DEMO)"""
         self.API_KEY = api_key
         self.IG_USERNAME = username
         self.IG_PASSWORD = password
         self.ACC_NUMBER = acc_number
+        self._retryer = retryer
 
         try:
             self.BASE_URL = self.D_BASE_URL[acc_type.lower()]
@@ -182,9 +184,18 @@ class IGService:
             session = session
         return session
 
-    @tenacity.retry(wait=tenacity.wait_exponential(),
-                    retry=tenacity.retry_if_exception_type(ApiExceededException))
     def _req(self, action, endpoint, params, session, version='1', check=True):
+        """
+        Wraps the _request() function, applying a tenacity.Retrying object if configured
+        """
+        if self._retryer is not None:
+            result = self._retryer.call(self._request, action, endpoint, params, session, version, check)
+        else:
+            result = self._request(action, endpoint, params, session, version, check)
+
+        return result
+
+    def _request(self, action, endpoint, params, session, version='1', check=True):
         """Creates a CRUD request and returns response"""
         session = self._get_session(session)
         if check:
@@ -195,9 +206,17 @@ class IGService:
             raise (IGException(f"Server problem: status code: {response.status_code}, reason: {response.reason}"))
 
         response.encoding = 'utf-8'
-        if 'exceeded-api-key-allowance' in response.text:
-            raise (ApiExceededException())
+        if self._api_limit_hit(response.text):
+            raise ApiExceededException()
         return response
+
+    @staticmethod
+    def _api_limit_hit(response_text):
+        # note we don't check for historical data allowance - it only gets reset once a week
+        return 'exceeded-api-key-allowance' in response_text or \
+               'exceeded-account-allowance' in response_text or \
+               'exceeded-account-trading-allowance' in response_text
+
 
     # ---------- PARSE_RESPONSE ----------- #
 
@@ -906,9 +925,7 @@ class IGService:
             "direction": direction,
             "epic": epic,
             "expiry": expiry,
-            "goodTillDate": good_till_date,
             "guaranteedStop": guaranteed_stop,
-            "forceOpen": force_open,
             "level": level,
             "size": size,
             "timeInForce": time_in_force,
@@ -924,6 +941,12 @@ class IGService:
             params["stopLevel"] = stop_level
         if deal_reference:
             params["dealReference"] = deal_reference
+        if force_open:
+            params["force_open"] = 'true'
+        if good_till_date:
+            params["goodTillDate"] = good_till_date
+
+
 
         endpoint = "/workingorders/otc"
         action = "create"

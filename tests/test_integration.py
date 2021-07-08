@@ -1,4 +1,4 @@
-from trading_ig.rest import IGService, IGException
+from trading_ig.rest import IGService, IGException, ApiExceededException
 from trading_ig.config import config
 import pandas as pd
 from datetime import datetime, timedelta
@@ -6,6 +6,15 @@ import pytest
 from random import randint, choice
 import logging
 import time
+import tenacity
+from tenacity import Retrying
+
+
+@pytest.fixture(scope="module")
+def retrying():
+    """test fixture creates a tenacity.Retrying instance"""
+    return Retrying(wait=tenacity.wait_exponential(),
+        retry=tenacity.retry_if_exception_type(ApiExceededException))
 
 
 @pytest.fixture(autouse=True)
@@ -15,15 +24,15 @@ def logging_setup():
 
 
 @pytest.fixture(scope="module", params=['2', '3'])
-def ig_service(request):
+def ig_service(request, retrying):
     """test fixture logs into IG with the configured credentials. Tests both v2 and v3 types"""
     if config.acc_type == 'LIVE':
         pytest.fail('this integration test should not be executed with a LIVE account')
     if request.param == '2':
-        ig_service = IGService(config.username, config.password, config.api_key, config.acc_type)
+        ig_service = IGService(config.username, config.password, config.api_key, config.acc_type, retryer=retrying)
     else:
         ig_service = IGService(config.username, config.password, config.api_key, config.acc_type,
-                               acc_number=config.acc_number)
+                               acc_number=config.acc_number, retryer=retrying)
     ig_service.create_session(version=request.param)
     yield ig_service
     ig_service.logout()
@@ -56,15 +65,15 @@ def watchlist_id(ig_service):
 
 class TestIntegration:
 
-    def test_create_session_no_encryption(self):
+    def test_create_session_no_encryption(self, retrying):
         ig_service = IGService(config.username, config.password,
-                               config.api_key, config.acc_type)
+                               config.api_key, config.acc_type, retryer=retrying)
         ig_service.create_session()
         assert 'CST' in ig_service.session.headers
 
-    def test_create_session_encrypted_password(self):
+    def test_create_session_encrypted_password(self, retrying):
         ig_service = IGService(config.username, config.password,
-                               config.api_key, config.acc_type)
+                               config.api_key, config.acc_type, retryer=retrying)
         ig_service.create_session(encryption=True)
         assert 'CST' in ig_service.session.headers
 
@@ -130,16 +139,16 @@ class TestIntegration:
         assert isinstance(response, pd.DataFrame)
         assert response.shape[1] == 9
 
-    def test_init_bad_account_type(self):
+    def test_init_bad_account_type(self, retrying):
         with pytest.raises(IGException):
-            IGService(config.username, config.password, config.api_key, 'wrong')
+            IGService(config.username, config.password, config.api_key, 'wrong', retryer=retrying)
 
     def test_fetch_transaction_history_by_type_and_period(self, ig_service):
         response = ig_service.fetch_transaction_history_by_type_and_period(10000, "ALL")
         assert isinstance(response, pd.DataFrame)
 
-    def test_create_session_bad_password(self):
-        ig_service = IGService(config.username, 'wrong', config.api_key, config.acc_type)
+    def test_create_session_bad_password(self, retrying):
+        ig_service = IGService(config.username, 'wrong', config.api_key, config.acc_type, retryer=retrying)
         with pytest.raises(IGException):
             ig_service.create_session()
 
@@ -151,8 +160,8 @@ class TestIntegration:
         response = ig_service.fetch_open_positions(version='1')
         assert isinstance(response, pd.DataFrame)
 
-    def test_create_session_bad_username(self):
-        ig_service = IGService('wrong', config.password, config.api_key, config.acc_type)
+    def test_create_session_bad_username(self, retrying):
+        ig_service = IGService('wrong', config.password, config.api_key, config.acc_type, retryer=retrying)
         with pytest.raises(IGException):
             ig_service.create_session()
 
@@ -160,22 +169,22 @@ class TestIntegration:
         response = ig_service.fetch_working_orders()
         assert isinstance(response, pd.DataFrame)
 
-    def test_create_session_bad_api_key(self):
-        ig_service = IGService(config.username, config.password, 'wrong', config.acc_type)
+    def test_create_session_bad_api_key(self, retrying):
+        ig_service = IGService(config.username, config.password, 'wrong', config.acc_type, retryer=retrying)
         with pytest.raises(IGException):
             ig_service.create_session()
 
     def test_fetch_top_level_navigation_nodes(self, top_level_nodes):
         assert isinstance(top_level_nodes, pd.DataFrame)
 
-    def test_create_session_v3_no_acc_num(self):
-        ig_service = IGService(config.username, config.password, config.api_key, config.acc_type)
+    def test_create_session_v3_no_acc_num(self, retrying):
+        ig_service = IGService(config.username, config.password, config.api_key, config.acc_type, retryer=retrying)
         with pytest.raises(IGException):
             ig_service.create_session(version='3')
 
-    def test_create_session_v3(self):
+    def test_create_session_v3(self, retrying):
         ig_service = IGService(config.username, config.password, config.api_key, config.acc_type,
-                               acc_number=config.acc_number)
+                               acc_number=config.acc_number, retryer=retrying)
         ig_service.create_session(version='3')
         assert 'X-IG-API-KEY' in ig_service.session.headers
         assert 'Authorization' in ig_service.session.headers
@@ -183,14 +192,14 @@ class TestIntegration:
         assert len(ig_service.fetch_accounts()) == 2
 
     @pytest.mark.slow  # will be skipped unless run with 'pytest --runslow'
-    def test_session_v3_refresh(self):
+    def test_session_v3_refresh(self, retrying):
         """
         Tests refresh capability of v3 sessions. It makes repeated calls to the 'fetch_accounts'
         endpoint, with random sleep times in between, to show/test the different scenarios. Will take
         a long time to run
         """
         ig_service = IGService(config.username, config.password, config.api_key, config.acc_type,
-                               acc_number=config.acc_number)
+                               acc_number=config.acc_number, retryer=retrying)
         ig_service.create_session(version='3')
         delay_choice = [(1, 59), (60, 650)]
         for count in range(1, 20):
@@ -372,30 +381,25 @@ class TestIntegration:
         assert result['metadata']['pageData']['pageNumber'] == 3
 
     def test_create_open_position(self, ig_service):
-        result = ig_service.create_open_position(
-            # CS.D.GBPUSD.TODAY.IP
-            # IX.D.FTSE.DAILY.IP
-            # KA.D.BARC.DAILY.IP
-            epic='KA.D.BARC.DAILY.IP',
-            direction='BUY',
-            currency_code='GBP',
-            order_type='MARKET',
-            expiry='-',
-            force_open='false',
-            guaranteed_stop='false',
-            size=1,
-            level=None,
-            limit_level=None,
-            limit_distance=None,
-            quote_id=None,
-            stop_distance=None,
-            stop_level=None,
-            trailing_stop=None,
-            trailing_stop_increment=None)
 
-        # TODO fix when demo platforms sorts itself
-        assert result['dealStatus'] == 'REJECTED'
-        assert result['reason'] == 'REJECT_CFD_ORDER_ON_SPREADBET_ACCOUNT'
+        # TODO do we need to check the market is open?
+
+        open_result = ig_service.create_open_position(
+            epic='IX.D.FTSE.DAILY.IP', direction='BUY', currency_code='GBP', order_type='MARKET', expiry='DFB',
+            force_open='false', guaranteed_stop='false', size=0.5, level=None, limit_level=None, limit_distance=None,
+            quote_id=None, stop_distance=None, stop_level=None, trailing_stop=None, trailing_stop_increment=None)
+
+        assert open_result['dealStatus'] == 'ACCEPTED'
+        assert open_result['reason'] == 'SUCCESS'
+
+        time.sleep(2)
+
+        close_result = ig_service.close_open_position(
+            deal_id=None, direction='SELL', epic='IX.D.FTSE.DAILY.IP', expiry='DFB', level=None,
+            order_type='MARKET', quote_id=None, size=0.5, session=None)
+
+        assert close_result['dealStatus'] == 'ACCEPTED'
+        assert close_result['reason'] == 'SUCCESS'
 
     def test_create_working_order(self, ig_service):
 
@@ -403,30 +407,21 @@ class TestIntegration:
 
         bet_info = ig_service.fetch_market_by_epic(epic)
         min_bet = bet_info.dealingRules.minDealSize.value
-        # bid = bet_info.snapshot.bid
         offer = bet_info.snapshot.offer
-        # status = bet_info.snapshot.marketStatus
+        # status = bet_info.snapshot.marketStatus # TODO do we need to check the market is open?
 
-        result = ig_service.create_working_order(
-            # CS.D.GBPUSD.TODAY.IP
-            # IX.D.FTSE.DAILY.IP
-            epic=epic,
-            direction='BUY',
-            currency_code='GBP',
-            order_type='LIMIT',
-            expiry='-',
-            guaranteed_stop='false',
-            time_in_force='GOOD_TILL_CANCELLED',
-            size=min_bet,
-            level=offer * 1.25,
-            limit_level=None,
-            limit_distance=None,
-            stop_distance=None,
-            stop_level=None)
+        create_result = ig_service.create_working_order(
+            epic=epic, direction='BUY', currency_code='GBP', order_type='LIMIT', expiry='DFB', guaranteed_stop='false',
+            time_in_force='GOOD_TILL_CANCELLED', size=min_bet, level=offer * 0.9, limit_level=None,
+            limit_distance=None, stop_distance=None, stop_level=None)
+        assert create_result['dealStatus'] == 'ACCEPTED'
+        assert create_result['reason'] == 'SUCCESS'
 
-        # TODO fix when demo platforms sorts itself
-        assert result['dealStatus'] == 'REJECTED'
-        assert result['reason'] == 'REJECT_CFD_ORDER_ON_SPREADBET_ACCOUNT'
+        time.sleep(2)
+
+        delete_result = ig_service.delete_working_order(create_result['dealId'])
+        assert delete_result['dealStatus'] == 'ACCEPTED'
+        assert delete_result['reason'] == 'SUCCESS'
 
     def test_fetch_transaction_history(self, ig_service):
         data = ig_service.fetch_transaction_history()
@@ -449,9 +444,9 @@ class TestIntegration:
         result = ig_service.update_client_app(60, 60, config.api_key, 'ENABLED')
         print(result)
 
-    def test_logout(self):
+    def test_logout(self, retrying):
         ig_service = IGService(config.username, config.password,
-                               config.api_key, config.acc_type)
+                               config.api_key, config.acc_type, retryer=retrying)
         ig_service.create_session()
         ig_service.logout()
         with pytest.raises(Exception) as error:
