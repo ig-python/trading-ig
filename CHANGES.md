@@ -1,5 +1,18 @@
 # Release notes
 
+## 0.0.10
+
+* simplified request headers: `requests.Session` now handles persistence
+* adds support for v3 session creation (#157)
+* implementation and test for fetch_working_orders() v2 (like PR#187)
+* adds support for fetch_historical_prices_by_epic_and_date_range() v2 
+* adds support for fetch_open_positions() v2
+* dependency management with [Python Poetry](https://python-poetry.org/) (#149)
+* more robust handling of IG API rate limits
+* support for all the `/history/activity` endpoints
+* better test coverage. now 80% for `rest.py` (#38)
+* documentation improvements
+
 ## 0.0.9
 
 * integration and unit tests improved
