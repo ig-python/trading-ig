@@ -6,15 +6,14 @@ import pytest
 from random import randint, choice
 import logging
 import time
-import tenacity
-from tenacity import Retrying
+from tenacity import Retrying, wait_exponential, retry_if_exception_type
 
 
 @pytest.fixture(scope="module")
 def retrying():
     """test fixture creates a tenacity.Retrying instance"""
-    return Retrying(wait=tenacity.wait_exponential(),
-        retry=tenacity.retry_if_exception_type(ApiExceededException))
+    return Retrying(wait=wait_exponential(),
+        retry=retry_if_exception_type(ApiExceededException))
 
 
 @pytest.fixture(autouse=True)
