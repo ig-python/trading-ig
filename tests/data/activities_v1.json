@@ -1,0 +1,61 @@
+{
+    "activities": [
+        {
+            "epic": "IX.D.SPTRD.MONTH2.IP",
+            "dealId": "ABCD12345X",
+            "activityHistoryId": "0000000101",
+            "date": "01/01/20",
+            "time": "12:00",
+            "activity": "Order",
+            "marketName": "US 500",
+            "period": "SEP-21",
+            "result": "Position opened: HGF113",
+            "channel": "Web",
+            "currency": "£",
+            "size": "+0.60",
+            "level": "4456.2",
+            "stop": "-",
+            "stopType": "-",
+            "limit": "-",
+            "actionStatus": "ACCEPT"
+        },
+        {
+            "epic": "IR.D.FGBL.Month1.IP",
+            "dealId": "ABCD12345Y",
+            "activityHistoryId": "0000000102",
+            "date": "01/01/20",
+            "time": "12:00",
+            "activity": "Order",
+            "marketName": "Bund",
+            "period": "SEP-21",
+            "result": "Position partially closed: HGF112",
+            "channel": "Web",
+            "currency": "£",
+            "size": "+0.75",
+            "level": "17354",
+            "stop": "-",
+            "stopType": "-",
+            "limit": "-",
+            "actionStatus": "ACCEPT"
+        },
+        {
+            "epic": "IX.D.SPTRD.MONTH2.IP",
+            "dealId": "ABCD12345Z",
+            "activityHistoryId": "0000000103",
+            "date": "01/01/20",
+            "time": "12:00",
+            "activity": "Order",
+            "marketName": "US 500",
+            "period": "SEP-21",
+            "result": "Position rolled: HGF111",
+            "channel": "System",
+            "currency": "£",
+            "size": "+4.00",
+            "level": "4757.2",
+            "stop": "-",
+            "stopType": "-",
+            "limit": "-",
+            "actionStatus": "ACCEPT"
+        }
+    ]
+}
