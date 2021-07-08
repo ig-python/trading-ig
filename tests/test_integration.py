@@ -383,19 +383,20 @@ class TestIntegration:
     def test_create_open_position(self, ig_service):
 
         # TODO do we need to check the market is open?
+        epic = 'CS.D.GBPUSD.TODAY.IP'
 
         open_result = ig_service.create_open_position(
-            epic='IX.D.FTSE.DAILY.IP', direction='BUY', currency_code='GBP', order_type='MARKET', expiry='DFB',
+            epic=epic, direction='BUY', currency_code='GBP', order_type='MARKET', expiry='DFB',
             force_open='false', guaranteed_stop='false', size=0.5, level=None, limit_level=None, limit_distance=None,
             quote_id=None, stop_distance=None, stop_level=None, trailing_stop=None, trailing_stop_increment=None)
 
         assert open_result['dealStatus'] == 'ACCEPTED'
         assert open_result['reason'] == 'SUCCESS'
 
-        time.sleep(2)
+        time.sleep(10)
 
         close_result = ig_service.close_open_position(
-            deal_id=None, direction='SELL', epic='IX.D.FTSE.DAILY.IP', expiry='DFB', level=None,
+            deal_id=None, direction='SELL', epic=epic, expiry='DFB', level=None,
             order_type='MARKET', quote_id=None, size=0.5, session=None)
 
         assert close_result['dealStatus'] == 'ACCEPTED'
@@ -403,12 +404,13 @@ class TestIntegration:
 
     def test_create_working_order(self, ig_service):
 
+        # TODO do we need to check the market is open?
         epic = 'CS.D.GBPUSD.TODAY.IP'
 
         bet_info = ig_service.fetch_market_by_epic(epic)
         min_bet = bet_info.dealingRules.minDealSize.value
         offer = bet_info.snapshot.offer
-        # status = bet_info.snapshot.marketStatus # TODO do we need to check the market is open?
+        # status = bet_info.snapshot.marketStatus
 
         create_result = ig_service.create_working_order(
             epic=epic, direction='BUY', currency_code='GBP', order_type='LIMIT', expiry='DFB', guaranteed_stop='false',
@@ -417,7 +419,7 @@ class TestIntegration:
         assert create_result['dealStatus'] == 'ACCEPTED'
         assert create_result['reason'] == 'SUCCESS'
 
-        time.sleep(2)
+        time.sleep(10)
 
         delete_result = ig_service.delete_working_order(create_result['dealId'])
         assert delete_result['dealStatus'] == 'ACCEPTED'
