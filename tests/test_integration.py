@@ -396,7 +396,7 @@ class TestIntegration:
         time.sleep(10)
 
         close_result = ig_service.close_open_position(
-            deal_id=None, direction='SELL', epic=epic, expiry='DFB', level=None,
+            deal_id=open_result['dealId'], direction='SELL', epic=None, expiry='DFB', level=None,
             order_type='MARKET', quote_id=None, size=0.5, session=None)
 
         assert close_result['dealStatus'] == 'ACCEPTED'
