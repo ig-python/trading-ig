@@ -217,7 +217,6 @@ class IGService:
                'exceeded-account-allowance' in response_text or \
                'exceeded-account-trading-allowance' in response_text
 
-
     # ---------- PARSE_RESPONSE ----------- #
 
     @staticmethod
@@ -945,8 +944,6 @@ class IGService:
             params["force_open"] = 'true'
         if good_till_date:
             params["goodTillDate"] = good_till_date
-
-
 
         endpoint = "/workingorders/otc"
         action = "create"
