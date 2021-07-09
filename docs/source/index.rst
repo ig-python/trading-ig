@@ -23,8 +23,6 @@ Dependencies
 
 * `requests <https://pypi.org/project/requests/>`_
 * `pycryptodome <https://pypi.org/project/pycryptodome/>`_
-* `pandas <https://pypi.org/project/pandas>`_
-* TODO more
 
 For full details, see `pyproject.toml <https://github.com/ig-python/ig-markets-api-python-library/blob/master/pyproject.toml>`_
 
