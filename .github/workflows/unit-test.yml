@@ -31,7 +31,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python -m poetry install --extras "pandas munch"
+        python -m poetry install --extras "pandas munch tenacity"
 
     - name: Lint with flake8
       run: |

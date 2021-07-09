@@ -27,7 +27,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python -m poetry install --extras "pandas munch"
+        python -m poetry install --extras "pandas munch tenacity"
 
     - name: Integration test with pytest
       env:
