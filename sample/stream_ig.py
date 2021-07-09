@@ -33,18 +33,18 @@ def main():
     # logging.basicConfig(level=logging.DEBUG)
 
     ig_service = IGService(
-        config.username, config.password, config.api_key, config.acc_type
+        config.username, config.password, config.api_key, config.acc_type, acc_number=config.acc_number
     )
 
     ig_stream_service = IGStreamService(ig_service)
-    ig_stream_service.create_session(version='2')
-    ig_stream_service.connect(config.acc_number)
+    ig_stream_service.create_session()
+    #ig_stream_service.create_session(version='3')
 
     # Making a new Subscription in MERGE mode
     subscription_prices = Subscription(
         mode="MERGE",
-        items=["L1:CS.D.GBPUSD.CFD.IP", "L1:CS.D.USDJPY.CFD.IP"], # sample CFD epics
-        #items=["L1:CS.D.GBPUSD.TODAY.IP", "L1:IX.D.FTSE.DAILY.IP"], # sample spreadbet epics
+        #items=["L1:CS.D.GBPUSD.CFD.IP", "L1:CS.D.USDJPY.CFD.IP"], # sample CFD epics
+        items=["L1:CS.D.GBPUSD.TODAY.IP", "L1:IX.D.FTSE.DAILY.IP"], # sample spreadbet epics
         fields=["UPDATE_TIME", "BID", "OFFER", "CHANGE", "MARKET_STATE"],
     )
 
