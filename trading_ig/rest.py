@@ -142,8 +142,18 @@ class IGService:
     _refresh_token = None
     _valid_until = None
 
-    def __init__(self, username, password, api_key, acc_type="demo", acc_number=None, session=None,
-                 retryer: Retrying = None):
+    def __init__(
+        self,
+        username,
+        password,
+        api_key,
+        acc_type="demo",
+        acc_number=None,
+        session=None,
+        return_dataframe=_HAS_PANDAS,
+        return_munch=_HAS_MUNCH,
+        retryer: Retrying = None
+    ):
         """Constructor, calls the method required to connect to
         the API (accepts acc_type = LIVE or DEMO)"""
         self.API_KEY = api_key
@@ -158,8 +168,8 @@ class IGService:
             raise IGException("Invalid account type '%s', please provide LIVE or DEMO" %
                               acc_type)
 
-        self.return_dataframe = _HAS_PANDAS
-        self.return_munch = _HAS_MUNCH
+        self.return_dataframe = return_dataframe
+        self.return_munch = return_munch
 
         if session is None:
             self.session = Session()  # Requests Session (global)
@@ -233,7 +243,8 @@ class IGService:
 
     # ------ DATAFRAME TOOLS -------- #
 
-    def colname_unique(self, d_cols):
+    @staticmethod
+    def colname_unique(d_cols):
         """Returns a set of column names (unique)"""
         s = set()
         for _, lst in d_cols.items():
@@ -241,9 +252,8 @@ class IGService:
                 s.add(colname)
         return s
 
-    def expand_columns(
-        self, data, d_cols, flag_col_prefix=False, col_overlap_allowed=None
-    ):
+    @staticmethod
+    def expand_columns(data, d_cols, flag_col_prefix=False, col_overlap_allowed=None):
         """Expand columns"""
         if col_overlap_allowed is None:
             col_overlap_allowed = []
@@ -273,7 +283,7 @@ class IGService:
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
-        if _HAS_PANDAS and self.return_dataframe:
+        if self.return_dataframe:
 
             data = pd.DataFrame(data["accounts"])
             d_cols = {"balance": [u"available", u"balance", u"deposit", u"profitLoss"]}
@@ -313,7 +323,7 @@ class IGService:
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
-        if _HAS_PANDAS and self.return_dataframe:
+        if self.return_dataframe:
 
             data = pd.DataFrame(data["activities"])
 
@@ -560,7 +570,7 @@ class IGService:
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
-        if _HAS_PANDAS and self.return_dataframe:
+        if self.return_dataframe:
 
             data = pd.DataFrame(data["transactions"])
 
@@ -619,7 +629,7 @@ class IGService:
 
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
-        if _HAS_PANDAS and self.return_dataframe:
+        if self.return_dataframe:
 
             data = pd.DataFrame(data["transactions"])
 
@@ -696,7 +706,7 @@ class IGService:
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
-        if _HAS_PANDAS and self.return_dataframe:
+        if self.return_dataframe:
 
             list = data["positions"]
             data = pd.DataFrame(list)
@@ -840,7 +850,7 @@ class IGService:
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
-        if _HAS_PANDAS and self.return_dataframe:
+        if self.return_dataframe:
 
             lst = data["workingOrders"]
             data = pd.DataFrame(lst)
@@ -1041,7 +1051,7 @@ class IGService:
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
-        if _HAS_PANDAS and self.return_dataframe:
+        if self.return_dataframe:
             data = pd.DataFrame(data["clientSentiments"])
         return data
 
@@ -1054,7 +1064,7 @@ class IGService:
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
-        if _HAS_PANDAS and self.return_dataframe:
+        if self.return_dataframe:
 
             data["markets"] = pd.DataFrame(data["markets"])
             if len(data["markets"]) == 0:
@@ -1099,7 +1109,7 @@ class IGService:
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
-        if _HAS_PANDAS and self.return_dataframe:
+        if self.return_dataframe:
 
             data["markets"] = pd.DataFrame(data["markets"])
             data["nodes"] = pd.DataFrame(data["nodes"])
@@ -1114,7 +1124,7 @@ class IGService:
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
-        if _HAS_MUNCH and self.return_munch:
+        if self.return_munch:
             data = munchify(data)
         return data
 
@@ -1126,7 +1136,7 @@ class IGService:
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
-        if _HAS_PANDAS and self.return_dataframe:
+        if self.return_dataframe:
             data = pd.DataFrame(data["markets"])
         return data
 
@@ -1262,7 +1272,7 @@ class IGService:
 
         version = "3"
         params = {}
-        if resolution and _HAS_PANDAS and self.return_dataframe:
+        if resolution and self.return_dataframe:
             params["resolution"] = conv_resol(resolution)
         if start_date:
             params["from"] = start_date
@@ -1295,7 +1305,7 @@ class IGService:
 
         if format is None:
             format = self.format_prices
-        if _HAS_PANDAS and self.return_dataframe:
+        if self.return_dataframe:
             data["prices"] = format(data["prices"], version)
             data['prices'] = data['prices'].fillna(value=np.nan)
         self.log_allowance(data["metadata"])
@@ -1307,7 +1317,7 @@ class IGService:
         """Returns a list of historical prices for the given epic, resolution,
         number of points"""
         version = "2"
-        if _HAS_PANDAS and self.return_dataframe:
+        if self.return_dataframe:
             resolution = conv_resol(resolution)
         params = {}
         url_params = {"epic": epic, "resolution": resolution, "numpoints": numpoints}
@@ -1317,7 +1327,7 @@ class IGService:
         data = self.parse_response(response.text)
         if format is None:
             format = self.format_prices
-        if _HAS_PANDAS and self.return_dataframe:
+        if self.return_dataframe:
             data["prices"] = format(data["prices"], version)
             data['prices'] = data['prices'].fillna(value=np.nan)
         return data
@@ -1347,7 +1357,7 @@ class IGService:
         :return: historic data
         :rtype: dict, with 'prices' element as pandas.Dataframe
         """
-        if _HAS_PANDAS and self.return_dataframe:
+        if self.return_dataframe:
             resolution = conv_resol(resolution)
         params = {}
         if version == '1':
@@ -1365,7 +1375,7 @@ class IGService:
         data = self.parse_response(response.text)
         if format is None:
             format = self.format_prices
-        if _HAS_PANDAS and self.return_dataframe:
+        if self.return_dataframe:
             data["prices"] = format(data["prices"], version)
             data['prices'] = data['prices'].fillna(value=np.nan)
         return data
@@ -1389,7 +1399,7 @@ class IGService:
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
-        if _HAS_PANDAS and self.return_dataframe:
+        if self.return_dataframe:
             data = pd.DataFrame(data["watchlists"])
         return data
 
@@ -1423,7 +1433,7 @@ class IGService:
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
-        if _HAS_PANDAS and self.return_dataframe:
+        if self.return_dataframe:
             data = pd.DataFrame(data["markets"])
         return data
 
