@@ -22,16 +22,13 @@ def logging_setup():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 
-@pytest.fixture(scope="module", params=['2', '3'])
+@pytest.fixture(scope="module", params=['2', '3'], ids=['v2 session', 'v3 session'])
 def ig_service(request, retrying):
     """test fixture logs into IG with the configured credentials. Tests both v2 and v3 types"""
     if config.acc_type == 'LIVE':
         pytest.fail('this integration test should not be executed with a LIVE account')
-    if request.param == '2':
-        ig_service = IGService(config.username, config.password, config.api_key, config.acc_type, retryer=retrying)
-    else:
-        ig_service = IGService(config.username, config.password, config.api_key, config.acc_type,
-                               acc_number=config.acc_number, retryer=retrying)
+    ig_service = IGService(config.username, config.password, config.api_key, config.acc_type,
+        acc_number=config.acc_number, retryer=retrying)
     ig_service.create_session(version=request.param)
     yield ig_service
     ig_service.logout()
@@ -379,6 +376,7 @@ class TestIntegration:
         assert result['prices'].shape[0] == 6
         assert result['metadata']['pageData']['pageNumber'] == 3
 
+    @pytest.mark.parametrize("ig_service", ['2'], indirect=True)
     def test_create_open_position(self, ig_service):
 
         # TODO do we need to check the market is open?
@@ -401,6 +399,7 @@ class TestIntegration:
         assert close_result['dealStatus'] == 'ACCEPTED'
         assert close_result['reason'] == 'SUCCESS'
 
+    @pytest.mark.parametrize("ig_service", ['2'], indirect=True)
     def test_create_working_order(self, ig_service):
 
         # TODO do we need to check the market is open?
