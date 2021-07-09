@@ -49,11 +49,15 @@ Make a copy of the config template module (``trading_ig_config.default.py``), an
 Environment variables
 ^^^^^^^^^^^^^^^^^^^^^
 
+If any exceptions are raised loading the config, IGService will attempt to find your authentication details from
+environment variables
+
 ::
 
     $ export IG_SERVICE_USERNAME="your_username"
     $ export IG_SERVICE_PASSWORD="your_password"
     $ export IG_SERVICE_API_KEY="your_api_key"
+    $ export IG_SERVICE_ACC_NUMBER="your_account_number"
 
 
 Connection
