@@ -83,7 +83,7 @@ for more options
 
 Why do see an error like ``REJECT_CFD_ORDER_ON_SPREADBET_ACCOUNT``?
 -------------------------------------------------------------------
-If you are attempting to open a spreadbet OTC position with code like
+If you are attempting to open a spread bet OTC position with code like
 
 >>> resp = ig_service.create_open_position(
     currency_code='GBP',
@@ -98,7 +98,7 @@ you will see this error. CFD bets should have::
 
     expiry='-'
 
-but spreadbets must have::
+but spread bets must have::
 
     expiry='DFB'
 
@@ -122,13 +122,13 @@ Contributions welcome!
 Why do see an error like ``public-api.failure.stockbroking-not-supported``?
 ---------------------------------------------------------------------------------
 With the v1 and v2 session endpoints, you only need to specify a username, password and API key to
-create a session. The APIs only work with spreadbet and CFD accounts, but IG offer all sorts of other
+create a session. The APIs only work with spread bet and CFD accounts, but IG offer all sorts of other
 accounts, eg ISA, SIPP, share trading etc. As a result, IG defines a *default account* for you, which you can
 change in preferences (or with the API). You will see this error if your default account is set to
 ISA, SIPP or share trading, and you attempt to login to the API with a v1 or v2 session. There are two
 solutions:
 
-- change your default account to your spreadbet or CFD account. From the web interface, go
+- change your default account to your spread bet or CFD account. From the web interface, go
 
   - `My IG > Settings > Default view`
 
@@ -174,7 +174,7 @@ v1 and v2 sessions are much simpler. Tokens from these sessions are initially va
 get extended while in use. This means once a session has been authenticated, your app will continue to be able
 to make requests indefinitely, as long as you make a request every few hours, say. You would only need to
 re-authenticate if your connection was reset, for example. Once authenticated with one of these sessions,
-the active account (eg spreadbet, CFD) will be the one defined as your *default account*. You can then switch to
+the active account (eg spread bet, CFD) will be the one defined as your *default account*. You can then switch to
 another account using ``switch_account()``, if needed.
 
 v3 sessions (IG calls them ``OAuth``, but they are not) are completely different. v3 session tokens expire after
