@@ -240,5 +240,15 @@ Two reasons:
 
 Why do see an error like ``unauthorised.access.to.equity.exception``?
 ---------------------------------------------------------------------
-TODO
+
+It is not really clear what this means. It can currently (July 2021) be seen if attempting to
+get historic prices for the Volatility Index (VIX) futures spread bet. On querying the API support
+team, their response was:
+
+    Our developers and dealing desk looked into the issue and  VIX data should not be available on web api at all.
+    The VIX data feed is similar to the shares datafeed. The error you received on the futures (feb , mar etc)
+    is correct and the cash should also be disabled. Our developers have an existing project to bring the Cash
+    epic in line with the future contracts but going forward you would not be able to download data on any of the
+    VIX epics using API.
+
 
