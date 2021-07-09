@@ -16,7 +16,7 @@ with `Poetry <https://python-poetry.org/>`_::
 
 or with optional packages::
 
-    $ poetry install --extras "pandas munch"
+    $ poetry install --extras "pandas munch tenacity"
 
 From source::
 

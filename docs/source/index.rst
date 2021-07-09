@@ -58,7 +58,7 @@ Contributing
 ------------
 
 Contributions are welcome. We use some automated linting and testing so please make your code passes the tests, see
-:ref:`here <running_tests>`
+:ref:`here <running_tests>`. And ideally, write some tests for the new code or feature.
 
 
 License
