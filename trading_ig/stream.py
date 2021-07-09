@@ -26,8 +26,7 @@ class IGStreamService(object):
             self.ig_service.read_session(fetch_session_tokens='true')
         self.lightstreamerEndpoint = ig_session['lightstreamerEndpoint']
 
-    def connect(self, acc_number):
-        self.acc_number = acc_number
+    def connect(self):
         cst = self.ig_service.session.headers['CST']
         xsecuritytoken = self.ig_service.session.headers['X-SECURITY-TOKEN']
         ls_password = "CST-%s|XST-%s" % (cst, xsecuritytoken)
