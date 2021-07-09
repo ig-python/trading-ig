@@ -116,4 +116,19 @@ Getting account activity
 Using the Streaming API
 -----------------------
 
-TODO
+Assuming config as above
+
+>>> from trading_ig import IGService, IGStreamService
+>>> from trading_ig.config import config
+>>> from trading_ig.lightstreamer import Subscription
+
+>>> def on_update(item):
+>>>     print("{UPDATE_TIME:<8} {stock_name:<19} Bid {BID:>5} Ask {OFFER:>5}".format(stock_name=item["name"], **item["values"]))
+
+>>> ig_service = IGService(config.username, config.password, config.api_key, config.acc_type, acc_number=config.acc_number)
+>>> ig_stream_service = IGStreamService(ig_service)
+>>> ig_stream_service.create_session()
+>>> sub = Subscription(mode="MERGE", items=["L1:CS.D.GBPUSD.TODAY.IP"], fields=["UPDATE_TIME", "BID", "OFFER"])
+>>> sub.addlistener(on_update)
+>>> ig_stream_service.ls_client.subscribe(sub)
+>>> ig_stream_service.disconnect()
