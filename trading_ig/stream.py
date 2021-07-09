@@ -25,16 +25,12 @@ class IGStreamService(object):
         if version == '3':
             self.ig_service.read_session(fetch_session_tokens='true')
         self.lightstreamerEndpoint = ig_session['lightstreamerEndpoint']
-
-    def connect(self):
         cst = self.ig_service.session.headers['CST']
         xsecuritytoken = self.ig_service.session.headers['X-SECURITY-TOKEN']
         ls_password = "CST-%s|XST-%s" % (cst, xsecuritytoken)
 
         # Establishing a new connection to Lightstreamer Server
         logger.info("Starting connection with %s" % self.lightstreamerEndpoint)
-        # self.ls_client = LSClient("http://localhost:8080", "DEMO")
-        # self.ls_client = LSClient("http://push.lightstreamer.com", "DEMO")
         self.ls_client = LSClient(
             self.lightstreamerEndpoint, adapter_set="", user=self.acc_number, password=ls_password
         )
