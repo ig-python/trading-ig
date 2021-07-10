@@ -1573,7 +1573,7 @@ class IGService:
             - if possible, the session can be renewed with a special refresh token
             - if not, a new session will be created
         """
-        logging.info("Checking session status...")
+        logging.debug("Checking session status...")
         if self._valid_until is not None and datetime.now() > self._valid_until:
             if self._refresh_token:
                 # we are in a v3 session, need to refresh
