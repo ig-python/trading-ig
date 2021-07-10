@@ -26,9 +26,6 @@
     :target: https://requires.io/github/ig-python/ig-markets-api-python-library/requirements/?branch=master
     :alt: Requirements Status
 
-.. image:: https://travis-ci.org/ig-python/ig-markets-api-python-library.svg?branch=master
-    :target: https://travis-ci.org/ig-python/ig-markets-api-python-library
-
 .. image:: https://readthedocs.org/projects/trading-ig/badge/?version=latest
     :target: https://trading-ig.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
@@ -36,7 +33,7 @@
 trading_ig
 ==========
 
-A lightweight wrapper for the IG Markets API written in Python. Simplifies access to the IG REST and streaming APIs
+A lightweight wrapper for the IG Markets API written in Python. Simplifies access to the IG REST and Streaming APIs
 with a live or demo account.
 
 What is it?
@@ -55,23 +52,27 @@ NOTE: this is not an IG project. Use it at your own risk
 Installation
 ------------
 
-From `Python package index <https://pypi.org/project/trading_ig/>`_
-
-::
+From `Python package index <https://pypi.org/project/trading_ig/>`_::
 
     $ pip install trading_ig
 
-From source
+with `Poetry <https://python-poetry.org/>`_::
 
-::
+    $ git clone https://github.com/ig-python/ig-markets-api-python-library
+    $ cd ig-markets-api-python-library
+    $ poetry install
+
+or with optional packages::
+
+    $ poetry install --extras "pandas munch"
+
+From source::
 
     $ git clone https://github.com/ig-python/ig-markets-api-python-library
     $ cd ig-markets-api-python-library
     $ python setup.py install
 
-or
-
-::
+or direct from Github::
 
     $ pip install git+https://github.com/ig-python/ig-markets-api-python-library
 
@@ -80,9 +81,8 @@ Dependencies
 
 * `requests <https://pypi.org/project/requests/>`_
 * `pycryptodome <https://pypi.org/project/pycryptodome/>`_
-* `pandas 1.0.5 <https://pypi.org/project/pandas/1.0.5/>`_
 
-For full details, see `requirements.txt <https://github.com/ig-python/ig-markets-api-python-library/blob/master/requirements.txt>`_
+For full details, see `pyproject.toml <https://github.com/ig-python/ig-markets-api-python-library/blob/master/pyproject.toml>`_
 
 Docs
 ----

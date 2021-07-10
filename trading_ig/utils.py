@@ -76,7 +76,6 @@ def conv_datetime(dt, version=2):
         fmt = DATE_FORMATS[int(version)]
         return dt.strftime(fmt)
     except (ValueError, TypeError):
-        logger.error(traceback.format_exc())
         logger.warning("conv_datetime returns %s" % dt)
         return dt
 
@@ -102,3 +101,20 @@ def remove(cache):
         os.remove(filename)
     except Exception:
         pass
+
+
+def print_full(x):
+    """
+    Prints out a full data frame, no column hiding
+    """
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.width', 2000)
+    # pd.set_option('display.float_format', '{:20,.2f}'.format)
+    pd.set_option('display.max_colwidth', None)
+    print(x)
+    pd.reset_option('display.max_rows')
+    pd.reset_option('display.max_columns')
+    pd.reset_option('display.width')
+    pd.reset_option('display.float_format')
+    pd.reset_option('display.max_colwidth')

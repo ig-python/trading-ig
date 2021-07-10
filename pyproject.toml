@@ -1,0 +1,62 @@
+[tool.poetry]
+name = "trading_ig"
+version = "0.0.9"
+description = "A lightweight wrapper for the IG Markets API written in Python"
+authors = ["Femto Trader <femto.trader@gmail.com>"]
+maintainers = ["Andy Geach <andy@bugorfeature.net>"]
+license = "BSD-3-Clause"
+readme = "README.rst"
+homepage = "https://github.com/ig-python/ig-markets-api-python-library"
+repository = "https://github.com/ig-python/ig-markets-api-python-library"
+documentation = "https://trading-ig.rtfd.io/"
+keywords = ["trading", "spread betting", "CFDs"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Cython",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries",
+    "License :: OSI Approved :: BSD License",
+]
+
+[tool.poetry.dependencies]
+python = ">=3.6.1,<4.0"
+requests = "^2.24"
+pycryptodome = "^3.9"
+requests-cache = "^0.5"
+six = "^1.15"
+
+pandas = { version = "^1", optional = true }
+munch = { version = "^2.5", optional = true }
+tenacity = { version = "^7.0", optional = true }
+Sphinx = { version = "^4.0.3", optional = true }
+sphinx-rtd-theme = { version = "^0.5.2", optional = true }
+
+[tool.poetry.extras]
+pandas = ["pandas"]
+munch = ["munch"]
+tenacity = ["tenacity"]
+sphinx = ["sphinx"]
+docs = [
+    "sphinx"
+]
+
+[tool.poetry.dev-dependencies]
+flake8 = "^3.9"
+pytest = "^6.2"
+responses = "^0.12"
+
+[tool.poetry.urls]
+"Issues" = "https://github.com/ig-python/ig-markets-api-python-library/issues"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

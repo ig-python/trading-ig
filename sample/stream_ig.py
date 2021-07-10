@@ -6,9 +6,6 @@ IG Markets Stream API sample with Python
 2015 FemtoTrader
 """
 
-import time
-import sys
-import traceback
 import logging
 
 from trading_ig import IGService, IGStreamService
@@ -36,26 +33,18 @@ def main():
     # logging.basicConfig(level=logging.DEBUG)
 
     ig_service = IGService(
-        config.username, config.password, config.api_key, config.acc_type
+        config.username, config.password, config.api_key, config.acc_type, acc_number=config.acc_number
     )
 
     ig_stream_service = IGStreamService(ig_service)
-    ig_session = ig_stream_service.create_session()
-    # Ensure configured account is selected
-    accounts = ig_session[u"accounts"]
-    for account in accounts:
-        if account[u"accountId"] == config.acc_number:
-            accountId = account[u"accountId"]
-            break
-        else:
-            print("Account not found: {0}".format(config.acc_number))
-            accountId = None
-    ig_stream_service.connect(accountId)
+    ig_stream_service.create_session()
+    #ig_stream_service.create_session(version='3')
 
     # Making a new Subscription in MERGE mode
     subscription_prices = Subscription(
         mode="MERGE",
-        items=["L1:CS.D.GBPUSD.CFD.IP", "L1:CS.D.USDJPY.CFD.IP"],
+        #items=["L1:CS.D.GBPUSD.CFD.IP", "L1:CS.D.USDJPY.CFD.IP"], # sample CFD epics
+        items=["L1:CS.D.GBPUSD.TODAY.IP", "L1:IX.D.FTSE.DAILY.IP"], # sample spreadbet epics
         fields=["UPDATE_TIME", "BID", "OFFER", "CHANGE", "MARKET_STATE"],
     )
 
@@ -67,7 +56,7 @@ def main():
 
     # Making an other Subscription in MERGE mode
     subscription_account = Subscription(
-        mode="MERGE", items=["ACCOUNT:" + accountId], fields=["AVAILABLE_CASH"],
+        mode="MERGE", items=["ACCOUNT:" + config.acc_number], fields=["AVAILABLE_CASH"],
     )
 
     # Adding the "on_balance_update" function to Subscription

@@ -4,6 +4,7 @@ import json
 import pandas as pd
 import datetime
 import pytest
+import re
 
 """
 unit tests for historical prices methods
@@ -27,7 +28,6 @@ class TestHistoricalPrices:
                       status=200)
 
         ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-        ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
         result = ig_service.fetch_historical_prices_by_epic(epic='MT.D.GC.Month2.IP')
         prices = result['prices']
 
@@ -59,7 +59,6 @@ class TestHistoricalPrices:
                       status=200)
 
         ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-        ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
         result = ig_service.fetch_historical_prices_by_epic(
             epic='MT.D.GC.Month2.IP',
             resolution='D',
@@ -100,7 +99,6 @@ class TestHistoricalPrices:
                       status=200)
 
         ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-        ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
         result = ig_service.fetch_historical_prices_by_epic(epic='MT.D.GC.Month2.IP',
                                                             resolution='W',
                                                             numpoints=10)
@@ -132,7 +130,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic(
                 epic='MT.D.GC.Month2.IP',
                 resolution='X',
@@ -156,7 +153,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(ValueError) as excinfo:
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             ig_service.fetch_historical_prices_by_epic(
                 epic='MT.D.GC.Month2.IP',
                 resolution='X',
@@ -176,7 +172,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic(epic='MT.D.X.Month1.IP')
             assert result['errorCode'] == 'error.error.price-history.io-error'
 
@@ -194,7 +189,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic(
                 epic='MT.D.GC.Month2.IP',
                 resolution='D',
@@ -215,7 +209,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic(
                 epic='MT.D.GC.Month2.IP',
                 resolution='D',
@@ -224,28 +217,28 @@ class TestHistoricalPrices:
             assert result['errorCode'] == 'error.invalid.daterange'
 
     @responses.activate
-    def test_historical_prices_by_epic_and_date_range_happy(self):
+    def test_historical_prices_by_epic_and_date_range_v1_happy(self):
 
-        # fetch_historical_prices_by_epic_and_date_range, daily resolution
+        # fetch_historical_prices_by_epic_and_date_range, v1 daily resolution
 
         with open('tests/data/historic_prices_v1.json', 'r') as file:
             response_body = json.loads(file.read())
 
         responses.add(
             responses.GET,
-            'https://demo-api.ig.com/gateway/deal/prices/MT.D.GC.Month2.IP/DAY',
+            re.compile('https://demo-api.ig.com/gateway/deal/prices/.+'),
             match_querystring=False,
             headers={'CST': 'abc123', 'X-SECURITY-TOKEN': 'xyz987'},
             json=response_body,
             status=200)
 
         ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-        ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
         result = ig_service.fetch_historical_prices_by_epic_and_date_range(
             epic='MT.D.GC.Month2.IP',
             resolution='D',
             start_date='2020:09:01-00:00:00',
-            end_date='2020:09:04-23:59:59')
+            end_date='2020:09:04-23:59:59',
+            version='1')
 
         prices = result['prices']
         assert isinstance(result, dict)
@@ -253,6 +246,41 @@ class TestHistoricalPrices:
 
         # assert DataFrame shape
         assert prices.shape[0] == 4
+        assert prices.shape[1] == 13
+
+        # assert time series rows are 1 day apart
+        prices['tvalue'] = prices.index
+        prices['delta'] = (prices['tvalue'] - prices['tvalue'].shift())
+        assert any(prices["delta"].dropna() == datetime.timedelta(days=1))
+
+    @responses.activate
+    def test_historical_prices_by_epic_and_date_range_happy(self):
+        # fetch_historical_prices_by_epic_and_date_range, v2 daily resolution
+
+        with open('tests/data/historic_prices_v2.json', 'r') as file:
+            response_body = json.loads(file.read())
+
+        responses.add(
+            responses.GET,
+            re.compile('https://demo-api.ig.com/gateway/deal/prices/.+'),
+            match_querystring=False,
+            headers={'CST': 'abc123', 'X-SECURITY-TOKEN': 'xyz987'},
+            json=response_body,
+            status=200)
+
+        ig_service = IGService('username', 'password', 'api_key', 'DEMO')
+        result = ig_service.fetch_historical_prices_by_epic_and_date_range(
+            epic='MT.D.GC.Month2.IP',
+            resolution='D',
+            start_date='2020-09-01 00:00:00',
+            end_date='2020-09-04 23:59:59')
+
+        prices = result['prices']
+        assert isinstance(result, dict)
+        assert isinstance(prices, pd.DataFrame)
+
+        # assert DataFrame shape
+        assert prices.shape[0] == 10
         assert prices.shape[1] == 13
 
         # assert time series rows are 1 day apart
@@ -274,7 +302,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic_and_date_range(
                 epic='MT.D.X.Month1.IP',
                 resolution='D',
@@ -296,7 +323,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic_and_date_range(
                 epic='MT.D.GC.Month2.IP',
                 resolution='D',
@@ -318,7 +344,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic_and_date_range(
                 epic='MT.D.GC.Month2.IP',
                 resolution='D',
@@ -343,7 +368,6 @@ class TestHistoricalPrices:
             status=200)
 
         ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-        ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
         result = ig_service.fetch_historical_prices_by_epic_and_num_points(
             epic='MT.D.GC.Month2.IP',
             resolution='D',
@@ -376,7 +400,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic(
                         epic='MT.D.X.Month2.IP',
                         resolution='W',
@@ -398,7 +421,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(Exception):
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             result = ig_service.fetch_historical_prices_by_epic_and_num_points(
                 epic='MT.D.GC.Month2.IP',
                 resolution='D',
@@ -420,7 +442,6 @@ class TestHistoricalPrices:
 
         with pytest.raises(ValueError) as excinfo:
             ig_service = IGService('username', 'password', 'api_key', 'DEMO')
-            ig_service.crud_session.HEADERS["LOGGED_IN"] = {}
             ig_service.fetch_historical_prices_by_epic_and_num_points(
                 epic='MT.D.GC.Month2.IP',
                 resolution='X',

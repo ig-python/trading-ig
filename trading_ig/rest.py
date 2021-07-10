@@ -3,8 +3,8 @@
 
 """
 IG Markets REST API Library for Python
-http://labs.ig.com/rest-trading-api-reference
-Original version by Lewis Barber - 2014 - http://uk.linkedin.com/in/lewisbarber/
+https://labs.ig.com/rest-trading-api-reference
+Original version by Lewis Barber - 2014 - https://uk.linkedin.com/in/lewisbarber/
 Modified by Femto Trader - 2014-2015 - https://github.com/femtotrader/
 """  # noqa
 
@@ -16,6 +16,7 @@ from base64 import b64encode, b64decode
 from Crypto.Cipher import PKCS1_v1_5
 from Crypto.PublicKey import RSA
 from requests import Session
+from urllib.parse import urlparse, parse_qs
 import pandas as pd
 
 import numpy as np
@@ -23,8 +24,14 @@ from pandas import json_normalize
 from datetime import timedelta, datetime
 from .utils import _HAS_PANDAS, _HAS_MUNCH
 from .utils import conv_resol, conv_datetime, conv_to_ms, DATE_FORMATS, munchify
+from tenacity import Retrying
 
 logger = logging.getLogger(__name__)
+
+
+class ApiExceededException(Exception):
+    """Raised when our code hits the IG endpoint too often"""
+    pass
 
 
 class IGException(Exception):
@@ -34,30 +41,18 @@ class IGException(Exception):
 class IGSessionCRUD(object):
     """Session with CRUD operation"""
 
-    CLIENT_TOKEN = None
-    SECURITY_TOKEN = None
-
-    BASIC_HEADERS = None
-    LOGGED_IN_HEADERS = None
-    DELETE_HEADERS = None
-
     BASE_URL = None
-
-    HEADERS = {}
 
     def __init__(self, base_url, api_key, session):
         self.BASE_URL = base_url
         self.API_KEY = api_key
-
-        self.HEADERS["BASIC"] = {
-            "X-IG-API-KEY": self.API_KEY,
-            "Content-Type": "application/json",
-            "Accept": "application/json; charset=UTF-8",
-        }
-
         self.session = session
 
-        self.create = self._create_first
+        self.session.headers.update({
+            "X-IG-API-KEY": self.API_KEY,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json; charset=UTF-8'
+        })
 
     def _get_session(self, session):
         """Returns a Requests session if session is None
@@ -77,61 +72,50 @@ class IGSessionCRUD(object):
         """Returns url from endpoint and base url"""
         return self.BASE_URL + endpoint
 
-    def _create_first(self, endpoint, params, session, version):
-        """Create first = POST with headers=BASIC_HEADERS"""
+    def create(self, endpoint, params, session, version):
+        """Create = POST"""
         url = self._url(endpoint)
         session = self._get_session(session)
-        if type(params["password"]) is bytes:
-            params["password"] = params["password"].decode()
-        response = session.post(
-            url, data=json.dumps(params), headers=self.HEADERS["BASIC"]
-        )
-        if not response.ok:
-            raise (
-                Exception(
-                    "HTTP status code %s %s " % (response.status_code, response.text)
-                )
-            )
-        self._set_headers(response.headers, True)
-        self.create = self._create_logged_in
-        return response
+        session.headers.update({'VERSION': version})
+        response = session.post(url, data=json.dumps(params))
+        logging.info(f"POST '{endpoint}', resp {response.status_code}")
+        if response.status_code in [401, 403]:
+            if 'exceeded-api-key-allowance' in response.text:
+                raise ApiExceededException()
+            else:
+                raise IGException(f"HTTP error: {response.status_code} {response.text}")
 
-    def _create_logged_in(self, endpoint, params, session, version):
-        """Create when logged in = POST with headers=LOGGED_IN_HEADERS"""
-        url = self._url(endpoint)
-        session = self._get_session(session)
-        self.HEADERS["LOGGED_IN"]["VERSION"] = version
-        response = session.post(
-            url, data=json.dumps(params), headers=self.HEADERS["LOGGED_IN"]
-        )
         return response
 
     def read(self, endpoint, params, session, version):
-        """Read = GET with headers=LOGGED_IN_HEADERS"""
+        """Read = GET"""
         url = self._url(endpoint)
         session = self._get_session(session)
-        self.HEADERS["LOGGED_IN"]["VERSION"] = version
-        response = session.get(url, params=params, headers=self.HEADERS["LOGGED_IN"])
+        session.headers.update({'VERSION': version})
+        response = session.get(url, params=params)
+        # handle 'read_session' with 'fetchSessionTokens=true'
+        handle_session_tokens(response, self.session)
+        logging.info(f"GET '{endpoint}', resp {response.status_code}")
         return response
 
     def update(self, endpoint, params, session, version):
-        """Update = PUT with headers=LOGGED_IN_HEADERS"""
+        """Update = PUT"""
         url = self._url(endpoint)
         session = self._get_session(session)
-        self.HEADERS["LOGGED_IN"]["VERSION"] = version
-        response = session.put(
-            url, data=json.dumps(params), headers=self.HEADERS["LOGGED_IN"]
-        )
+        session.headers.update({'VERSION': version})
+        response = session.put(url, data=json.dumps(params))
+        logging.info(f"PUT '{endpoint}', resp {response.status_code}")
         return response
 
     def delete(self, endpoint, params, session, version):
-        """Delete = POST with DELETE_HEADERS"""
+        """Delete = POST"""
         url = self._url(endpoint)
         session = self._get_session(session)
-        self.HEADERS["DELETE"]["VERSION"] = version
-        response = session.post(
-            url, data=json.dumps(params), headers=self.HEADERS["DELETE"]
-        )
+        session.headers.update({'VERSION': version})
+        session.headers.update({'_method': 'DELETE'})
+        response = session.post(url, data=json.dumps(params))
+        logging.info(f"DELETE (POST) '{endpoint}', resp {response.status_code}")
+        del session.headers['_method']
         return response
 
     def req(self, action, endpoint, params, session, version):
@@ -144,33 +128,6 @@ class IGSessionCRUD(object):
         }
         return d_actions[action](endpoint, params, session, version)
 
-    def _set_headers(self, response_headers, update_cst):
-        """Sets headers"""
-        if update_cst:
-            self.CLIENT_TOKEN = response_headers["CST"]
-
-        if "X-SECURITY-TOKEN" in response_headers:
-            self.SECURITY_TOKEN = response_headers["X-SECURITY-TOKEN"]
-        else:
-            self.SECURITY_TOKEN = None
-
-        self.HEADERS["LOGGED_IN"] = {
-            "X-IG-API-KEY": self.API_KEY,
-            "X-SECURITY-TOKEN": self.SECURITY_TOKEN,
-            "CST": self.CLIENT_TOKEN,
-            "Content-Type": "application/json",
-            "Accept": "application/json; charset=UTF-8",
-        }
-
-        self.HEADERS["DELETE"] = {
-            "X-IG-API-KEY": self.API_KEY,
-            "X-SECURITY-TOKEN": self.SECURITY_TOKEN,
-            "CST": self.CLIENT_TOKEN,
-            "Content-Type": "application/json",
-            "Accept": "application/json; charset=UTF-8",
-            "_method": "DELETE",
-        }
-
 
 class IGService:
 
@@ -182,6 +139,8 @@ class IGService:
     API_KEY = None
     IG_USERNAME = None
     IG_PASSWORD = None
+    _refresh_token = None
+    _valid_until = None
 
     def __init__(
         self,
@@ -189,23 +148,25 @@ class IGService:
         password,
         api_key,
         acc_type="demo",
+        acc_number=None,
         session=None,
         return_dataframe=_HAS_PANDAS,
         return_munch=_HAS_MUNCH,
+        retryer: Retrying = None
     ):
         """Constructor, calls the method required to connect to
         the API (accepts acc_type = LIVE or DEMO)"""
         self.API_KEY = api_key
         self.IG_USERNAME = username
         self.IG_PASSWORD = password
+        self.ACC_NUMBER = acc_number
+        self._retryer = retryer
 
         try:
             self.BASE_URL = self.D_BASE_URL[acc_type.lower()]
         except Exception:
             raise IGException("Invalid account type '%s', please provide LIVE or DEMO" %
                               acc_type)
-
-        self.parse_response = self.parse_response_with_exception
 
         self.return_dataframe = return_dataframe
         self.return_munch = return_munch
@@ -233,25 +194,43 @@ class IGService:
             session = session
         return session
 
-    def _req(self, action, endpoint, params, session, version='1'):
+    def _req(self, action, endpoint, params, session, version='1', check=True):
+        """
+        Wraps the _request() function, applying a tenacity.Retrying object if configured
+        """
+        if self._retryer is not None:
+            result = self._retryer.call(self._request, action, endpoint, params, session, version, check)
+        else:
+            result = self._request(action, endpoint, params, session, version, check)
+
+        return result
+
+    def _request(self, action, endpoint, params, session, version='1', check=True):
         """Creates a CRUD request and returns response"""
         session = self._get_session(session)
+        if check:
+            self._check_session()
         response = self.crud_session.req(action, endpoint, params, session, version)
+
+        if response.status_code >= 500:
+            raise (IGException(f"Server problem: status code: {response.status_code}, reason: {response.reason}"))
+
         response.encoding = 'utf-8'
+        if self._api_limit_hit(response.text):
+            raise ApiExceededException()
         return response
+
+    @staticmethod
+    def _api_limit_hit(response_text):
+        # note we don't check for historical data allowance - it only gets reset once a week
+        return 'exceeded-api-key-allowance' in response_text or \
+               'exceeded-account-allowance' in response_text or \
+               'exceeded-account-trading-allowance' in response_text
 
     # ---------- PARSE_RESPONSE ----------- #
 
     @staticmethod
-    def parse_response_without_exception(*args, **kwargs):
-        """Parses JSON response
-        returns dict
-        no exception raised when error occurs"""
-        response = json.loads(*args, **kwargs)
-        return response
-
-    @staticmethod
-    def parse_response_with_exception(*args, **kwargs):
+    def parse_response(*args, **kwargs):
         """Parses JSON response
         returns dict
         exception raised when error occurs"""
@@ -350,26 +329,229 @@ class IGService:
 
             if len(data) == 0:
                 columns = [
-                    "actionStatus",
-                    "activity",
-                    "activityHistoryId",
-                    "channel",
-                    "currency",
-                    "date",
-                    "dealId",
-                    "epic",
-                    "level",
-                    "limit",
-                    "marketName",
-                    "period",
-                    "result",
-                    "size",
-                    "stop",
-                    "stopType",
-                    "time",
+                    "actionStatus", "activity", "activityHistoryId", "channel", "currency", "date",
+                    "dealId", "epic", "level", "limit", "marketName", "period", "result", "size",
+                    "stop", "stopType", "time"
                 ]
                 data = pd.DataFrame(columns=columns)
                 return data
+
+        return data
+
+    def fetch_account_activity_by_date(self, from_date: datetime, to_date: datetime, session=None):
+        """
+        Returns the account activity history for period between the specified dates
+        """
+        version = "1"
+        if from_date is None or to_date is None:
+            raise IGException("Both from_date and to_date must be specified")
+        if from_date > to_date:
+            raise IGException("from_date must be before to_date")
+
+        params = {}
+        url_params = {
+            "fromDate": from_date.strftime('%d-%m-%Y'),
+            "toDate": to_date.strftime('%d-%m-%Y')
+        }
+        endpoint = "/history/activity/{fromDate}/{toDate}".format(**url_params)
+        action = "read"
+        response = self._req(action, endpoint, params, session, version)
+        data = self.parse_response(response.text)
+        if _HAS_PANDAS and self.return_dataframe:
+
+            data = pd.DataFrame(data["activities"])
+
+            if len(data) == 0:
+                columns = [
+                    "actionStatus", "activity", "activityHistoryId", "channel", "currency", "date",
+                    "dealId", "epic", "level", "limit", "marketName", "period", "result", "size",
+                    "stop", "stopType", "time"
+                ]
+                data = pd.DataFrame(columns=columns)
+                return data
+
+        return data
+
+    def fetch_account_activity_v2(
+            self,
+            from_date: datetime = None,
+            to_date: datetime = None,
+            max_span_seconds: int = None,
+            page_size: int = 20,
+            session=None):
+
+        """
+        Returns the account activity history (v2)
+
+        If the result set spans multiple 'pages', this method will automatically get all the results and
+        bundle them into one object.
+
+        :param from_date: start date and time. Optional
+        :type from_date: datetime
+        :param to_date: end date and time. A date without time refers to the end of that day. Defaults to
+        today. Optional
+        :type to_date: datetime
+        :param max_span_seconds: Limits the timespan in seconds through to current time (not applicable if a
+        date range has been specified). Default 600. Optional
+        :type max_span_seconds: int
+        :param page_size: number of records per page. Default 20. Optional. Use 0 to turn off paging
+        :type page_size: int
+        :param session: session object. Optional
+        :type session: Session
+        :return: results set
+        :rtype: Pandas DataFrame if configured, otherwise a dict
+        """
+
+        version = "2"
+        params = {}
+        if from_date:
+            params["from"] = from_date.strftime('%Y-%m-%dT%H:%M:%S')
+        if to_date:
+            params["to"] = to_date.strftime('%Y-%m-%dT%H:%M:%S')
+        if max_span_seconds:
+            params["maxSpanSeconds"] = max_span_seconds
+        params["pageSize"] = page_size
+        endpoint = "/history/activity/"
+        action = "read"
+        data = {}
+        activities = []
+        pagenumber = 1
+        more_results = True
+
+        while more_results:
+            params["pageNumber"] = pagenumber
+            response = self._req(action, endpoint, params, session, version)
+            data = self.parse_response(response.text)
+            activities.extend(data["activities"])
+            page_data = data["metadata"]["pageData"]
+            if page_data["totalPages"] == 0 or \
+                    (page_data["pageNumber"] == page_data["totalPages"]):
+                more_results = False
+            else:
+                pagenumber += 1
+
+        data["activities"] = activities
+        if _HAS_PANDAS and self.return_dataframe:
+            data = pd.DataFrame(data["activities"])
+
+        return data
+
+    def fetch_account_activity(
+            self,
+            from_date: datetime = None,
+            to_date: datetime = None,
+            detailed=False,
+            deal_id: str = None,
+            fiql_filter: str = None,
+            page_size: int = 50,
+            session=None):
+
+        """
+        Returns the account activity history (v3)
+
+        If the result set spans multiple 'pages', this method will automatically get all the results and
+        bundle them into one object.
+
+        :param from_date: start date and time. Optional
+        :type from_date: datetime
+        :param to_date: end date and time. A date without time refers to the end of that day. Defaults to
+        today. Optional
+        :type to_date: datetime
+        :param detailed: Indicates whether to retrieve additional details about the activity. Default False. Optional
+        :type detailed: bool
+        :param deal_id: deal ID. Optional
+        :type deal_id: str
+        :param fiql_filter: FIQL filter (supported operators: ==|!=|,|;). Optional
+        :type fiql_filter: str
+        :param page_size: page size (min: 10, max: 500). Default 50. Optional
+        :type page_size: int
+        :param session: session object. Optional
+        :type session: Session
+        :return: results set
+        :rtype: Pandas DataFrame if configured, otherwise a dict
+        """
+
+        version = "3"
+        params = {}
+        if from_date:
+            params["from"] = from_date.strftime('%Y-%m-%dT%H:%M:%S')
+        if to_date:
+            params["to"] = to_date.strftime('%Y-%m-%dT%H:%M:%S')
+        if detailed:
+            params["detailed"] = "true"
+        if deal_id:
+            params["dealId"] = deal_id
+        if fiql_filter:
+            params["filter"] = fiql_filter
+        if page_size:
+            params["pageSize"] = page_size
+
+        params["pageSize"] = page_size
+        endpoint = "/history/activity/"
+        action = "read"
+        data = {}
+        activities = []
+        more_results = True
+
+        while more_results:
+            response = self._req(action, endpoint, params, session, version)
+            data = self.parse_response(response.text)
+            activities.extend(data["activities"])
+            paging = data["metadata"]["paging"]
+            if paging["next"] is None:
+                more_results = False
+            else:
+                parse_result = urlparse(paging["next"])
+                query = parse_qs(parse_result.query)
+                if 'from' in query:
+                    params["from"] = query["from"]
+                if 'to' in query:
+                    params["to"] = query["to"]
+
+        data["activities"] = activities
+        if _HAS_PANDAS and self.return_dataframe:
+            if detailed:
+                data = self.format_activities(data)
+            else:
+                data = pd.DataFrame(data["activities"])
+
+        return data
+
+    @staticmethod
+    def format_activities(data):
+        data = pd.json_normalize(data["activities"],
+                                 record_path=['details', ['actions']],
+                                 meta=['date', 'epic', 'period', 'dealId', 'channel', 'type', 'status', 'description',
+                                       ['details', 'marketName'],
+                                       ['details', 'goodTillDate'],
+                                       ['details', 'currency'],
+                                       ['details', 'direction'],
+                                       ['details', 'level'],
+                                       ['details', 'stopLevel'],
+                                       ['details', 'stopDistance'],
+                                       ['details', 'guaranteedStop'],
+                                       ['details', 'trailingStopDistance'],
+                                       ['details', 'trailingStep'],
+                                       ['details', 'limitLevel'],
+                                       ['details', 'limitDistance']],
+                                 )
+
+        data = data.rename(columns={'details.marketName': 'marketName',
+                                    'details.goodTillDate': 'goodTillDate',
+                                    'details.currency': 'currency',
+                                    'details.direction': 'direction',
+                                    'details.level': 'level',
+                                    'details.stopLevel': 'stopLevel',
+                                    'details.stopDistance': 'stopDistance',
+                                    'details.guaranteedStop': 'guaranteedStop',
+                                    'details.trailingStopDistance': 'trailingStopDistance',
+                                    'details.trailingStep': 'trailingStep',
+                                    'details.limitLevel': 'limitLevel',
+                                    'details.limitDistance': 'limitDistance'})
+
+        cols = data.columns.tolist()
+        cols = cols[2:] + cols[:2]
+        data = data[cols]
 
         return data
 
@@ -509,9 +691,16 @@ class IGService:
         data = self.parse_response(response.text)
         return data
 
-    def fetch_open_positions(self, session=None):
-        """Returns all open positions for the active account"""
-        version = "1"
+    def fetch_open_positions(self, session=None, version='2'):
+        """
+        Returns all open positions for the active account. Supports both v1 and v2
+        :param session: session object, otional
+        :type session: Session
+        :param version: API version, 1 or 2
+        :type version: str
+        :return: table of position data, one per row
+        :rtype: pd.Dataframe
+        """
         params = {}
         endpoint = "/positions"
         action = "read"
@@ -519,49 +708,36 @@ class IGService:
         data = self.parse_response(response.text)
         if self.return_dataframe:
 
-            lst = data["positions"]
-            data = pd.DataFrame(lst)
+            list = data["positions"]
+            data = pd.DataFrame(list)
 
-            d_cols = {
-                "market": [
-                    "bid",
-                    "delayTime",
-                    "epic",
-                    "expiry",
-                    "high",
-                    "instrumentName",
-                    "instrumentType",
-                    "lotSize",
-                    "low",
-                    "marketStatus",
-                    "netChange",
-                    "offer",
-                    "percentageChange",
-                    "scalingFactor",
-                    "streamingPricesAvailable",
-                    "updateTime",
-                ],
+            cols = {
                 "position": [
-                    "contractSize",
-                    "controlledRisk",
-                    "createdDate",
-                    "currency",
-                    "dealId",
-                    "dealSize",
-                    "direction",
-                    "limitLevel",
-                    "openLevel",
-                    "stopLevel",
-                    "trailingStep",
-                    "trailingStopDistance",
+                    "contractSize", "createdDate", "createdDateUTC", "dealId", "dealReference", "size", "direction",
+                    "limitLevel", "level", "currency", "controlledRisk", "stopLevel", "trailingStep",
+                    "trailingStopDistance", "limitedRiskPremium"
                 ],
+                "market": [
+                    "instrumentName", "expiry", "epic", "instrumentType", "lotSize", "high", "low",
+                    "percentageChange", "netChange", "bid", "offer", "updateTime", "updateTimeUTC",
+                    "delayTime", "streamingPricesAvailable", "marketStatus", "scalingFactor"
+                ]
             }
 
+            if version == '1':
+                cols['position'].remove('createdDateUTC')
+                cols['position'].remove('dealReference')
+                cols['position'].remove('size')
+                cols['position'].insert(3, 'dealSize')
+                cols['position'].remove('level')
+                cols['position'].insert(6, 'openLevel')
+                cols['market'].remove('updateTimeUTC')
+
             if len(data) == 0:
-                data = pd.DataFrame(columns=self.colname_unique(d_cols))
+                data = pd.DataFrame(columns=self.colname_unique(cols))
                 return data
 
-            # data = self.expand_columns(data, d_cols)
+            data = self.expand_columns(data, cols)
 
         return data
 
@@ -667,10 +843,8 @@ class IGService:
         else:
             raise IGException(response.text)
 
-    def fetch_working_orders(self, session=None):
+    def fetch_working_orders(self, session=None, version='2'):
         """Returns all open working orders for the active account"""
-        # TODO: Update to v2
-        version = "1"
         params = {}
         endpoint = "/workingorders"
         action = "read"
@@ -680,6 +854,14 @@ class IGService:
 
             lst = data["workingOrders"]
             data = pd.DataFrame(lst)
+
+            col_names_v1 = [u"size", u"trailingStopDistance", u"direction", u"level", u"requestType", u"currencyCode",
+                            u"contingentLimit", u"trailingTriggerIncrement", u"dealId", u"contingentStop", u"goodTill",
+                            u"controlledRisk", u"trailingStopIncrement", u"createdDate", u"epic",
+                            u"trailingTriggerDistance", u"dma"]
+            col_names_v2 = [u"createdDate", u"currencyCode", u"dealId", u"direction", u"dma", u"epic",
+                            u"goodTillDate", u"goodTillDateISO", u"guaranteedStop", u"limitDistance",
+                            u"orderLevel", u"orderSize", u"orderType", u"stopDistance", u"timeInForce"]
 
             d_cols = {
                 "marketData": [
@@ -700,27 +882,13 @@ class IGService:
                     u"netChange",
                     u"instrumentType",
                     u"scalingFactor",
-                ],
-                "workingOrderData": [
-                    u"size",
-                    u"trailingStopDistance",
-                    u"direction",
-                    u"level",
-                    u"requestType",
-                    u"currencyCode",
-                    u"contingentLimit",
-                    u"trailingTriggerIncrement",
-                    u"dealId",
-                    u"contingentStop",
-                    u"goodTill",
-                    u"controlledRisk",
-                    u"trailingStopIncrement",
-                    u"createdDate",
-                    u"epic",
-                    u"trailingTriggerDistance",
-                    u"dma",
-                ],
+                ]
             }
+
+            if version == '1':
+                d_cols["workingOrderData"] = col_names_v1
+            else:
+                d_cols["workingOrderData"] = col_names_v2
 
             if len(data) == 0:
                 data = pd.DataFrame(columns=self.colname_unique(d_cols))
@@ -766,9 +934,7 @@ class IGService:
             "direction": direction,
             "epic": epic,
             "expiry": expiry,
-            "goodTillDate": good_till_date,
             "guaranteedStop": guaranteed_stop,
-            "forceOpen": force_open,
             "level": level,
             "size": size,
             "timeInForce": time_in_force,
@@ -784,6 +950,10 @@ class IGService:
             params["stopLevel"] = stop_level
         if deal_reference:
             params["dealReference"] = deal_reference
+        if force_open:
+            params["force_open"] = 'true'
+        if good_till_date:
+            params["goodTillDate"] = good_till_date
 
         endpoint = "/workingorders/otc"
         action = "create"
@@ -868,7 +1038,6 @@ class IGService:
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
         if self.return_munch:
-
             data = munchify(data)
         return data
 
@@ -883,7 +1052,6 @@ class IGService:
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
         if self.return_dataframe:
-
             data = pd.DataFrame(data["clientSentiments"])
         return data
 
@@ -962,7 +1130,6 @@ class IGService:
 
     def search_markets(self, search_term, session=None):
         """Returns all markets matching the search term"""
-        # TODO: Update to v2
         version = "1"
         endpoint = "/markets"
         params = {"searchTerm": search_term}
@@ -1166,36 +1333,45 @@ class IGService:
         return data
 
     def fetch_historical_prices_by_epic_and_date_range(
-        self, epic, resolution, start_date, end_date, session=None, format=None
+        self, epic, resolution, start_date, end_date, session=None, format=None, version='2'
     ):
-        """Returns a list of historical prices for the given epic, resolution,
-        multiplier and date range"""
+        """
+        Returns a list of historical prices for the given epic, resolution, multiplier and date range. Supports
+        both versions 1 and 2
+        :param epic: IG epic
+        :type epic: str
+        :param resolution: timescale for returned data. Expected values 'M', 'D', '1H' etc
+        :type resolution: str
+        :param start_date: start date for returned data. For v1, format '2020:09:01-00:00:00', for v2 use
+            '2020-09-01 00:00:00'
+        :type start_date: str
+        :param end_date: end date for returned data. For v1, format '2020:09:01-00:00:00', for v2 use
+            '2020-09-01 00:00:00'
+        :type end_date: str
+        :param session: HTTP session
+        :type session: requests.Session
+        :param format: function defining how the historic price data should be converted into a Dataframe
+        :type format: function
+        :param version: API method version
+        :type version: str
+        :return: historic data
+        :rtype: dict, with 'prices' element as pandas.Dataframe
+        """
         if self.return_dataframe:
             resolution = conv_resol(resolution)
-        # TODO: Update to v2
-        version = "1"
-        # v2
-        # start_date = conv_datetime(start_date, 2)
-        # end_date = conv_datetime(end_date, 2)
-        # params = {}
-        # url_params = {
-        #     'epic': epic,
-        #     'resolution': resolution,
-        #     'start_date': start_date,
-        #     'end_date': end_date
-        # }
-        # endpoint = "/prices/{epic}/{resolution}/{startDate}/{endDate}".\
-        #     format(**url_params)
-
-        # v1
-        start_date = conv_datetime(start_date, version)
-        end_date = conv_datetime(end_date, version)
-        params = {"startdate": start_date, "enddate": end_date}
-        url_params = {"epic": epic, "resolution": resolution}
-        endpoint = "/prices/{epic}/{resolution}".format(**url_params)
+        params = {}
+        if version == '1':
+            start_date = conv_datetime(start_date, version)
+            end_date = conv_datetime(end_date, version)
+            params = {"startdate": start_date, "enddate": end_date}
+            url_params = {"epic": epic, "resolution": resolution}
+            endpoint = "/prices/{epic}/{resolution}".format(**url_params)
+        else:
+            url_params = {"epic": epic, "resolution": resolution, "startDate": start_date, "endDate": end_date}
+            endpoint = "/prices/{epic}/{resolution}/{startDate}/{endDate}".format(**url_params)
         action = "read"
         response = self._req(action, endpoint, params, session, version)
-        del self.crud_session.HEADERS["LOGGED_IN"]["VERSION"]
+        del self.session.headers["VERSION"]
         data = self.parse_response(response.text)
         if format is None:
             format = self.format_prices
@@ -1224,7 +1400,6 @@ class IGService:
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
         if self.return_dataframe:
-
             data = pd.DataFrame(data["watchlists"])
         return data
 
@@ -1246,7 +1421,8 @@ class IGService:
         endpoint = "/watchlists/{watchlist_id}".format(**url_params)
         action = "delete"
         response = self._req(action, endpoint, params, session, version)
-        return response.text
+        data = self.parse_response(response.text)
+        return data
 
     def fetch_watchlist_markets(self, watchlist_id, session=None):
         """Returns the given watchlist's markets"""
@@ -1258,7 +1434,6 @@ class IGService:
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
         if self.return_dataframe:
-
             data = pd.DataFrame(data["markets"])
         return data
 
@@ -1274,14 +1449,15 @@ class IGService:
         return data
 
     def remove_market_from_watchlist(self, watchlist_id, epic, session=None):
-        """Remove an market from a watchlist"""
+        """Remove a market from a watchlist"""
         version = "1"
         params = {}
         url_params = {"watchlist_id": watchlist_id, "epic": epic}
         endpoint = "/watchlists/{watchlist_id}/{epic}".format(**url_params)
         action = "delete"
         response = self._req(action, endpoint, params, session, version)
-        return response.text
+        data = self.parse_response(response.text)
+        return data
 
     # -------- END -------- #
 
@@ -1294,14 +1470,13 @@ class IGService:
         endpoint = "/session"
         action = "delete"
         self._req(action, endpoint, params, session, version)
+        self.session.close()
 
     def get_encryption_key(self, session=None):
         """Get encryption key to encrypt the password"""
         endpoint = "/session/encryptionKey"
         session = self._get_session(session)
-        response = session.get(
-            self.BASE_URL + endpoint, headers=self.crud_session.HEADERS["BASIC"]
-        )
+        response = session.get(self.BASE_URL + endpoint)
         if not response.ok:
             raise IGException("Could not get encryption key for login.")
         data = response.json()
@@ -1316,20 +1491,101 @@ class IGService:
         return b64encode(PKCS1_v1_5.new(rsakey).encrypt(message)).decode()
 
     def create_session(self, session=None, encryption=False, version='2'):
-        """Creates a trading session, obtaining session tokens for
-        subsequent API access"""
-        # TODO: Update to v3
+        """
+        Creates a session, obtaining tokens for subsequent API access
+
+        ** April 2021 v3 has been implemented, but is not the default for now
+
+        :param session: HTTP session
+        :type session: requests.Session
+        :param encryption: whether or not the password should be encrypted. Required for some regions
+        :type encryption: Boolean
+        :param version: API method version
+        :type version: str
+        :return: JSON response body, parsed into dict
+        :rtype: dict
+        """
+        if version == '3' and self.ACC_NUMBER is None:
+            raise IGException('Account number must be set for v3 sessions')
+
+        logging.info(f"Creating new v{version} session for user '{self.IG_USERNAME}' at '{self.BASE_URL}'")
         password = self.encrypted_password(session) if encryption else self.IG_PASSWORD
         params = {"identifier": self.IG_USERNAME, "password": password}
         if encryption:
             params["encryptedPassword"] = True
         endpoint = "/session"
         action = "create"
-        # this is the first create (BASIC_HEADERS)
-        response = self._req(action, endpoint, params, session, version)
+        response = self._req(action, endpoint, params, session, version, check=False)
+        self._manage_headers(response)
         data = self.parse_response(response.text)
-        self.ig_session = data  # store IG session
         return data
+
+    def refresh_session(self, session=None, version='1'):
+        """
+        Refreshes a v3 session. Tokens only last for 60 seconds, so need to be renewed regularly
+        :param session: HTTP session object
+        :type session: requests.Session
+        :param version: API method version
+        :type version: str
+        :return: HTTP status code
+        :rtype: int
+        """
+        logging.info(f"Refreshing session '{self.IG_USERNAME}'")
+        params = {"refresh_token": self._refresh_token}
+        endpoint = "/session/refresh-token"
+        action = "create"
+        response = self._req(action, endpoint, params, session, version, check=False)
+        self._handle_oauth(json.loads(response.text))
+        return response.status_code
+
+    def _manage_headers(self, response):
+        """
+        Manages authentication headers - different behaviour depending on the session creation version
+        :param response: HTTP response
+        :type response: requests.Response
+        """
+        # handle v1 and v2 logins
+        handle_session_tokens(response, self.session)
+        # handle v3 logins
+        if response.text:
+            self.session.headers.update({'IG-ACCOUNT-ID': self.ACC_NUMBER})
+            payload = json.loads(response.text)
+            if 'oauthToken' in payload:
+                self._handle_oauth(payload['oauthToken'])
+
+    def _handle_oauth(self, oauth):
+        """
+        Handle the v3 headers during session creation and refresh
+        :param oauth: 'oauth' portion of the response body
+        :type oauth: dict
+        """
+        access_token = oauth['access_token']
+        token_type = oauth['token_type']
+        self.session.headers.update({'Authorization': f"{token_type} {access_token}"})
+        self._refresh_token = oauth['refresh_token']
+        validity = int(oauth['expires_in'])
+        self._valid_until = datetime.now() + timedelta(seconds=validity)
+
+    def _check_session(self):
+        """
+        Check the v3 session status before making an API request:
+            - v3 tokens only last for 60 seconds
+            - if possible, the session can be renewed with a special refresh token
+            - if not, a new session will be created
+        """
+        logging.debug("Checking session status...")
+        if self._valid_until is not None and datetime.now() > self._valid_until:
+            if self._refresh_token:
+                # we are in a v3 session, need to refresh
+                try:
+                    logging.info("Current session has expired, refreshing...")
+                    self.refresh_session()
+                except IGException:
+                    logging.info("Refresh failed, logging in again...")
+                    self._refresh_token = None
+                    self._valid_until = None
+                    del self.session.headers['Authorization']
+                    self.create_session(version='3')
 
     def switch_account(self, account_id, default_account, session=None):
         """Switches active accounts, optionally setting the default account"""
@@ -1338,14 +1594,13 @@ class IGService:
         endpoint = "/session"
         action = "update"
         response = self._req(action, endpoint, params, session, version)
-        self.crud_session._set_headers(response.headers, False)
         data = self.parse_response(response.text)
         return data
 
-    def read_session(self, session=None):
+    def read_session(self, fetch_session_tokens='false', session=None):
         """Retrieves current session details"""
         version = "1"
-        params = {}
+        params = {"fetchSessionTokens": fetch_session_tokens}
         endpoint = "/session"
         action = "read"
         response = self._req(action, endpoint, params, session, version)
@@ -1405,3 +1660,17 @@ class IGService:
         return data
 
     # -------- END -------- #
+
+
+def handle_session_tokens(response, session):
+    """
+    Copy session tokens from response to headers, so they will be present for all future requests
+    :param response: HTTP response object
+    :type response: requests.Response
+    :param session: HTTP session object
+    :type session: requests.Session
+    """
+    if "CST" in response.headers:
+        session.headers.update({'CST': response.headers['CST']})
+    if "X-SECURITY-TOKEN" in response.headers:
+        session.headers.update({'X-SECURITY-TOKEN': response.headers['X-SECURITY-TOKEN']})

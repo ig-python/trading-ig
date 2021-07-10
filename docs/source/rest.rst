@@ -14,13 +14,10 @@ How To Use The Library
 
 Using this library to connect to the IG Markets API is extremely easy.
 All you need to do is import the IGService class, create an instance,
-and call the methods you wish to use. There is a method for each
-endpoint exposed by their API. The code sample below shows you how to
+and call the methods you wish to use. There is a method for most of the
+endpoints exposed by their API. The code sample below shows you how to
 connect to the API, switch to a secondary account and retrieve all open
 positions for the active account.
-
-**Note:** The secure session with IG is established when you create an
-instance of the IGService class.
 
 .. code:: python
 
