@@ -379,8 +379,11 @@ class TestIntegration:
     @pytest.mark.parametrize("ig_service", ['2'], indirect=True)
     def test_create_open_position(self, ig_service):
 
-        # TODO do we need to check the market is open?
         epic = 'CS.D.GBPUSD.TODAY.IP'
+        market_info = ig_service.fetch_market_by_epic(epic)
+        status = market_info.snapshot.marketStatus
+        if status != 'TRADEABLE':
+            pytest.skip('Skipping open position test, market not open')
 
         open_result = ig_service.create_open_position(
             epic=epic, direction='BUY', currency_code='GBP', order_type='MARKET', expiry='DFB',
