@@ -32,13 +32,14 @@ def main():
 
     # no cache
     ig_service = IGService(
-        config.username, config.password, config.api_key, config.acc_type
+        config.username, config.password, config.api_key, config.acc_type, acc_number=config.acc_number
     )
 
     # if you want to globally cache queries
     # ig_service = IGService(config.username, config.password, config.api_key, config.acc_type, session)
 
     ig_service.create_session()
+    # ig_stream_service.create_session(version='3')
 
     accounts = ig_service.fetch_accounts()
     print("accounts:\n%s" % accounts)
@@ -58,6 +59,7 @@ def main():
 
     # epic = 'CS.D.EURUSD.MINI.IP'
     epic = "IX.D.ASX.IFM.IP"  # US (SPY) - mini
+    #epic = "CS.D.GBPUSD.CFD.IP"  # sample CFD epic
 
     resolution = "D"
     # see from pandas.tseries.frequencies import to_offset

@@ -16,9 +16,25 @@ Generally a higher version number is better - the exception is session creation,
 Are there any code samples?
 ---------------------------
 There are a few simple ones in the :doc:`Quickstart <quickstart>`. There are also a few in the ``/sample``
-directory. And there are a lot of usage samples in the unit and integration tests.
+directory, see :ref:`here <samples>`. And there are a lot of usage samples in the unit and integration tests.
 
 There are not many samples using the Streaming API. If you use the Streaming API, please consider contributing.
+
+
+.. _samples:
+
+How do I run the code samples?
+------------------------------
+
+For the REST API sample - from the project root, run::
+
+    $ python sample/rest_ig.py
+
+For the streaming sample, run::
+
+    $ python sample/stream_ig.py
+
+In both samples there are commented lines with alternative CFD epics
 
 
 How to see log messages from ``ig_trading``?
