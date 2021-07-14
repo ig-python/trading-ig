@@ -311,6 +311,9 @@ class IGService:
 
         return data
 
+    # TODO GET /accounts/preferences v1
+    # TODO PUT /accounts/preferences v2
+
     def fetch_account_activity_by_period(self, milliseconds, session=None):
         """
         Returns the account activity history for the last specified period
@@ -827,11 +830,31 @@ class IGService:
         else:
             raise IGException(response.text)
 
-    def update_open_position(self, limit_level, stop_level, deal_id, session=None):
+    def update_open_position(self,
+            limit_level,
+            stop_level,
+            deal_id,
+            guaranteed_stop=False,
+            trailing_stop=False,
+            trailing_stop_distance=None,
+            trailing_stop_increment=None,
+            session=None,
+            version='2'):
         """Updates an OTC position"""
-        # TODO: Update to v2 (adds support for trailing stops)
-        version = "1"
-        params = {"limitLevel": limit_level, "stopLevel": stop_level}
+        params = {}
+        if limit_level is not None:
+            params["limitLevel"] = limit_level
+        if stop_level is not None:
+            params["stopLevel"] = stop_level
+        if guaranteed_stop:
+            params["guaranteedStop"] = 'true'
+        if trailing_stop:
+            params["trailingStop"] = 'true'
+        if trailing_stop_distance is not None:
+            params["trailingStopDistance"] = trailing_stop_distance
+        if trailing_stop_increment is not None:
+            params["trailingStopIncrement"] = trailing_stop_increment
+
         url_params = {"deal_id": deal_id}
         endpoint = "/positions/otc/{deal_id}".format(**url_params)
         action = "update"
@@ -842,6 +865,9 @@ class IGService:
             return self.fetch_deal_by_deal_reference(deal_reference)
         else:
             raise IGException(response.text)
+
+    # TODO GET /positions/sprintmarkets v2
+    # TODO POST /positions/sprintmarkets v1
 
     def fetch_working_orders(self, session=None, version='2'):
         """Returns all open working orders for the active account"""
@@ -1023,6 +1049,8 @@ class IGService:
 
     # -------- MARKETS -------- #
 
+    # TODO GET /clientsentiment v1
+
     def fetch_client_sentiment_by_instrument(self, market_id, session=None):
         """Returns the client sentiment for the given instrument's market"""
         version = "1"
@@ -1114,6 +1142,8 @@ class IGService:
             data["markets"] = pd.DataFrame(data["markets"])
             data["nodes"] = pd.DataFrame(data["nodes"])
         return data
+
+    # TODO GET /markets v2
 
     def fetch_market_by_epic(self, epic, session=None):
         """Returns the details of the given market"""
@@ -1224,6 +1254,33 @@ class IGService:
                                 "lowPrice.bid": "low.bid",
                                 "lowPrice.ask": "low.ask",
                                 "lastTradedVolume": "volume"})
+        return df
+
+    def mid_prices(self, prices, version):
+
+        """Format price data as a flat DataFrame, no hierarchy, calculating mid prices"""
+
+        if len(prices) == 0:
+            raise (Exception("Historical price data not found"))
+
+        df = json_normalize(prices)
+        df = df.set_index("snapshotTimeUTC")
+        df.index = pd.to_datetime(df.index, format="%Y-%m-%dT%H:%M:%S")
+        df.index.name = "DateTime"
+
+        df['Open'] = (df['openPrice.bid'] + df['openPrice.ask']) / 2
+        df['High'] = (df['highPrice.bid'] + df['highPrice.ask']) / 2
+        df['Low'] = (df['lowPrice.bid'] + df['lowPrice.ask']) / 2
+        df['Close'] = (df['closePrice.bid'] + df['closePrice.ask']) / 2
+
+        df = df.drop(columns=['snapshotTime', 'openPrice.lastTraded', 'closePrice.lastTraded',
+                              'highPrice.lastTraded', 'lowPrice.lastTraded',
+                              "openPrice.bid", "openPrice.ask",
+                              "closePrice.bid", "closePrice.ask",
+                              "highPrice.bid", "highPrice.ask",
+                              "lowPrice.bid", "lowPrice.ask"])
+        df = df.rename(columns={"lastTradedVolume": "Volume"})
+
         return df
 
     def fetch_historical_prices_by_epic(

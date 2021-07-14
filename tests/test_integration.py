@@ -382,6 +382,8 @@ class TestIntegration:
         epic = 'CS.D.GBPUSD.TODAY.IP'
         market_info = ig_service.fetch_market_by_epic(epic)
         status = market_info.snapshot.marketStatus
+        bid = market_info.snapshot.bid
+        offer = market_info.snapshot.offer
         if status != 'TRADEABLE':
             pytest.skip('Skipping open position test, market not open')
 
@@ -389,16 +391,23 @@ class TestIntegration:
             epic=epic, direction='BUY', currency_code='GBP', order_type='MARKET', expiry='DFB',
             force_open='false', guaranteed_stop='false', size=0.5, level=None, limit_level=None, limit_distance=None,
             quote_id=None, stop_distance=None, stop_level=None, trailing_stop=None, trailing_stop_increment=None)
-
         assert open_result['dealStatus'] == 'ACCEPTED'
         assert open_result['reason'] == 'SUCCESS'
-
         time.sleep(10)
 
-        close_result = ig_service.close_open_position(
-            deal_id=open_result['dealId'], direction='SELL', epic=None, expiry='DFB', level=None,
-            order_type='MARKET', quote_id=None, size=0.5, session=None)
+        update_v1_result = ig_service.update_open_position(offer * 1.5, bid * 0.5, open_result['dealId'], version='1')
+        assert update_v1_result['dealStatus'] == 'ACCEPTED'
+        assert update_v1_result['reason'] == 'SUCCESS'
+        time.sleep(10)
 
+        update_v2_result = ig_service.update_open_position(offer * 1.4, bid * 0.4, open_result['dealId'],
+            trailing_stop=True, trailing_stop_distance=25.0, trailing_stop_increment=10.0)
+        assert update_v2_result['dealStatus'] == 'ACCEPTED'
+        assert update_v2_result['reason'] == 'SUCCESS'
+        time.sleep(10)
+
+        close_result = ig_service.close_open_position(deal_id=open_result['dealId'], direction='SELL',
+            epic=None, expiry='DFB', level=None, order_type='MARKET', quote_id=None, size=0.5, session=None)
         assert close_result['dealStatus'] == 'ACCEPTED'
         assert close_result['reason'] == 'SUCCESS'
 
