@@ -1176,8 +1176,6 @@ class IGService:
             data["nodes"] = pd.DataFrame(data["nodes"])
         return data
 
-    # TODO GET /markets v2
-
     def fetch_market_by_epic(self, epic, session=None):
         """Returns the details of the given market"""
         version = "3"
@@ -1189,6 +1187,34 @@ class IGService:
         data = self.parse_response(response.text)
         if self.return_munch:
             data = munchify(data)
+        return data
+
+    def fetch_markets_by_epics(self, epics, detailed=True, session=None, version='2'):
+        """
+        Returns the details of the given markets
+        :param epics: comma separated list of epics
+        :type epics: str
+        :param detailed: Whether to return detailed info or snapshot data only. Only supported for
+        version 2. Optional, default True
+        :type detailed: bool
+        :param session: session object. Optional, default None
+        :type session: requests.Session
+        :param version: IG API method version. Optional, default '2'
+        :type version: str
+        :return: list of market details
+        :rtype: Munch instance if configured, else dict
+        """
+        params = {"epics": epics}
+        if version == '2':
+            params["filter"] = 'ALL' if detailed else 'SNAPSHOT_ONLY'
+        endpoint = "/markets"
+        action = "read"
+        response = self._req(action, endpoint, params, session, version)
+        data = self.parse_response(response.text)
+        if self.return_munch:
+            data = munchify(data['marketDetails'])
+        else:
+            data = data['marketDetails']
         return data
 
     def search_markets(self, search_term, session=None):
