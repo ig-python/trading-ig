@@ -311,8 +311,41 @@ class IGService:
 
         return data
 
-    # TODO GET /accounts/preferences v1
-    # TODO PUT /accounts/preferences v2
+    def fetch_account_preferences(self, session=None):
+        """
+        Gets the preferences for the logged in account
+        :param session: session object. Optional
+        :type session: requests.Session
+        :return: preference values
+        :rtype: dict
+        """
+        version = "1"
+        params = {}
+        endpoint = "/accounts/preferences"
+        action = "read"
+        response = self._req(action, endpoint, params, session, version)
+        prefs = self.parse_response(response.text)
+        return prefs
+
+    def update_account_preferences(self, trailing_stops_enabled=False, session=None):
+        """
+        Updates the account preferences. Currently only one value supported - trailing stops
+        :param trailing_stops_enabled: whether trailing stops should be enabled for the account
+        :type trailing_stops_enabled: bool
+        :param session: session object. Optional
+        :type session: requests.Session
+        :return: status of the update request
+        :rtype: str
+        """
+        version = "1"
+        params = {}
+        endpoint = "/accounts/preferences"
+        action = "update"
+        params['trailingStopsEnabled'] = 'true' if trailing_stops_enabled else 'false'
+        response = self._req(action, endpoint, params, session, version)
+        update_status = self.parse_response(response.text)
+        return update_status['status']
+
 
     def fetch_account_activity_by_period(self, milliseconds, session=None):
         """

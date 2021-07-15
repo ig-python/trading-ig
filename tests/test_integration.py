@@ -78,6 +78,25 @@ class TestIntegration:
         preferred = response.loc[response["preferred"]]
         assert all(preferred["balance"] > 0)
 
+    def test_accounts_prefs(self, ig_service):
+        # turn off trailing stops
+        update_status = ig_service.update_account_preferences(trailing_stops_enabled=False)
+        assert update_status == 'SUCCESS'
+
+        # check trailing stops are turned off
+        enabled_status = ig_service.fetch_account_preferences()['trailingStopsEnabled']
+        assert enabled_status is False
+        time.sleep(5)
+
+        # turn on trailing stops
+        update_status = ig_service.update_account_preferences(trailing_stops_enabled=True)
+        assert update_status == 'SUCCESS'
+        time.sleep(5)
+
+        # check trailing stops are turned on
+        enabled_status = ig_service.fetch_account_preferences()['trailingStopsEnabled']
+        assert enabled_status is True
+
     def test_fetch_account_activity_by_period(self, ig_service):
         response = ig_service.fetch_account_activity_by_period(10000)
         assert isinstance(response, pd.DataFrame)
