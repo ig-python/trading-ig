@@ -311,6 +311,41 @@ class IGService:
 
         return data
 
+    def fetch_account_preferences(self, session=None):
+        """
+        Gets the preferences for the logged in account
+        :param session: session object. Optional
+        :type session: requests.Session
+        :return: preference values
+        :rtype: dict
+        """
+        version = "1"
+        params = {}
+        endpoint = "/accounts/preferences"
+        action = "read"
+        response = self._req(action, endpoint, params, session, version)
+        prefs = self.parse_response(response.text)
+        return prefs
+
+    def update_account_preferences(self, trailing_stops_enabled=False, session=None):
+        """
+        Updates the account preferences. Currently only one value supported - trailing stops
+        :param trailing_stops_enabled: whether trailing stops should be enabled for the account
+        :type trailing_stops_enabled: bool
+        :param session: session object. Optional
+        :type session: requests.Session
+        :return: status of the update request
+        :rtype: str
+        """
+        version = "1"
+        params = {}
+        endpoint = "/accounts/preferences"
+        action = "update"
+        params['trailingStopsEnabled'] = 'true' if trailing_stops_enabled else 'false'
+        response = self._req(action, endpoint, params, session, version)
+        update_status = self.parse_response(response.text)
+        return update_status['status']
+
     def fetch_account_activity_by_period(self, milliseconds, session=None):
         """
         Returns the account activity history for the last specified period
@@ -827,11 +862,32 @@ class IGService:
         else:
             raise IGException(response.text)
 
-    def update_open_position(self, limit_level, stop_level, deal_id, session=None):
+    def update_open_position(
+            self,
+            limit_level,
+            stop_level,
+            deal_id,
+            guaranteed_stop=False,
+            trailing_stop=False,
+            trailing_stop_distance=None,
+            trailing_stop_increment=None,
+            session=None,
+            version='2'):
         """Updates an OTC position"""
-        # TODO: Update to v2 (adds support for trailing stops)
-        version = "1"
-        params = {"limitLevel": limit_level, "stopLevel": stop_level}
+        params = {}
+        if limit_level is not None:
+            params["limitLevel"] = limit_level
+        if stop_level is not None:
+            params["stopLevel"] = stop_level
+        if guaranteed_stop:
+            params["guaranteedStop"] = 'true'
+        if trailing_stop:
+            params["trailingStop"] = 'true'
+        if trailing_stop_distance is not None:
+            params["trailingStopDistance"] = trailing_stop_distance
+        if trailing_stop_increment is not None:
+            params["trailingStopIncrement"] = trailing_stop_increment
+
         url_params = {"deal_id": deal_id}
         endpoint = "/positions/otc/{deal_id}".format(**url_params)
         action = "update"
@@ -1128,6 +1184,34 @@ class IGService:
             data = munchify(data)
         return data
 
+    def fetch_markets_by_epics(self, epics, detailed=True, session=None, version='2'):
+        """
+        Returns the details of the given markets
+        :param epics: comma separated list of epics
+        :type epics: str
+        :param detailed: Whether to return detailed info or snapshot data only. Only supported for
+        version 2. Optional, default True
+        :type detailed: bool
+        :param session: session object. Optional, default None
+        :type session: requests.Session
+        :param version: IG API method version. Optional, default '2'
+        :type version: str
+        :return: list of market details
+        :rtype: Munch instance if configured, else dict
+        """
+        params = {"epics": epics}
+        if version == '2':
+            params["filter"] = 'ALL' if detailed else 'SNAPSHOT_ONLY'
+        endpoint = "/markets"
+        action = "read"
+        response = self._req(action, endpoint, params, session, version)
+        data = self.parse_response(response.text)
+        if self.return_munch:
+            data = munchify(data['marketDetails'])
+        else:
+            data = data['marketDetails']
+        return data
+
     def search_markets(self, search_term, session=None):
         """Returns all markets matching the search term"""
         version = "1"
@@ -1224,6 +1308,33 @@ class IGService:
                                 "lowPrice.bid": "low.bid",
                                 "lowPrice.ask": "low.ask",
                                 "lastTradedVolume": "volume"})
+        return df
+
+    def mid_prices(self, prices, version):
+
+        """Format price data as a flat DataFrame, no hierarchy, calculating mid prices"""
+
+        if len(prices) == 0:
+            raise (Exception("Historical price data not found"))
+
+        df = json_normalize(prices)
+        df = df.set_index("snapshotTimeUTC")
+        df.index = pd.to_datetime(df.index, format="%Y-%m-%dT%H:%M:%S")
+        df.index.name = "DateTime"
+
+        df['Open'] = (df['openPrice.bid'] + df['openPrice.ask']) / 2
+        df['High'] = (df['highPrice.bid'] + df['highPrice.ask']) / 2
+        df['Low'] = (df['lowPrice.bid'] + df['lowPrice.ask']) / 2
+        df['Close'] = (df['closePrice.bid'] + df['closePrice.ask']) / 2
+
+        df = df.drop(columns=['snapshotTime', 'openPrice.lastTraded', 'closePrice.lastTraded',
+                              'highPrice.lastTraded', 'lowPrice.lastTraded',
+                              "openPrice.bid", "openPrice.ask",
+                              "closePrice.bid", "closePrice.ask",
+                              "highPrice.bid", "highPrice.ask",
+                              "lowPrice.bid", "lowPrice.ask"])
+        df = df.rename(columns={"lastTradedVolume": "Volume"})
+
         return df
 
     def fetch_historical_prices_by_epic(

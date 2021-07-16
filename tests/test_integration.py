@@ -78,6 +78,25 @@ class TestIntegration:
         preferred = response.loc[response["preferred"]]
         assert all(preferred["balance"] > 0)
 
+    def test_accounts_prefs(self, ig_service):
+        # turn off trailing stops
+        update_status = ig_service.update_account_preferences(trailing_stops_enabled=False)
+        assert update_status == 'SUCCESS'
+
+        # check trailing stops are turned off
+        enabled_status = ig_service.fetch_account_preferences()['trailingStopsEnabled']
+        assert enabled_status is False
+        time.sleep(5)
+
+        # turn on trailing stops
+        update_status = ig_service.update_account_preferences(trailing_stops_enabled=True)
+        assert update_status == 'SUCCESS'
+        time.sleep(5)
+
+        # check trailing stops are turned on
+        enabled_status = ig_service.fetch_account_preferences()['trailingStopsEnabled']
+        assert enabled_status is True
+
     def test_fetch_account_activity_by_period(self, ig_service):
         response = ig_service.fetch_account_activity_by_period(10000)
         assert isinstance(response, pd.DataFrame)
@@ -237,27 +256,45 @@ class TestIntegration:
             assert 'IG-ACCOUNT-ID' in ig_service.session.headers
 
     @staticmethod
-    def get_random_market_id(top_level_nodes):
-        rand_index = randint(0, len(top_level_nodes) - 1)
-        node_id = top_level_nodes.iloc[rand_index]["id"]
-        return node_id
+    def get_random_market_id():
+        market_ids = ['US500', 'FT100', 'USTECH',
+                      'GC', 'CL', 'W',
+                      'GBPUSD', 'USDJPY', 'EURCHF',
+                      '10YRTND', 'FGBL', 'FLG',
+                      'BITCOIN', 'ETHUSD', 'CS.D.LTCUSD.TODAY.IP',
+                      'BP-UK', 'VOD-UK', 'TSLA-US']
+        rand_index = randint(0, len(market_ids) - 1)
+        market_id = market_ids[rand_index]
+        return market_id
 
-    def test_fetch_client_sentiment_by_instrument(self, ig_service, top_level_nodes):
-        node_id = self.get_random_market_id(top_level_nodes)
-        response = ig_service.fetch_client_sentiment_by_instrument(node_id)
-        assert isinstance(response, dict)
+    def test_fetch_client_sentiment_by_instrument(self, ig_service):
+        market_id = self.get_random_market_id()
+        response = ig_service.fetch_client_sentiment_by_instrument(market_id)
+        self.assert_sentiment(response)
 
-    def test_fetch_client_sentiment_by_instrument_multiple(self, ig_service, top_level_nodes):
-        node_list = []
+    def test_fetch_client_sentiment_by_instrument_multiple(self, ig_service):
+        market_id_list = []
         for i in range(1, 5):
-            node_list.append(self.get_random_market_id(top_level_nodes))
-        response = ig_service.fetch_client_sentiment_by_instrument(node_list)
-        assert isinstance(response, dict)
+            market_id_list.append(self.get_random_market_id())
+        response = ig_service.fetch_client_sentiment_by_instrument(market_id_list)
+        for sentiment in response['clientSentiments']:
+            self.assert_sentiment(sentiment)
 
-    def test_fetch_related_client_sentiment_by_instrument(self, ig_service, top_level_nodes):
-        node_id = self.get_random_market_id(top_level_nodes)
-        response = ig_service.fetch_related_client_sentiment_by_instrument(node_id)
-        assert isinstance(response, pd.DataFrame)
+    def test_fetch_related_client_sentiment_by_instrument(self, ig_service):
+        market_id = self.get_random_market_id()
+        df = ig_service.fetch_related_client_sentiment_by_instrument(market_id)
+        rows = df.to_dict('records')
+        for sentiment in rows:
+            self.assert_sentiment(sentiment)
+
+    @staticmethod
+    def assert_sentiment(response):
+        long = response['longPositionPercentage']
+        short = response['shortPositionPercentage']
+        assert isinstance(response, dict)
+        assert isinstance(long, float)
+        assert isinstance(short, float)
+        assert long + short == 100.0
 
     def test_fetch_sub_nodes_by_node(self, ig_service, top_level_nodes):
         rand_index = randint(0, len(top_level_nodes) - 1)
@@ -279,6 +316,32 @@ class TestIntegration:
     def test_fetch_market_by_epic(self, ig_service):
         response = ig_service.fetch_market_by_epic("CS.D.EURUSD.MINI.IP")
         assert isinstance(response, dict)
+
+    def test_fetch_markets_by_epics(self, ig_service):
+        markets_list = ig_service.fetch_markets_by_epics("IX.D.SPTRD.MONTH1.IP,IX.D.FTSE.MONTH1.IP", version='1')
+        assert isinstance(markets_list, list)
+        assert len(markets_list) == 2
+        assert markets_list[0].instrument.name == 'FTSE 100'
+        assert markets_list[0].dealingRules is not None
+        assert markets_list[1].instrument.name == 'US 500'
+
+        markets_list = ig_service.fetch_markets_by_epics("MT.D.PL.Month2.IP,MT.D.PA.Month1.IP,MT.D.HG.Month1.IP",
+            detailed=False)
+        assert len(markets_list) == 3
+        assert markets_list[0].instrument.name == None
+        assert markets_list[0].snapshot.bid != 0
+        assert markets_list[0].snapshot.offer != 0
+        assert markets_list[0].dealingRules is None
+
+        assert markets_list[1].instrument.name == None
+        assert markets_list[1].snapshot.bid != 0
+        assert markets_list[1].snapshot.offer != 0
+        assert markets_list[1].dealingRules is None
+
+        assert markets_list[2].instrument.name == None
+        assert markets_list[2].snapshot.bid != 0
+        assert markets_list[2].snapshot.offer != 0
+        assert markets_list[2].dealingRules is None
 
     def test_search_markets(self, ig_service):
         search_term = "EURUSD"
@@ -382,6 +445,8 @@ class TestIntegration:
         epic = 'CS.D.GBPUSD.TODAY.IP'
         market_info = ig_service.fetch_market_by_epic(epic)
         status = market_info.snapshot.marketStatus
+        bid = market_info.snapshot.bid
+        offer = market_info.snapshot.offer
         if status != 'TRADEABLE':
             pytest.skip('Skipping open position test, market not open')
 
@@ -389,29 +454,33 @@ class TestIntegration:
             epic=epic, direction='BUY', currency_code='GBP', order_type='MARKET', expiry='DFB',
             force_open='false', guaranteed_stop='false', size=0.5, level=None, limit_level=None, limit_distance=None,
             quote_id=None, stop_distance=None, stop_level=None, trailing_stop=None, trailing_stop_increment=None)
-
         assert open_result['dealStatus'] == 'ACCEPTED'
         assert open_result['reason'] == 'SUCCESS'
-
         time.sleep(10)
 
-        close_result = ig_service.close_open_position(
-            deal_id=open_result['dealId'], direction='SELL', epic=None, expiry='DFB', level=None,
-            order_type='MARKET', quote_id=None, size=0.5, session=None)
+        update_v1_result = ig_service.update_open_position(offer * 1.5, bid * 0.5, open_result['dealId'], version='1')
+        assert update_v1_result['dealStatus'] == 'ACCEPTED'
+        assert update_v1_result['reason'] == 'SUCCESS'
+        time.sleep(10)
 
+        update_v2_result = ig_service.update_open_position(offer * 1.4, bid * 0.4, open_result['dealId'],
+            trailing_stop=True, trailing_stop_distance=25.0, trailing_stop_increment=10.0)
+        assert update_v2_result['dealStatus'] == 'ACCEPTED'
+        assert update_v2_result['reason'] == 'SUCCESS'
+        time.sleep(10)
+
+        close_result = ig_service.close_open_position(deal_id=open_result['dealId'], direction='SELL',
+            epic=None, expiry='DFB', level=None, order_type='MARKET', quote_id=None, size=0.5, session=None)
         assert close_result['dealStatus'] == 'ACCEPTED'
         assert close_result['reason'] == 'SUCCESS'
 
     @pytest.mark.parametrize("ig_service", ['2'], indirect=True)
     def test_create_working_order(self, ig_service):
 
-        # TODO do we need to check the market is open?
         epic = 'CS.D.GBPUSD.TODAY.IP'
-
         bet_info = ig_service.fetch_market_by_epic(epic)
         min_bet = bet_info.dealingRules.minDealSize.value
         offer = bet_info.snapshot.offer
-        # status = bet_info.snapshot.marketStatus
 
         create_result = ig_service.create_working_order(
             epic=epic, direction='BUY', currency_code='GBP', order_type='LIMIT', expiry='DFB', guaranteed_stop='false',
