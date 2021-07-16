@@ -346,7 +346,6 @@ class IGService:
         update_status = self.parse_response(response.text)
         return update_status['status']
 
-
     def fetch_account_activity_by_period(self, milliseconds, session=None):
         """
         Returns the account activity history for the last specified period
@@ -863,7 +862,8 @@ class IGService:
         else:
             raise IGException(response.text)
 
-    def update_open_position(self,
+    def update_open_position(
+            self,
             limit_level,
             stop_level,
             deal_id,
@@ -898,7 +898,6 @@ class IGService:
             return self.fetch_deal_by_deal_reference(deal_reference)
         else:
             raise IGException(response.text)
-
 
     def fetch_working_orders(self, session=None, version='2'):
         """Returns all open working orders for the active account"""
@@ -1079,8 +1078,6 @@ class IGService:
     # -------- END -------- #
 
     # -------- MARKETS -------- #
-
-    # TODO GET /clientsentiment v1
 
     def fetch_client_sentiment_by_instrument(self, market_id, session=None):
         """Returns the client sentiment for the given instrument's market"""
