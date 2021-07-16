@@ -256,27 +256,45 @@ class TestIntegration:
             assert 'IG-ACCOUNT-ID' in ig_service.session.headers
 
     @staticmethod
-    def get_random_market_id(top_level_nodes):
-        rand_index = randint(0, len(top_level_nodes) - 1)
-        node_id = top_level_nodes.iloc[rand_index]["id"]
-        return node_id
+    def get_random_market_id():
+        market_ids = ['US500', 'FT100', 'USTECH',
+                      'GC', 'CL', 'W',
+                      'GBPUSD', 'USDJPY', 'EURCHF',
+                      '10YRTND', 'FGBL', 'FLG',
+                      'BITCOIN', 'ETHUSD', 'CS.D.LTCUSD.TODAY.IP',
+                      'BP-UK', 'VOD-UK', 'TSLA-US']
+        rand_index = randint(0, len(market_ids) - 1)
+        market_id = market_ids[rand_index]
+        return market_id
 
-    def test_fetch_client_sentiment_by_instrument(self, ig_service, top_level_nodes):
-        node_id = self.get_random_market_id(top_level_nodes)
-        response = ig_service.fetch_client_sentiment_by_instrument(node_id)
-        assert isinstance(response, dict)
+    def test_fetch_client_sentiment_by_instrument(self, ig_service):
+        market_id = self.get_random_market_id()
+        response = ig_service.fetch_client_sentiment_by_instrument(market_id)
+        self.assert_sentiment(response)
 
-    def test_fetch_client_sentiment_by_instrument_multiple(self, ig_service, top_level_nodes):
-        node_list = []
+    def test_fetch_client_sentiment_by_instrument_multiple(self, ig_service):
+        market_id_list = []
         for i in range(1, 5):
-            node_list.append(self.get_random_market_id(top_level_nodes))
-        response = ig_service.fetch_client_sentiment_by_instrument(node_list)
-        assert isinstance(response, dict)
+            market_id_list.append(self.get_random_market_id())
+        response = ig_service.fetch_client_sentiment_by_instrument(market_id_list)
+        for sentiment in response['clientSentiments']:
+            self.assert_sentiment(sentiment)
 
-    def test_fetch_related_client_sentiment_by_instrument(self, ig_service, top_level_nodes):
-        node_id = self.get_random_market_id(top_level_nodes)
-        response = ig_service.fetch_related_client_sentiment_by_instrument(node_id)
-        assert isinstance(response, pd.DataFrame)
+    def test_fetch_related_client_sentiment_by_instrument(self, ig_service):
+        market_id = self.get_random_market_id()
+        df = ig_service.fetch_related_client_sentiment_by_instrument(market_id)
+        rows = df.to_dict('records')
+        for sentiment in rows:
+            self.assert_sentiment(sentiment)
+
+    @staticmethod
+    def assert_sentiment(response):
+        long = response['longPositionPercentage']
+        short = response['shortPositionPercentage']
+        assert isinstance(response, dict)
+        assert isinstance(long, float)
+        assert isinstance(short, float)
+        assert long + short == 100.0
 
     def test_fetch_sub_nodes_by_node(self, ig_service, top_level_nodes):
         rand_index = randint(0, len(top_level_nodes) - 1)
@@ -459,13 +477,10 @@ class TestIntegration:
     @pytest.mark.parametrize("ig_service", ['2'], indirect=True)
     def test_create_working_order(self, ig_service):
 
-        # TODO do we need to check the market is open?
         epic = 'CS.D.GBPUSD.TODAY.IP'
-
         bet_info = ig_service.fetch_market_by_epic(epic)
         min_bet = bet_info.dealingRules.minDealSize.value
         offer = bet_info.snapshot.offer
-        # status = bet_info.snapshot.marketStatus
 
         create_result = ig_service.create_working_order(
             epic=epic, direction='BUY', currency_code='GBP', order_type='LIMIT', expiry='DFB', guaranteed_stop='false',
