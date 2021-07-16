@@ -899,8 +899,6 @@ class IGService:
         else:
             raise IGException(response.text)
 
-    # TODO GET /positions/sprintmarkets v2
-    # TODO POST /positions/sprintmarkets v1
 
     def fetch_working_orders(self, session=None, version='2'):
         """Returns all open working orders for the active account"""
