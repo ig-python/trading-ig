@@ -1,5 +1,13 @@
 # Release notes
 
+## 0.0.11
+* code samples improved, new FAQ
+* Adds support for update open position v2
+* new function to calculate mid prices for historic data
+* Adds support for getting and updating account prefs
+* Adds support for `/markets` endpoint for getting details of multiple markets 
+* new sample script to traverse navigation tree and get epics, new FAQ
+
 ## 0.0.10
 
 * simplified request headers: `requests.Session` now handles persistence
