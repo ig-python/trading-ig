@@ -253,6 +253,38 @@ Two reasons:
 * flexibility - if this project is defined as a dependency in a project, ie as a library, it should not define
   which version of ``pandas`` is used. That should be defined in the parent project
 
+How do I find the epic for market 'X'?
+--------------------------------------
+
+There are a few different ways:
+
+1. Use the `REST API Companion <https://labs.ig.com/sample-apps/api-companion/index.html>`_. This is a good
+tool to get familiar with anyway, if you want to learn about the IG APIs. Login, then use the *Search Markets*
+part, enter your search term, and press *Go*. The results will show any markets that match the search term you
+entered, and *epic* is one of the attributes displayed in the results. Its a simple text search though, there's
+no way to filter.
+
+2. Use this library, see method ``IGService.search_markets()``. This is the same function that sits behind method
+1 above.
+
+3. (Recommended) Use the IG website. Login to the IG site, and show developer tools (`Chrome
+<https://developer.chrome.com/docs/devtools/network/>`_, `Firefox
+<https://developer.mozilla.org/en-US/docs/Tools/Network_Monitor>`_) in your browser, with the network tab
+selected. Internally, the IG website content is driven by a version of the same API, the URLs are similar. So,
+navigate to the market you want to find the epic for, then check the network tab. The URL will contain the epic, eg
+for the URL::
+
+    https://deal.ig.com/nwtpdeal/v2/markets/details/CS.D.USCGC.TODAY.IP?_=1626527237228
+
+The epic is *CS.D.USCGC.TODAY.IP*. See screenshot:
+
+.. image:: img/network_tab.png
+
+4. The REST API has two methods that can be used to replicate the navigation tree used on the IG website -
+``fetch_top_level_navigation_nodes()`` and ``fetch_sub_nodes_by_node()``. There is also a script in the ``/samples``
+directory that shows how these functions *could* be used to traverse the entire tree. However, this is not recommended;
+the tree is HUGE, and it would take days to traverse the entire tree due to the rate limits.
+
 
 Why do see an error like ``unauthorised.access.to.equity.exception``?
 ---------------------------------------------------------------------
