@@ -1,6 +1,9 @@
 # Release notes
 
-## 0.0.11
+## 0.0.12 (2021-07-28)
+* uses Poetry to publish to [Python Package Index](https://pypi.org/)
+
+## 0.0.11 (2021-07-19)
 * code samples improved, new FAQ
 * Adds support for update open position v2
 * new function to calculate mid prices for historic data
@@ -8,7 +11,7 @@
 * Adds support for `/markets` endpoint for getting details of multiple markets 
 * new sample script to traverse navigation tree and get epics, new FAQ
 
-## 0.0.10
+## 0.0.10 (2021-07-10)
 
 * simplified request headers: `requests.Session` now handles persistence
 * adds support for v3 session creation (#157)
@@ -21,7 +24,7 @@
 * better test coverage. now 80% for `rest.py` (#38)
 * documentation improvements
 
-## 0.0.9
+## 0.0.9 (2021-03-19)
 
 * integration and unit tests improved
 * remove reference to adapter (#190)
