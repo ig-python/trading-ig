@@ -261,7 +261,7 @@ class TestIntegration:
                       'GC', 'CL', 'W',
                       'GBPUSD', 'USDJPY', 'EURCHF',
                       '10YRTND', 'FGBL', 'FLG',
-                      'BITCOIN', 'ETHUSD', 'CS.D.LTCUSD.TODAY.IP',
+                      'BITCOIN', 'ETHUSD', 'LTCUSD',
                       'BP-UK', 'VOD-UK', 'TSLA-US']
         rand_index = randint(0, len(market_ids) - 1)
         market_id = market_ids[rand_index]
