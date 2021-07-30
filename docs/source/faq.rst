@@ -224,16 +224,31 @@ parameter. You also need to specify ``version='3'`` in the ``create_session()`` 
 
 .. _report_problem:
 
-How do I report a problem?
+What if I have a problem?
 --------------------------
 
-If you have a question or discover a bug, please:
+If you have a problem using this library, the first thing to do is work out whether there is a problem with the code,
+or if the problem is with your use of the IG APIs. The easiest way to do that is to make the same request using one
+of the companion tools:
+
+* `REST API Companion <https://labs.ig.com/sample-apps/api-companion/index.html>`_
+* `Streaming API Companion <https://labs.ig.com/sample-apps/streaming-companion/index.html>`_
+
+If you get the same result, then it is likely that you are using the API incorrectly. Unfortunately, the people who
+maintain this library do not have time to provide support. In this case you should:
+
+* read the IG docs more carefully, or
+* post a question in the `IG support forum <https://community.ig.com/>`_
+
+If you're sure that the problem is with this library, please:
 
 * provide everything necessary to reproduce the problem
 * include the full script that produces the error, including import statements
 * ideally this should be a *minimal example* - the shortest possible script that reproduces the problem
 * dependencies and their versions
 * the full output trace including the error messages
+
+Any issues created without this information will be ignored and/or closed without response
 
 
 Why are there both ``setup.py`` and ``pyproject.toml`` files?

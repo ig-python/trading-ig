@@ -407,7 +407,6 @@ if __name__ == "__main__":
     except Exception:
         print("Unable to connect to Lightstreamer Server")
         print(traceback.format_exc())
-        import sys
 
         sys.exit(1)
 
