@@ -518,8 +518,6 @@ class IGService:
             params["dealId"] = deal_id
         if fiql_filter:
             params["filter"] = fiql_filter
-        if page_size:
-            params["pageSize"] = page_size
 
         params["pageSize"] = page_size
         endpoint = "/history/activity/"
@@ -538,10 +536,15 @@ class IGService:
             else:
                 parse_result = urlparse(paging["next"])
                 query = parse_qs(parse_result.query)
+                logging.debug(f"fetch_account_activity() next query: '{query}'")
                 if 'from' in query:
-                    params["from"] = query["from"]
+                    params["from"] = query["from"][0]
+                else:
+                    del params["from"]
                 if 'to' in query:
-                    params["to"] = query["to"]
+                    params["to"] = query["to"][0]
+                else:
+                    del params["to"]
 
         data["activities"] = activities
         if _HAS_PANDAS and self.return_dataframe:
