@@ -41,6 +41,7 @@ jobs:
         poetry run coverage report
 
     - name: Coveralls
-      run: poetry run coveralls
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        poetry run coveralls --service=github
