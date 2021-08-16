@@ -30,6 +30,10 @@
     :target: https://trading-ig.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
+.. image:: https://coveralls.io/repos/github/bug-or-feature/ig-markets-api-python-library/badge.svg?branch=coverage
+    :target: https://coveralls.io/github/bug-or-feature/ig-markets-api-python-library?branch=coverage
+    :alt: Test Coverage
+
 trading_ig
 ==========
 
