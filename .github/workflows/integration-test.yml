@@ -37,4 +37,11 @@ jobs:
         IG_SERVICE_ACC_TYPE:  ${{ secrets.IG_SERVICE_ACC_TYPE }}
         IG_SERVICE_ACC_NUMBER:  ${{ secrets.IG_SERVICE_ACC_NUMBER_1 }}
       run: |
-        python -m poetry run python -m pytest tests/test_integration.py --log-cli-level=DEBUG --log-format="%(asctime)s %(levelname)s %(message)s"  --log-date-format="%Y-%m-%d %H:%M:%S"
+        poetry run coverage run -m --source=trading_ig pytest --log-cli-level=DEBUG --log-format="%(asctime)s %(levelname)s %(message)s" --log-date-format="%Y-%m-%d %H:%M:%S"
+        poetry run coverage report
+
+    - name: Coveralls
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        poetry run coveralls --service=github
