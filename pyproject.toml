@@ -53,6 +53,7 @@ docs = [
 flake8 = "^3.9"
 pytest = "^6.2"
 responses = "^0.12"
+coverage = "^5.5"
 
 [tool.poetry.urls]
 "Issues" = "https://github.com/ig-python/ig-markets-api-python-library/issues"
