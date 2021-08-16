@@ -30,8 +30,8 @@
     :target: https://trading-ig.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-.. image:: https://coveralls.io/repos/github/bug-or-feature/ig-markets-api-python-library/badge.svg?branch=coverage
-    :target: https://coveralls.io/github/bug-or-feature/ig-markets-api-python-library?branch=coverage
+.. image:: https://coveralls.io/repos/github/ig-python/ig-markets-api-python-library/badge.svg?branch=coverage
+    :target: https://coveralls.io/github/ig-python/ig-markets-api-python-library
     :alt: Test Coverage
 
 trading_ig
