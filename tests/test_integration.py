@@ -29,7 +29,10 @@ def ig_service(request, retrying):
         pytest.fail('this integration test should not be executed with a LIVE account')
     ig_service = IGService(config.username, config.password, config.api_key, config.acc_type,
         acc_number=config.acc_number, retryer=retrying)
-    ig_service.create_session(version=request.param)
+    service = ig_service.create_session(version=request.param)
+    if service['accountType'] != 'SPREADBET':
+        pytest.fail('Integration test currently only works with a spreadbet account')
+
     yield ig_service
     ig_service.logout()
 
