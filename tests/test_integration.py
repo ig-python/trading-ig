@@ -35,20 +35,20 @@ def ig_service(request, retrying):
 
 
 @pytest.fixture()
-def top_level_nodes(ig_service):
+def top_level_nodes(ig_service: IGService):
     """test fixture gets the top level navigation nodes"""
     response = ig_service.fetch_top_level_navigation_nodes()
     return response["nodes"]
 
 
 @pytest.fixture()
-def watchlists(ig_service):
+def watchlists(ig_service: IGService):
     """test fixture gets all watchlists"""
     return ig_service.fetch_all_watchlists()
 
 
 @pytest.fixture()
-def watchlist_id(ig_service):
+def watchlist_id(ig_service: IGService):
     """test fixture creates a dummy watchlist for use in tests,
     and returns the ID. In teardown it also deletes the dummy watchlist"""
     epics = ['CS.D.GBPUSD.TODAY.IP', 'IX.D.FTSE.DAILY.IP']
@@ -73,12 +73,12 @@ class TestIntegration:
         ig_service.create_session(encryption=True)
         assert 'CST' in ig_service.session.headers
 
-    def test_fetch_accounts(self, ig_service):
+    def test_fetch_accounts(self, ig_service: IGService):
         response = ig_service.fetch_accounts()
         preferred = response.loc[response["preferred"]]
         assert all(preferred["balance"] > 0)
 
-    def test_accounts_prefs(self, ig_service):
+    def test_accounts_prefs(self, ig_service: IGService):
         # turn off trailing stops
         update_status = ig_service.update_account_preferences(trailing_stops_enabled=False)
         assert update_status == 'SUCCESS'
@@ -97,17 +97,17 @@ class TestIntegration:
         enabled_status = ig_service.fetch_account_preferences()['trailingStopsEnabled']
         assert enabled_status is True
 
-    def test_fetch_account_activity_by_period(self, ig_service):
+    def test_fetch_account_activity_by_period(self, ig_service: IGService):
         response = ig_service.fetch_account_activity_by_period(10000)
         assert isinstance(response, pd.DataFrame)
 
-    def test_fetch_account_activity_by_date(self, ig_service):
+    def test_fetch_account_activity_by_date(self, ig_service: IGService):
         to_date = datetime.now()
         from_date = to_date - timedelta(days=7)
         response = ig_service.fetch_account_activity_by_date(from_date, to_date)
         assert isinstance(response, pd.DataFrame)
 
-    def test_fetch_account_activity_v2_span(self, ig_service):
+    def test_fetch_account_activity_v2_span(self, ig_service: IGService):
         period = 7 * 24 * 60 * 60  # 7 days
         response = ig_service.fetch_account_activity_v2(max_span_seconds=period)
         assert isinstance(response, pd.DataFrame)
@@ -118,14 +118,14 @@ class TestIntegration:
         response = ig_service.fetch_account_activity_v2(from_date=from_date, to_date=to_date)
         assert isinstance(response, pd.DataFrame)
 
-    def test_fetch_account_activity_from(self, ig_service):
+    def test_fetch_account_activity_from(self, ig_service: IGService):
         to_date = datetime(2021, 7, 31)
         from_date = to_date - timedelta(days=7)
         response = ig_service.fetch_account_activity(from_date=from_date)
         assert isinstance(response, pd.DataFrame)
         assert response.shape[1] == 9
 
-    def test_fetch_account_activity_from_to(self, ig_service):
+    def test_fetch_account_activity_from_to(self, ig_service: IGService):
         to_date = datetime(2021, 7, 31)
         from_date = to_date - timedelta(days=7)
         response = ig_service.fetch_account_activity(from_date=from_date, to_date=to_date)
@@ -139,14 +139,14 @@ class TestIntegration:
         assert isinstance(response, pd.DataFrame)
         assert response.shape[1] == 22
 
-    def test_fetch_account_activity_old(self, ig_service):
+    def test_fetch_account_activity_old(self, ig_service: IGService):
         from_date = datetime(1970, 1, 1)
         to_date = from_date + timedelta(days=7)
         response = ig_service.fetch_account_activity(from_date=from_date, to_date=to_date)
         assert isinstance(response, pd.DataFrame)
         assert response.shape[0] == 0
 
-    def test_fetch_account_activity_fiql(self, ig_service):
+    def test_fetch_account_activity_fiql(self, ig_service: IGService):
         to_date = datetime(2021, 7, 31)
         from_date = to_date - timedelta(days=30)
         response = ig_service.fetch_account_activity(from_date=from_date, to_date=to_date,
@@ -158,7 +158,7 @@ class TestIntegration:
         with pytest.raises(IGException):
             IGService(config.username, config.password, config.api_key, 'wrong', retryer=retrying)
 
-    def test_fetch_transaction_history_by_type_and_period(self, ig_service):
+    def test_fetch_transaction_history_by_type_and_period(self, ig_service: IGService):
         response = ig_service.fetch_transaction_history_by_type_and_period(10000, "ALL")
         assert isinstance(response, pd.DataFrame)
 
@@ -171,7 +171,7 @@ class TestIntegration:
         response = ig_service.fetch_open_positions()
         assert isinstance(response, pd.DataFrame)
 
-    def test_fetch_open_positions_v1(self, ig_service):
+    def test_fetch_open_positions_v1(self, ig_service: IGService):
         response = ig_service.fetch_open_positions(version='1')
         assert isinstance(response, pd.DataFrame)
 
@@ -180,7 +180,7 @@ class TestIntegration:
         with pytest.raises(IGException):
             ig_service.create_session()
 
-    def test_fetch_working_orders(self, ig_service):
+    def test_fetch_working_orders(self, ig_service: IGService):
         response = ig_service.fetch_working_orders()
         assert isinstance(response, pd.DataFrame)
 
@@ -225,7 +225,7 @@ class TestIntegration:
             logging.info(f"Waiting for {wait} seconds...")
             time.sleep(wait)
 
-    def test_read_session(self, ig_service):
+    def test_read_session(self, ig_service: IGService):
         ig_service.read_session()
         assert 'X-IG-API-KEY' in ig_service.session.headers
 
@@ -241,7 +241,7 @@ class TestIntegration:
             assert 'Authorization' in ig_service.session.headers
             assert 'IG-ACCOUNT-ID' in ig_service.session.headers
 
-    def test_read_session_fetch_session_tokens(self, ig_service):
+    def test_read_session_fetch_session_tokens(self, ig_service: IGService):
         ig_service.read_session(fetch_session_tokens='true')
         assert 'X-IG-API-KEY' in ig_service.session.headers
         assert 'CST' in ig_service.session.headers
@@ -267,12 +267,12 @@ class TestIntegration:
         market_id = market_ids[rand_index]
         return market_id
 
-    def test_fetch_client_sentiment_by_instrument(self, ig_service):
+    def test_fetch_client_sentiment_by_instrument(self, ig_service: IGService):
         market_id = self.get_random_market_id()
         response = ig_service.fetch_client_sentiment_by_instrument(market_id)
         self.assert_sentiment(response)
 
-    def test_fetch_client_sentiment_by_instrument_multiple(self, ig_service):
+    def test_fetch_client_sentiment_by_instrument_multiple(self, ig_service: IGService):
         market_id_list = []
         for i in range(1, 5):
             market_id_list.append(self.get_random_market_id())
@@ -280,7 +280,7 @@ class TestIntegration:
         for sentiment in response['clientSentiments']:
             self.assert_sentiment(sentiment)
 
-    def test_fetch_related_client_sentiment_by_instrument(self, ig_service):
+    def test_fetch_related_client_sentiment_by_instrument(self, ig_service: IGService):
         market_id = self.get_random_market_id()
         df = ig_service.fetch_related_client_sentiment_by_instrument(market_id)
         rows = df.to_dict('records')
@@ -296,7 +296,7 @@ class TestIntegration:
         assert isinstance(short, float)
         assert long + short == 100.0
 
-    def test_fetch_sub_nodes_by_node(self, ig_service, top_level_nodes):
+    def test_fetch_sub_nodes_by_node(self, ig_service: IGService, top_level_nodes):
         rand_index = randint(0, len(top_level_nodes) - 1)
         response = ig_service.fetch_sub_nodes_by_node(rand_index)
         assert isinstance(response["markets"], pd.DataFrame)
@@ -307,17 +307,17 @@ class TestIntegration:
         default = watchlists[watchlists["defaultSystemWatchlist"]]
         assert any(default["id"] == "Popular Markets")
 
-    def test_fetch_watchlist_markets(self, ig_service, watchlists):
+    def test_fetch_watchlist_markets(self, ig_service: IGService, watchlists):
         rand_index = randint(0, len(watchlists) - 1)
         watchlist_id = watchlists.iloc[rand_index]["id"]
         response = ig_service.fetch_watchlist_markets(watchlist_id)
         assert isinstance(response, pd.DataFrame)
 
-    def test_fetch_market_by_epic(self, ig_service):
+    def test_fetch_market_by_epic(self, ig_service: IGService):
         response = ig_service.fetch_market_by_epic("CS.D.EURUSD.MINI.IP")
         assert isinstance(response, dict)
 
-    def test_fetch_markets_by_epics(self, ig_service):
+    def test_fetch_markets_by_epics(self, ig_service: IGService):
         markets_list = ig_service.fetch_markets_by_epics("IX.D.SPTRD.MONTH1.IP,IX.D.FTSE.MONTH1.IP", version='1')
         assert isinstance(markets_list, list)
         assert len(markets_list) == 2
@@ -343,12 +343,12 @@ class TestIntegration:
         assert markets_list[2].snapshot.offer != 0
         assert markets_list[2].dealingRules is None
 
-    def test_search_markets(self, ig_service):
+    def test_search_markets(self, ig_service: IGService):
         search_term = "EURUSD"
         response = ig_service.search_markets(search_term)
         assert isinstance(response, pd.DataFrame)
 
-    def test_fetch_historical_prices_by_epic_and_numpoints(self, ig_service):
+    def test_fetch_historical_prices_by_epic_and_numpoints(self, ig_service: IGService):
         response = ig_service.fetch_historical_prices_by_epic_and_num_points(
             "CS.D.EURUSD.MINI.IP", "H", 4
         )
@@ -356,7 +356,7 @@ class TestIntegration:
         assert isinstance(response["prices"], pd.DataFrame)
         assert len(response["prices"]) == 4
 
-    def test_fetch_historical_prices_by_epic_and_date_range_v1(self, ig_service):
+    def test_fetch_historical_prices_by_epic_and_date_range_v1(self, ig_service: IGService):
         response = ig_service.fetch_historical_prices_by_epic_and_date_range(
             "CS.D.EURUSD.MINI.IP", "D", "2020:09:01-00:00:00", "2020:09:04-23:59:59", version='1'
         )
@@ -364,7 +364,7 @@ class TestIntegration:
         assert isinstance(response["prices"], pd.DataFrame)
         assert len(response["prices"]) == 4
 
-    def test_fetch_historical_prices_by_epic_and_date_range(self, ig_service):
+    def test_fetch_historical_prices_by_epic_and_date_range(self, ig_service: IGService):
         response = ig_service.fetch_historical_prices_by_epic_and_date_range(
             "CS.D.EURUSD.MINI.IP", "D", "2020-09-01 00:00:00", "2020-09-04 23:59:59"
         )
@@ -372,7 +372,7 @@ class TestIntegration:
         assert isinstance(response["prices"], pd.DataFrame)
         assert len(response["prices"]) == 4
 
-    def test_fetch_historical_prices_by_epic_dates(self, ig_service):
+    def test_fetch_historical_prices_by_epic_dates(self, ig_service: IGService):
         result = ig_service.fetch_historical_prices_by_epic(
             epic='MT.D.GC.Month2.IP',
             resolution='D',
@@ -395,7 +395,7 @@ class TestIntegration:
         assert result['metadata']['pageData']['pageNumber'] == 1
         assert result['metadata']['pageData']['totalPages'] == 1
 
-    def test_fetch_historical_prices_by_epic_numpoints(self, ig_service):
+    def test_fetch_historical_prices_by_epic_numpoints(self, ig_service: IGService):
         result = ig_service.fetch_historical_prices_by_epic(
             epic='MT.D.GC.Month2.IP',
             resolution='W',
@@ -416,7 +416,7 @@ class TestIntegration:
 
     def test_fetch_historical_prices_by_epic_numpoints_default_paged(
             self,
-            ig_service):
+            ig_service: IGService):
         result = ig_service.fetch_historical_prices_by_epic(
             epic='MT.D.GC.Month2.IP',
             resolution='W',
@@ -428,7 +428,7 @@ class TestIntegration:
 
     def test_fetch_historical_prices_by_epic_numpoints_custom_paged(
             self,
-            ig_service):
+            ig_service: IGService):
         result = ig_service.fetch_historical_prices_by_epic(
             epic='MT.D.GC.Month2.IP',
             resolution='W',
@@ -440,11 +440,12 @@ class TestIntegration:
         assert result['metadata']['pageData']['pageNumber'] == 3
 
     @pytest.mark.parametrize("ig_service", ['2'], indirect=True)
-    def test_create_open_position(self, ig_service):
+    def test_create_open_position(self, ig_service: IGService):
 
-        epic = 'CS.D.GBPUSD.TODAY.IP'
+        epic = 'IX.D.FTSE.DAILY.IP'
         market_info = ig_service.fetch_market_by_epic(epic)
         status = market_info.snapshot.marketStatus
+        min_bet = market_info.dealingRules.minDealSize.value
         bid = market_info.snapshot.bid
         offer = market_info.snapshot.offer
         if status != 'TRADEABLE':
@@ -452,7 +453,7 @@ class TestIntegration:
 
         open_result = ig_service.create_open_position(
             epic=epic, direction='BUY', currency_code='GBP', order_type='MARKET', expiry='DFB',
-            force_open='false', guaranteed_stop='false', size=0.5, level=None, limit_level=None, limit_distance=None,
+            force_open='false', guaranteed_stop='false', size=min_bet, level=None, limit_level=None, limit_distance=None,
             quote_id=None, stop_distance=None, stop_level=None, trailing_stop=None, trailing_stop_increment=None)
         assert open_result['dealStatus'] == 'ACCEPTED'
         assert open_result['reason'] == 'SUCCESS'
@@ -475,12 +476,15 @@ class TestIntegration:
         assert close_result['reason'] == 'SUCCESS'
 
     @pytest.mark.parametrize("ig_service", ['2'], indirect=True)
-    def test_create_working_order(self, ig_service):
+    def test_create_working_order(self, ig_service: IGService):
 
         epic = 'CS.D.GBPUSD.TODAY.IP'
-        bet_info = ig_service.fetch_market_by_epic(epic)
-        min_bet = bet_info.dealingRules.minDealSize.value
-        offer = bet_info.snapshot.offer
+        market_info = ig_service.fetch_market_by_epic(epic)
+        status = market_info.snapshot.marketStatus
+        min_bet = market_info.dealingRules.minDealSize.value
+        offer = market_info.snapshot.offer
+        if status != 'TRADEABLE':
+            pytest.skip('Skipping create working order test, market not open')
 
         create_result = ig_service.create_working_order(
             epic=epic, direction='BUY', currency_code='GBP', order_type='LIMIT', expiry='DFB', guaranteed_stop='false',
@@ -495,24 +499,24 @@ class TestIntegration:
         assert delete_result['dealStatus'] == 'ACCEPTED'
         assert delete_result['reason'] == 'SUCCESS'
 
-    def test_fetch_transaction_history(self, ig_service):
+    def test_fetch_transaction_history(self, ig_service: IGService):
         data = ig_service.fetch_transaction_history()
         assert type(data) is pd.DataFrame
 
-    def test_watchlist_add_market(self, ig_service, watchlist_id):
+    def test_watchlist_add_market(self, ig_service: IGService, watchlist_id):
         response = ig_service.add_market_to_watchlist(watchlist_id, 'MT.D.GC.Month2.IP')
         assert response['status'] == 'SUCCESS'
 
-    def test_watchlist_remove_market(self, ig_service, watchlist_id):
+    def test_watchlist_remove_market(self, ig_service: IGService, watchlist_id):
         response = ig_service.remove_market_from_watchlist(watchlist_id, 'CS.D.GBPUSD.TODAY.IP')
         assert response['status'] == 'SUCCESS'
 
-    def test_get_client_apps(self, ig_service):
+    def test_get_client_apps(self, ig_service: IGService):
         apps_list = ig_service.get_client_apps()
         assert len(apps_list) > 0
 
     @pytest.mark.skip(reason="endpoint throwing 500 errors - April 2021")
-    def test_update_client_app(self, ig_service):
+    def test_update_client_app(self, ig_service: IGService):
         result = ig_service.update_client_app(60, 60, config.api_key, 'ENABLED')
         print(result)
 
