@@ -30,7 +30,7 @@ def ig_service(request, retrying):
     ig_service = IGService(config.username, config.password, config.api_key, config.acc_type,
         acc_number=config.acc_number, retryer=retrying)
     service = ig_service.create_session(version=request.param)
-    if service['accountType'] != 'SPREADBET':
+    if request.param == '2' and service['accountType'] != 'SPREADBET':
         pytest.fail('Integration test currently only works with a spreadbet account')
 
     yield ig_service
@@ -442,7 +442,6 @@ class TestIntegration:
         assert result['prices'].shape[0] == 6
         assert result['metadata']['pageData']['pageNumber'] == 3
 
-    @pytest.mark.parametrize("ig_service", ['2'], indirect=True)
     def test_create_open_position(self, ig_service: IGService):
 
         epic = 'IX.D.FTSE.DAILY.IP'
@@ -478,7 +477,6 @@ class TestIntegration:
         assert close_result['dealStatus'] == 'ACCEPTED'
         assert close_result['reason'] == 'SUCCESS'
 
-    @pytest.mark.parametrize("ig_service", ['2'], indirect=True)
     def test_create_working_order(self, ig_service: IGService):
 
         epic = 'CS.D.GBPUSD.TODAY.IP'
