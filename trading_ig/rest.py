@@ -1708,6 +1708,7 @@ class IGService:
         endpoint = "/session"
         action = "update"
         response = self._req(action, endpoint, params, session, version)
+        self._manage_headers(response)
         data = self.parse_response(response.text)
         return data
 
