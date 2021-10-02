@@ -1,7 +1,7 @@
 trading_ig
 ==========
 
-A lightweight wrapper for the IG Markets API written in Python. Simplifies access to the IG REST and Streaming APIs
+A lightweight Python wrapper for the IG Markets API. Simplifies access to the IG REST and Streaming APIs
 with a live or demo account.
 
 What is it?

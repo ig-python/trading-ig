@@ -28,7 +28,7 @@ setup(
     # https://packaging.python.org/en/latest/development.html#single-sourcing-the-version
     # version='0.0.1',
     version=__version__,
-    description="A lightweight wrapper for the IG Markets API written in Python",
+    description="A lightweight Python wrapper for the IG Markets API",
     long_description=readme(),
     # The project's main homepage.
     url=__url__,
