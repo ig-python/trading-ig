@@ -1,5 +1,11 @@
 # Release notes
 
+## 0.0.13 (2021-10-02)
+* switch accounts bug fixed (#220)
+* coverage badge and report added
+* Sphinx is now a development dependency (#228)
+* test improvements
+
 ## 0.0.12 (2021-07-28)
 * uses Poetry to publish to [Python Package Index](https://pypi.org/)
 
