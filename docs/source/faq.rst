@@ -248,7 +248,7 @@ If you're sure that the problem is with this library, please:
 * dependencies and their versions
 * the full output trace including the error messages
 
-Any issues created without this information will be ignored and/or closed without response
+An issue without all this information may be ignored and/or closed without response
 
 
 Why are there both ``setup.py`` and ``pyproject.toml`` files?

@@ -73,6 +73,7 @@ Pipfile.lock
 # env
 .github/.env
 .python-version
+.env/
 
 .vscode
 
