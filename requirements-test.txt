@@ -1,3 +1,0 @@
-pytest==6.2.1
-responses==0.12.1
-ratelimit==2.2.1
