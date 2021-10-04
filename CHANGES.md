@@ -1,5 +1,9 @@
 # Release notes
 
+## 0.0.14 (2021-10-04)
+* fixes the bug where guaranteed stop loss was replaced with a normal stop loss on working order update (#224)
+* legacy 'setup.py' style project config files removed
+
 ## 0.0.13 (2021-10-02)
 * switch accounts bug fixed (#220)
 * coverage badge and report added
