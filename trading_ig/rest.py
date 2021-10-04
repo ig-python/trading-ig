@@ -1048,6 +1048,7 @@ class IGService:
         limit_level,
         stop_distance,
         stop_level,
+        guaranteed_stop,
         time_in_force,
         order_type,
         deal_id,
@@ -1064,6 +1065,7 @@ class IGService:
             "limitLevel": limit_level,
             "stopDistance": stop_distance,
             "stopLevel": stop_level,
+            "guaranteedStop": guaranteed_stop,
             "timeInForce": time_in_force,
             "type": order_type,
         }
