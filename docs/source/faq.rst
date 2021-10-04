@@ -251,11 +251,11 @@ If you're sure that the problem is with this library, please:
 An issue without all this information may be ignored and/or closed without response
 
 
-Why are there both ``setup.py`` and ``pyproject.toml`` files?
+What happened to ``setup.py`` and ``requirements.txt``?
 -------------------------------------------------------------
-Early versions of this project used the standard ``setup.py`` config. `Poetry <https://python-poetry.org/>`_
-support was added with version 0.0.10 (July 2021). The old style config will remain during transition, but be
-removed in a future release
+Early versions of this project used the standard ``setup.py`` config, with a ``requirements.txt`` file describing
+dependencies. `Poetry <https://python-poetry.org/>`_
+support was added with version 0.0.10 (July 2021). The old style config was removed with version 0.0.14
 
 
 Why is ``pandas`` an optional dependency in ``pyproject.toml``?
