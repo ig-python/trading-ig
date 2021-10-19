@@ -227,26 +227,43 @@ parameter. You also need to specify ``version='3'`` in the ``create_session()`` 
 What if I have a problem?
 --------------------------
 
-If you have a problem using this library, the first thing to do is work out whether there is a problem with the code,
-or if the problem is with your use of the IG APIs. The easiest way to do that is to make the same request using one
-of the companion tools:
+If you have a problem using this library, the first thing to do is to try to isolate where the problem is. The IG
+platform is a complex application, and there are many ways to make mistakes using it. Just because you see an error,
+it does not necessarily mean there is a problem with this library. If you encounter an issue, you should follow these
+steps, in order:
 
-* `REST API Companion <https://labs.ig.com/sample-apps/api-companion/index.html>`_
-* `Streaming API Companion <https://labs.ig.com/sample-apps/streaming-companion/index.html>`_
+1. Check if there a problem with the IG platform. From time to time the IG platform itself has issues, especially the
+DEMO environment. If you see a message like `ConnectionRefusedError`, or a 500 Server error, then it could be an issue
+with the IG platform. IG provide a `status page <https://status.ig.com/>`_, though its accuracy is questionable. You
+can also check the `IG Community forums <https://community.ig.com/>`__. If there are platform issues, its likely someone
+will have already posted a message there.
 
-If you get the same result, then it is likely that you are using the API incorrectly. Unfortunately, the people who
-maintain this library do not have time to provide support. In this case you should:
+2. Check if there is a problem with your code. Most of the API endpoints have multiple options, multiple versions,
+multiple ways of accessing them, and multiple interdependent parameters. Incoming data is validated on the server, and
+problems will be reported back in the response. You should
 
-* read the IG docs more carefully, or
-* post a question in the `IG support forum <https://community.ig.com/>`_
+    * check the documentation (`REST <https://labs.ig.com/rest-trading-api-reference>`__,
+      `Streaming <https://labs.ig.com/streaming-api-reference>`__) to make sure you are calling the APIs correctly
+    * look at the `sample code <https://github.com/ig-python/ig-markets-api-python-library/tree/master/sample>`_ and
+      `unit and integration tests <https://github.com/ig-python/ig-markets-api-python-library/tree/master/tests>`_.
+      There are example snippets for most API endpoints.
+    * repeat the API call using the IG companion tools (`REST <https://labs.ig.com/sample-apps/api-companion/index.html>`__,
+      `Streaming <https://labs.ig.com/sample-apps/streaming-companion/index.html>`__). If you get the same result, then
+      it is likely that you are using the API incorrectly.
 
-If you're sure that the problem is with this library, please:
+    Unfortunately, the people who maintain this library do not have time to provide support. In this case you should:
 
-* provide everything necessary to reproduce the problem
-* include the full script that produces the error, including import statements
-* ideally this should be a *minimal example* - the shortest possible script that reproduces the problem
-* dependencies and their versions
-* the full output trace including the error messages
+    * read the IG docs more carefully, or
+    * post a question in the `IG Community site <https://community.ig.com/>`__, or
+    * contact the `API support team <mailto:webapisupport@ig.com>`_
+
+3. If you're sure that the problem is with this library, please:
+
+    * provide *everything* necessary to reproduce the problem
+    * include the full script that produces the error, including import statements
+    * ideally this should be a *minimal example* - the shortest possible script that reproduces the problem
+    * dependencies and their versions
+    * the full output trace including the error messages
 
 An issue without all this information may be ignored and/or closed without response
 

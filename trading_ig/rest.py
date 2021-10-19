@@ -199,7 +199,7 @@ class IGService:
         Wraps the _request() function, applying a tenacity.Retrying object if configured
         """
         if self._retryer is not None:
-            result = self._retryer.call(self._request, action, endpoint, params, session, version, check)
+            result = self._retryer.__call__(self._request, action, endpoint, params, session, version, check)
         else:
             result = self._request(action, endpoint, params, session, version, check)
 

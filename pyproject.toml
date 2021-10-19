@@ -36,7 +36,7 @@ six = "^1.15"
 
 pandas = { version = "^1", optional = true }
 munch = { version = "^2.5", optional = true }
-tenacity = { version = "^7.0", optional = true }
+tenacity = {version = "^8", optional = true}
 
 [tool.poetry.extras]
 pandas = ["pandas"]
