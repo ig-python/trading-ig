@@ -30,9 +30,7 @@ Support
 ------------
 This is an open source project, maintained by busy volunteers in their spare time. It should make it easier and
 quicker for you to use the IG APIs. However, it is not a support resource for users of the IG APIs. IG have their
-own support site:
-
-https://community.ig.com/
+own `support site <https://community.ig.com/>`_, and an `API support team <mailto:webapisupport@ig.com>`_.
 
 If you have a problem when using this library, please think carefully about the likely cause. If it is:
 
