@@ -500,6 +500,59 @@ class TestIntegration:
         assert delete_result['dealStatus'] == 'ACCEPTED'
         assert delete_result['reason'] == 'SUCCESS'
 
+    def test_create_working_order_guaranteed_stop_loss(self, ig_service: IGService):
+
+        epic = 'CS.D.GBPUSD.TODAY.IP'
+        market_info = ig_service.fetch_market_by_epic(epic)
+        status = market_info.snapshot.marketStatus
+        min_bet = market_info.dealingRules.minDealSize.value
+        offer = market_info.snapshot.offer
+        bid = market_info.snapshot.bid
+
+        logging.info(f"min bet: {min_bet}")
+        logging.info(f"offer: {offer}")
+        logging.info(f"bid: {bid}")
+
+        if status != 'TRADEABLE':
+            pytest.skip('Skipping create working order test, market not open')
+
+        create_result = ig_service.create_working_order(
+            epic=epic, direction='BUY', currency_code='GBP', order_type='LIMIT', expiry='DFB', guaranteed_stop='true',
+            time_in_force='GOOD_TILL_CANCELLED', size=min_bet, level=offer * 0.90, limit_level=None,
+            limit_distance=None, stop_distance=200, stop_level=None)
+
+        logging.info(f"result: {create_result['dealStatus']}, reason {create_result['reason']}")
+
+        assert create_result['dealStatus'] == 'ACCEPTED'
+        assert create_result['reason'] == 'SUCCESS'
+        assert create_result['guaranteedStop']
+
+        time.sleep(10)
+
+        update_result = ig_service.update_working_order(
+            good_till_date=None,
+            level=offer * 0.85,
+            limit_distance=None,
+            limit_level=None,
+            stop_distance=None,
+            stop_level=offer * 0.80,
+            guaranteed_stop='true',
+            time_in_force='GOOD_TILL_CANCELLED',
+            order_type='LIMIT',
+            deal_id=create_result['dealId'])
+
+        logging.info(f"result: {update_result['dealStatus']}, reason {update_result['reason']}")
+
+        assert update_result['dealStatus'] == 'ACCEPTED'
+        assert update_result['reason'] == 'SUCCESS'
+        assert update_result['guaranteedStop']
+
+        time.sleep(10)
+
+        delete_result = ig_service.delete_working_order(create_result['dealId'])
+        assert delete_result['dealStatus'] == 'ACCEPTED'
+        assert delete_result['reason'] == 'SUCCESS'
+
     def test_fetch_transaction_history(self, ig_service: IGService):
         data = ig_service.fetch_transaction_history()
         assert type(data) is pd.DataFrame
