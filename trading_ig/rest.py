@@ -704,7 +704,7 @@ class IGService:
         action = "read"
         for i in range(5):
             response = self._req(action, endpoint, params, session, version)
-            if response.status_code == 404:
+            if response.status_code == 404 or response.status_code == 405:
                 logger.info("Deal reference %s not found, retrying." % deal_reference)
                 time.sleep(1)
             else:
