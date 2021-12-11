@@ -1327,10 +1327,10 @@ class IGService:
         df.index = pd.to_datetime(df.index, format="%Y-%m-%dT%H:%M:%S")
         df.index.name = "DateTime"
 
-        df['Open'] = (df['openPrice.bid'] + df['openPrice.ask']) / 2
-        df['High'] = (df['highPrice.bid'] + df['highPrice.ask']) / 2
-        df['Low'] = (df['lowPrice.bid'] + df['lowPrice.ask']) / 2
-        df['Close'] = (df['closePrice.bid'] + df['closePrice.ask']) / 2
+        df['Open'] = df[['openPrice.bid','openPrice.ask']].mean(axis=1)
+        df['High'] = df[['highPrice.bid','highPrice.ask']].mean(axis=1)
+        df['Low'] = df[['lowPrice.bid','lowPrice.ask']].mean(axis=1)
+        df['Close'] = df[['closePrice.bid','closePrice.ask']].mean(axis=1)
 
         df = df.drop(columns=['snapshotTime', 'openPrice.lastTraded', 'closePrice.lastTraded',
                               'highPrice.lastTraded', 'lowPrice.lastTraded',
