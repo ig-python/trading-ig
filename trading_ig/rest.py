@@ -115,7 +115,8 @@ class IGSessionCRUD(object):
         session.headers.update({'_method': 'DELETE'})
         response = session.post(url, data=json.dumps(params))
         logging.info(f"DELETE (POST) '{endpoint}', resp {response.status_code}")
-        del session.headers['_method']
+        if '_method' in session.headers:
+            del session.headers['_method']
         return response
 
     def req(self, action, endpoint, params, session, version):
