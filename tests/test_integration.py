@@ -122,7 +122,7 @@ class TestIntegration:
         assert isinstance(response, pd.DataFrame)
 
     def test_fetch_account_activity_from(self, ig_service: IGService):
-        to_date = datetime(2021, 7, 31)
+        to_date = datetime.now() - timedelta(days=3)
         from_date = to_date - timedelta(days=7)
         response = ig_service.fetch_account_activity(from_date=from_date)
         assert isinstance(response, pd.DataFrame)
