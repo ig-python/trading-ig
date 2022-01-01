@@ -1,5 +1,13 @@
 # Release notes
 
+## 0.0.16 (2022-01-01)
+* fix for http error 405 response from IG when confirming deal (PR#237)
+* updating Poetry for automated testing
+* removing some unused legacy project config
+* removing support for unsupported Python 3.6, adding 3.10
+* better handling and docs for optional dependencies (#216, #240)
+* fixing occasional KeyError when deleting session headers (#238)
+
 ## 0.0.15 (2021-10-19)
 * optional dependency `tenacity` updated to latest
 * documentation improvements
