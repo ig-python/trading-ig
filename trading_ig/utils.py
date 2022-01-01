@@ -13,7 +13,7 @@ OPT_URL = "https://trading_ig.readthedocs.io/en/latest/faq.html#optional_depende
 
 try:
     import pandas as pd
-    import numpy as np
+    import numpy as np  # noqa
 except ImportError:
     _HAS_PANDAS = False
     logger.warning(f"pandas is not present in the environment. See {OPT_URL}")
