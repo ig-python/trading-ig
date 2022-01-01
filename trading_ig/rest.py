@@ -17,14 +17,18 @@ from Crypto.Cipher import PKCS1_v1_5
 from Crypto.PublicKey import RSA
 from requests import Session
 from urllib.parse import urlparse, parse_qs
-import pandas as pd
 
-import numpy as np
-from pandas import json_normalize
 from datetime import timedelta, datetime
 from .utils import _HAS_PANDAS, _HAS_MUNCH
-from .utils import conv_resol, conv_datetime, conv_to_ms, DATE_FORMATS, munchify
-from tenacity import Retrying
+from .utils import conv_resol, conv_datetime, conv_to_ms, DATE_FORMATS
+
+if _HAS_MUNCH:
+    from .utils import munchify
+
+if _HAS_PANDAS:
+    from .utils import pd, np
+    from pandas import json_normalize
+
 
 logger = logging.getLogger(__name__)
 
@@ -115,7 +119,8 @@ class IGSessionCRUD(object):
         session.headers.update({'_method': 'DELETE'})
         response = session.post(url, data=json.dumps(params))
         logging.info(f"DELETE (POST) '{endpoint}', resp {response.status_code}")
-        del session.headers['_method']
+        if '_method' in session.headers:
+            del session.headers['_method']
         return response
 
     def req(self, action, endpoint, params, session, version):
@@ -152,7 +157,7 @@ class IGService:
         session=None,
         return_dataframe=_HAS_PANDAS,
         return_munch=_HAS_MUNCH,
-        retryer: Retrying = None
+        retryer=None
     ):
         """Constructor, calls the method required to connect to
         the API (accepts acc_type = LIVE or DEMO)"""
@@ -704,7 +709,7 @@ class IGService:
         action = "read"
         for i in range(5):
             response = self._req(action, endpoint, params, session, version)
-            if response.status_code == 404 or response.status_code == 405:
+            if response.status_code == 404:
                 logger.info("Deal reference %s not found, retrying." % deal_reference)
                 time.sleep(1)
             else:
@@ -1327,10 +1332,10 @@ class IGService:
         df.index = pd.to_datetime(df.index, format="%Y-%m-%dT%H:%M:%S")
         df.index.name = "DateTime"
 
-        df['Open'] = (df['openPrice.bid'] + df['openPrice.ask']) / 2
-        df['High'] = (df['highPrice.bid'] + df['highPrice.ask']) / 2
-        df['Low'] = (df['lowPrice.bid'] + df['lowPrice.ask']) / 2
-        df['Close'] = (df['closePrice.bid'] + df['closePrice.ask']) / 2
+        df['Open'] = df[['openPrice.bid', 'openPrice.ask']].mean(axis=1)
+        df['High'] = df[['highPrice.bid', 'highPrice.ask']].mean(axis=1)
+        df['Low'] = df[['lowPrice.bid', 'lowPrice.ask']].mean(axis=1)
+        df['Close'] = df[['closePrice.bid', 'closePrice.ask']].mean(axis=1)
 
         df = df.drop(columns=['snapshotTime', 'openPrice.lastTraded', 'closePrice.lastTraded',
                               'highPrice.lastTraded', 'lowPrice.lastTraded',

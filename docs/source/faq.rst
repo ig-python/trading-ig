@@ -275,15 +275,26 @@ dependencies. `Poetry <https://python-poetry.org/>`_
 support was added with version 0.0.10 (July 2021). The old style config was removed with version 0.0.14
 
 
-Why is ``pandas`` an optional dependency in ``pyproject.toml``?
----------------------------------------------------------------
+.. _why-is-pandas-an-optional-dependency-in-pyproject-toml:
+.. _optional_dependencies:
 
-Two reasons:
+Why are some dependencies marked as optional in ``pyproject.toml``?
+-------------------------------------------------------------------
 
-* the original intent of the project was that ``pandas`` usage was optional, and that the code should work either
-  with or without
-* flexibility - if this project is defined as a dependency in a project, ie as a library, it should not define
-  which version of ``pandas`` is used. That should be defined in the parent project
+Flexibility:
+
+* The original intent of the project was that ``pandas`` and ``munch`` usage was optional. At a low level the
+  IG APIs return JSON data in the response body, and this library aims to be a flexible as possible in how
+  applications use it. If your project has pandas available, then this library will convert the response into a pandas
+  DataFrame where it makes sense to do so. Examples are historical price data, or account activity. If not, it just
+  returns a dict of the response data. It's the same for munch - fetching market info for a given epic will return
+  a munch object if that library is available in your environment, or a dict if not
+
+* if this project is defined as a dependency in a higher level project (ie as a library), it should not
+  define which version of pandas is used. That should be defined in the parent project
+
+* ``tenacity`` support was added in version 0.0.10 as one possible way to handle the IG rate limits, but there are many
+  other ways to do so. To be as flexible as possible for users of this library, tenacity is also marked optional
 
 How do I find the epic for market 'X'?
 --------------------------------------

@@ -7,12 +7,16 @@ import traceback
 import six
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
+
+OPT_URL = "https://trading_ig.readthedocs.io/en/latest/faq.html#optional-dependencies"
 
 try:
     import pandas as pd
+    import numpy as np  # noqa
 except ImportError:
     _HAS_PANDAS = False
-    logger.info("Can't import pandas")
+    logger.warning(f"pandas is not present in the environment. See {OPT_URL}")
 else:
     _HAS_PANDAS = True
 
@@ -20,7 +24,7 @@ try:
     from munch import munchify  # noqa
 except ImportError:
     _HAS_MUNCH = False
-    logger.info("Can't import munch")
+    logger.warning(f"munch is not present in the environment. See {OPT_URL}")
 else:
     _HAS_MUNCH = True
 

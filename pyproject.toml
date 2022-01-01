@@ -18,17 +18,17 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Cython",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development :: Libraries",
     "License :: OSI Approved :: BSD License",
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.6.1,<4.0"
+python = ">=3.7,<4.0"
 requests = "^2.24"
 pycryptodome = "^3.9"
 requests-cache = "^0.5"

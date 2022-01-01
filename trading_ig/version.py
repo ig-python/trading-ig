@@ -1,9 +1,0 @@
-__author__ = "Femto Trader"
-__author_email__ = "femto.trader@gmail.com"
-__copyright__ = "Copyright 2015-2021"
-__credits__ = [""]
-__license__ = "BSD"
-__version__ = "0.0.15"
-__maintainer__ = "Andy Geach"
-__status__ = "Development"
-__url__ = "https://github.com/ig-python/ig-markets-api-python-library"

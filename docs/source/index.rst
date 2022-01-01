@@ -1,8 +1,7 @@
 trading_ig
 ==========
 
-A lightweight Python wrapper for the IG Markets API. Simplifies access to the IG REST and Streaming APIs
-with a live or demo account.
+A lightweight Python wrapper for the IG Markets API. Simplifies access to the IG REST and Streaming APIs.
 
 What is it?
 -----------
@@ -21,8 +20,8 @@ NOTE: this is not an IG project. Use it at your own risk
 Dependencies
 ------------
 
-* `requests <https://pypi.org/project/requests/>`_
-* `pycryptodome <https://pypi.org/project/pycryptodome/>`_
+A number of dependencies in this project are marked as 'optional', this is *by design*. There is a brief
+explanation in :ref:`this FAQ item <optional-dependencies>`.
 
 For full details, see `pyproject.toml <https://github.com/ig-python/ig-markets-api-python-library/blob/master/pyproject.toml>`_
 
