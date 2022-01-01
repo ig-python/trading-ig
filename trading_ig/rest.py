@@ -17,14 +17,18 @@ from Crypto.Cipher import PKCS1_v1_5
 from Crypto.PublicKey import RSA
 from requests import Session
 from urllib.parse import urlparse, parse_qs
-import pandas as pd
 
-import numpy as np
-from pandas import json_normalize
 from datetime import timedelta, datetime
 from .utils import _HAS_PANDAS, _HAS_MUNCH
-from .utils import conv_resol, conv_datetime, conv_to_ms, DATE_FORMATS, munchify
-from tenacity import Retrying
+from .utils import conv_resol, conv_datetime, conv_to_ms, DATE_FORMATS
+
+if _HAS_MUNCH:
+    from .utils import munchify
+
+if _HAS_PANDAS:
+    from .utils import pd, np
+    from pandas import json_normalize
+
 
 logger = logging.getLogger(__name__)
 
@@ -153,7 +157,7 @@ class IGService:
         session=None,
         return_dataframe=_HAS_PANDAS,
         return_munch=_HAS_MUNCH,
-        retryer: Retrying = None
+        retryer=None
     ):
         """Constructor, calls the method required to connect to
         the API (accepts acc_type = LIVE or DEMO)"""
