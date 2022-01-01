@@ -4,29 +4,33 @@ Quickstart
 Installation
 ------------
 
-From `Python package index <https://pypi.org/project/trading_ig/>`_::
+This project uses `Poetry <https://python-poetry.org/>`_.
 
-    $ pip install trading_ig
+Adding to an existing Poetry project::
 
-with `Poetry <https://python-poetry.org/>`_::
+    $ poetry add trading_ig
+
+With all the optional dependencies::
+
+    $ poetry add trading_ig[pandas,munch,tenacity]
+
+Cloning the project with Poetry::
 
     $ git clone https://github.com/ig-python/ig-markets-api-python-library
     $ cd ig-markets-api-python-library
     $ poetry install
 
-or with optional packages::
+And with all optional dependencies::
 
     $ poetry install --extras "pandas munch tenacity"
 
-From source::
+Installing with pip::
 
-    $ git clone https://github.com/ig-python/ig-markets-api-python-library
-    $ cd ig-markets-api-python-library
-    $ python setup.py install
+    $ pip install trading_ig
 
-or direct from Github::
+And with all optional dependencies::
 
-    $ pip install git+https://github.com/ig-python/ig-markets-api-python-library
+    $ pip install trading_ig pandas munch tenacity
 
 
 Configuration
