@@ -281,7 +281,7 @@ support was added with version 0.0.10 (July 2021). The old style config was remo
 Why are some dependencies marked as optional in ``pyproject.toml``?
 -------------------------------------------------------------------
 
-Flexibility:
+Short answer: flexibility. Longer answer:
 
 * The original intent of the project was that ``pandas`` and ``munch`` usage was optional. At a low level the
   IG APIs return JSON data in the response body; this project aims to be a flexible as possible in how
