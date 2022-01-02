@@ -284,17 +284,21 @@ Why are some dependencies marked as optional in ``pyproject.toml``?
 Flexibility:
 
 * The original intent of the project was that ``pandas`` and ``munch`` usage was optional. At a low level the
-  IG APIs return JSON data in the response body, and this library aims to be a flexible as possible in how
-  applications use it. If your project has pandas available, then this library will convert the response into a pandas
-  DataFrame where it makes sense to do so. Examples are historical price data, or account activity. If not, it just
-  returns a dict of the response data. It's the same for munch - fetching market info for a given epic will return
-  a munch object if that library is available in your environment, or a dict if not
+  IG APIs return JSON data in the response body; this project aims to be a flexible as possible in how
+  applications use that data. If your project has pandas available, then the data will be converted into a pandas
+  DataFrame where it makes sense to do so. Time series data for example, like historical price data, or account
+  activity. If not, it returns a dict of the response data. It's the same for munch - fetching market info for a
+  given epic will return a munch object if that library is available in your environment, or a dict if not
 
 * if this project is defined as a dependency in a higher level project (ie as a library), it should not
   define which version of pandas is used. That should be defined in the parent project
 
-* ``tenacity`` support was added in version 0.0.10 as one possible way to handle the IG rate limits, but there are many
-  other ways to do so. To be as flexible as possible for users of this library, tenacity is also marked optional
+* ``tenacity`` support was added in version 0.0.10 as one possible way to handle the IG rate limits. However, it
+  is a brute force method, effectively waiting an ever increasing amount of time between attempts until a request
+  succeeds. It works well for the nightly integration test, where time taken is not important, but
+  for high speed trading with real money it may not be be best solution. There are many other ways to handle the
+  limits, and each will depend on the characteristics of the application. To be as flexible as possible for users
+  of this project, tenacity is also marked optional
 
 How do I find the epic for market 'X'?
 --------------------------------------
