@@ -56,7 +56,7 @@ Dependencies
 ------------
 
 A number of dependencies in this project are marked as 'optional', this is *by design*. There is a brief
-explanation in `this FAQ item <https://trading_ig.readthedocs.io/en/latest/faq.html#why-are-some-dependencies-pandas-munch-marked-as-optional-in-pyproject-toml>`_.
+explanation in `this FAQ item <https://trading_ig.readthedocs.io/en/latest/faq.html#optional-dependencies>`_.
 
 For full details, see `pyproject.toml <https://github.com/ig-python/ig-markets-api-python-library/blob/master/pyproject.toml>`_
 

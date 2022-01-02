@@ -276,7 +276,7 @@ support was added with version 0.0.10 (July 2021). The old style config was remo
 
 
 .. _why-is-pandas-an-optional-dependency-in-pyproject-toml:
-.. _optional_dependencies:
+.. _optional-dependencies:
 
 Why are some dependencies marked as optional in ``pyproject.toml``?
 -------------------------------------------------------------------
