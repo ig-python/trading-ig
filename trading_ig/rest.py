@@ -10,6 +10,7 @@ Modified by Femto Trader - 2014-2015 - https://github.com/femtotrader/
 
 import json
 import logging
+import queue
 import time
 from base64 import b64encode, b64decode
 
@@ -31,7 +32,6 @@ if _HAS_PANDAS:
 
 from threading import Thread
 from queue import Queue
-import time
 
 logger = logging.getLogger(__name__)
 
@@ -193,47 +193,51 @@ class IGService:
             if acc['apiKey'] == self.API_KEY:
                 break
 
-        # Horific magic number to reduce API published allowable requests per minute to a 
+        # Horific magic number to reduce API published allowable requests per minute to a
         # value that wont result in 403 -> error.public-api.exceeded-account-trading-allowance
         # Tested for non_trading = 30 (live) and 10 (demo) requests per minute.
         # This wouldn't be needed if IG's API functioned as published!
-        MAGIC_NUMBER = 2    
+        MAGIC_NUMBER = 2
 
         self._trading_requests_per_minute = acc['allowanceAccountTrading'] - MAGIC_NUMBER
-        logging.info(f"Published IG Trading Request limits for trading request: {acc['allowanceAccountTrading']} per minute. Using: {self._trading_requests_per_minute}")
+        logging.info(f"Published IG Trading Request limits for trading request: "
+                     f"{acc['allowanceAccountTrading']} per minute. Using: {self._trading_requests_per_minute}")
 
         self._non_trading_requests_per_minute = acc['allowanceAccountOverall'] - MAGIC_NUMBER
-        logging.info(f"Published IG Trading Request limits for non-trading request: {acc['allowanceAccountOverall']} per minute. Using {self._non_trading_requests_per_minute}")
+        logging.info(f"Published IG Trading Request limits for non-trading request: "
+                     f"{acc['allowanceAccountOverall']} per minute. Using {self._non_trading_requests_per_minute}")
 
         time.sleep(60.0 / self._non_trading_requests_per_minute)
 
-        self._bucket_threads_run = True # Thread exit variable
+        self._bucket_threads_run = True  # Thread exit variable
 
         # Create a leaky token bucket for trading requests
-        trading_requests_burst = 1 # If IG ever allow bursting, increase this
+        trading_requests_burst = 1  # If IG ever allow bursting, increase this
         self._trading_requests_queue = Queue(trading_requests_burst)
-        [self._trading_requests_queue.put(True) for i in range(trading_requests_burst)] # prefill the bucket so we can burst
+        # prefill the bucket so we can burst
+        [self._trading_requests_queue.put(True) for i in range(trading_requests_burst)]
         token_bucket_trading_thread = Thread(target=self._token_bucket_trading,)
         token_bucket_trading_thread.start()
         self._trading_times = []
 
         # Create a leaky token bucket for non-trading requests
-        non_trading_requests_burst = 1 # # If IG ever allow bursting, increase this
+        non_trading_requests_burst = 1  # If IG ever allow bursting, increase this
         self._non_trading_requests_queue = Queue(non_trading_requests_burst)
-        [self._non_trading_requests_queue.put(True) for i in range(non_trading_requests_burst)] # prefill the bucket so we can burst
+        # prefill the bucket so we can burst
+        [self._non_trading_requests_queue.put(True) for i in range(non_trading_requests_burst)]
         token_bucket_non_trading_thread = Thread(target=self._token_bucket_non_trading,)
         token_bucket_non_trading_thread.start()
         self._non_trading_times = []
 
         # TODO
-        # Create a leaky token bucket for allowanceAccountHistoricalData 
+        # Create a leaky token bucket for allowanceAccountHistoricalData
 
     def _token_bucket_trading(self, ):
         while self._bucket_threads_run:
             time.sleep(60.0/self._trading_requests_per_minute)
             self._trading_requests_queue.put(True, block=True)
         return
-    
+
     def _token_bucket_non_trading(self, ):
         while self._bucket_threads_run:
             time.sleep(60.0/self._non_trading_requests_per_minute)
@@ -251,7 +255,6 @@ class IGService:
         self._non_trading_times.append(time.time())
         self._non_trading_times = [req_time for req_time in self._non_trading_times if req_time > time.time()-60]
         logging.info(f'Number of non trading requests in last 60 seonds = {len(self._non_trading_times)}')
-
 
     def _get_session(self, session):
         """Returns a Requests session (from self.session) if session is None
@@ -992,7 +995,7 @@ class IGService:
 
     def fetch_working_orders(self, session=None, version='2'):
         """Returns all open working orders for the active account"""
-        self.non_trading_rate_limit_pause() # ?? maybe considered trading request
+        self.non_trading_rate_limit_pause()  # ?? maybe considered trading request
         params = {}
         endpoint = "/workingorders"
         action = "read"
@@ -1697,12 +1700,12 @@ class IGService:
 
         try:
             self._trading_requests_queue.get(block=False)
-        except:
+        except queue.Empty:
             pass
 
         try:
             self._non_trading_requests_queue.get(block=False)
-        except:
+        except queue.Empty:
             pass
 
     def get_encryption_key(self, session=None):
