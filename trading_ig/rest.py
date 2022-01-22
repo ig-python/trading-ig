@@ -10,7 +10,6 @@ Modified by Femto Trader - 2014-2015 - https://github.com/femtotrader/
 
 import json
 import logging
-import queue
 import time
 from base64 import b64encode, b64decode
 
@@ -193,7 +192,7 @@ class IGService:
             if acc['apiKey'] == self.API_KEY:
                 break
 
-        # Horific magic number to reduce API published allowable requests per minute to a
+        # Horrific magic number to reduce API published allowable requests per minute to a
         # value that wont result in 403 -> error.public-api.exceeded-account-trading-allowance
         # Tested for non_trading = 30 (live) and 10 (demo) requests per minute.
         # This wouldn't be needed if IG's API functioned as published!
