@@ -215,6 +215,7 @@ class IGService:
         [self._trading_requests_queue.put(True) for i in range(trading_requests_burst)] # prefill the bucket so we can burst
         token_bucket_trading_thread = Thread(target=self._token_bucket_trading,)
         token_bucket_trading_thread.start()
+        self._trading_times = []
 
         # Create a leaky token bucket for non-trading requests
         non_trading_requests_burst = 1 # # If IG ever allow bursting, increase this
@@ -241,6 +242,9 @@ class IGService:
 
     def trading_rate_limit_pause(self, ):
         self._trading_requests_queue.get(block=True)
+        self._trading_times.append(time.time())
+        self._trading_times = [req_time for req_time in self._trading_times if req_time > time.time()-60]
+        logging.info(f'Number of trading requests in last 60 seonds = {len(self._trading_times)}')
 
     def non_trading_rate_limit_pause(self, ):
         self._non_trading_requests_queue.get(block=True)
