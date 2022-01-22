@@ -30,7 +30,7 @@ if _HAS_PANDAS:
     from pandas import json_normalize
 
 from threading import Thread
-from queue import Queue
+from queue import Queue, Empty
 
 logger = logging.getLogger(__name__)
 
@@ -1699,12 +1699,12 @@ class IGService:
 
         try:
             self._trading_requests_queue.get(block=False)
-        except queue.Empty:
+        except Empty:
             pass
 
         try:
             self._non_trading_requests_queue.get(block=False)
-        except queue.Empty:
+        except Empty:
             pass
 
     def get_encryption_key(self, session=None):
