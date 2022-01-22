@@ -87,7 +87,6 @@ class IGSessionCRUD(object):
         response = session.post(url, data=json.dumps(params))
         logging.info(f"POST '{endpoint}', resp {response.status_code}")
         if response.status_code in [401, 403]:
-            
             if 'exceeded-api-key-allowance' in response.text:
                 raise ApiExceededException()
             else:
@@ -161,7 +160,7 @@ class IGService:
         session=None,
         return_dataframe=_HAS_PANDAS,
         return_munch=_HAS_MUNCH,
-        retryer=None,
+        retryer=None
     ):
         """Constructor, calls the method required to connect to
         the API (accepts acc_type = LIVE or DEMO)"""
