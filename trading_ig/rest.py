@@ -159,7 +159,8 @@ class IGService:
         session=None,
         return_dataframe=_HAS_PANDAS,
         return_munch=_HAS_MUNCH,
-        retryer=None
+        retryer=None,
+        use_rate_limiter = False
     ):
         """Constructor, calls the method required to connect to
         the API (accepts acc_type = LIVE or DEMO)"""
@@ -168,7 +169,8 @@ class IGService:
         self.IG_PASSWORD = password
         self.ACC_NUMBER = acc_number
         self._retryer = retryer
-
+        self._use_rate_limiter = use_rate_limiter
+        self._bucket_threads_run = False
         try:
             self.BASE_URL = self.D_BASE_URL[acc_type.lower()]
         except Exception:
@@ -191,6 +193,9 @@ class IGService:
         for acc in data:
             if acc['apiKey'] == self.API_KEY:
                 break
+
+        # If self.create_session() is called a second time, we should exit any currently running threads
+        self._exit_bucket_threads()
 
         # Horrific magic number to reduce API published allowable requests per minute to a
         # value that wont result in 403 -> error.public-api.exceeded-account-trading-allowance
@@ -243,18 +248,34 @@ class IGService:
             self._non_trading_requests_queue.put(True, block=True)
         return
 
-    def trading_rate_limit_pause(self, ):
-        self._trading_requests_queue.get(block=True)
-        self._trading_times.append(time.time())
-        self._trading_times = [req_time for req_time in self._trading_times if req_time > time.time()-60]
-        logging.info(f'Number of trading requests in last 60 seonds = {len(self._trading_times)}')
+    def trading_rate_limit_pause_or_pass(self, ):
+        if self._use_rate_limiter:
+            self._trading_requests_queue.get(block=True)
+            self._trading_times.append(time.time())
+            self._trading_times = [req_time for req_time in self._trading_times if req_time > time.time()-60]
+            logging.info(f'Number of trading requests in last 60 seonds = {len(self._trading_times)}')
+        return
 
-    def non_trading_rate_limit_pause(self, ):
-        self._non_trading_requests_queue.get(block=True)
-        self._non_trading_times.append(time.time())
-        self._non_trading_times = [req_time for req_time in self._non_trading_times if req_time > time.time()-60]
-        logging.info(f'Number of non trading requests in last 60 seonds = {len(self._non_trading_times)}')
+    def non_trading_rate_limit_pause_or_pass(self, ):
+        if self._use_rate_limiter:
+            self._non_trading_requests_queue.get(block=True)
+            self._non_trading_times.append(time.time())
+            self._non_trading_times = [req_time for req_time in self._non_trading_times if req_time > time.time()-60]
+            logging.info(f'Number of non trading requests in last 60 seonds = {len(self._non_trading_times)}')
+        return
 
+    def _exit_bucket_threads(self,):
+        if self._use_rate_limiter:
+            if self._bucket_threads_run:
+                self._bucket_threads_run = False
+                try:
+                    self._trading_requests_queue.get(block=False)
+                except Empty:
+                    pass
+                try:
+                    self._non_trading_requests_queue.get(block=False)
+                except Empty:
+                    pass
     def _get_session(self, session):
         """Returns a Requests session (from self.session) if session is None
         or session if it's not None (cached session with requests-cache
@@ -354,7 +375,7 @@ class IGService:
 
     def fetch_accounts(self, session=None):
         """Returns a list of accounts belonging to the logged-in client"""
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         params = {}
         endpoint = "/accounts"
@@ -397,7 +418,7 @@ class IGService:
         :return: preference values
         :rtype: dict
         """
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         params = {}
         endpoint = "/accounts/preferences"
@@ -416,7 +437,7 @@ class IGService:
         :return: status of the update request
         :rtype: str
         """
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         params = {}
         endpoint = "/accounts/preferences"
@@ -430,7 +451,7 @@ class IGService:
         """
         Returns the account activity history for the last specified period
         """
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         milliseconds = conv_to_ms(milliseconds)
         params = {}
@@ -458,7 +479,7 @@ class IGService:
         """
         Returns the account activity history for period between the specified dates
         """
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         if from_date is None or to_date is None:
             raise IGException("Both from_date and to_date must be specified")
@@ -518,7 +539,7 @@ class IGService:
         :return: results set
         :rtype: Pandas DataFrame if configured, otherwise a dict
         """
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "2"
         params = {}
         if from_date:
@@ -587,7 +608,7 @@ class IGService:
         :return: results set
         :rtype: Pandas DataFrame if configured, otherwise a dict
         """
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "3"
         params = {}
         if from_date:
@@ -680,7 +701,7 @@ class IGService:
     ):
         """Returns the transaction history for the specified transaction
         type and period"""
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         milliseconds = conv_to_ms(milliseconds)
         params = {}
@@ -726,7 +747,7 @@ class IGService:
     ):
         """Returns the transaction history for the specified transaction
         type and period"""
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "2"
         params = {}
         if trans_type:
@@ -781,7 +802,7 @@ class IGService:
 
     def fetch_deal_by_deal_reference(self, deal_reference, session=None):
         """Returns a deal confirmation for the given deal reference"""
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         params = {}
         url_params = {"deal_reference": deal_reference}
@@ -799,7 +820,7 @@ class IGService:
 
     def fetch_open_position_by_deal_id(self, deal_id, session=None):
         """Return the open position by deal id for the active account"""
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "2"
         params = {}
         url_params = {"deal_id": deal_id}
@@ -825,7 +846,7 @@ class IGService:
         :return: table of position data, one per row
         :rtype: pd.Dataframe
         """
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         params = {}
         endpoint = "/positions"
         action = "read"
@@ -879,7 +900,7 @@ class IGService:
         session=None,
     ):
         """Closes one or more OTC positions"""
-        self.trading_rate_limit_pause()
+        self.trading_rate_limit_pause_or_pass()
         version = "1"
         params = {
             "dealId": deal_id,
@@ -922,7 +943,7 @@ class IGService:
         session=None,
     ):
         """Creates an OTC position"""
-        self.trading_rate_limit_pause()
+        self.trading_rate_limit_pause_or_pass()
         version = "2"
         params = {
             "currencyCode": currency_code,
@@ -966,7 +987,7 @@ class IGService:
             session=None,
             version='2'):
         """Updates an OTC position"""
-        self.trading_rate_limit_pause()
+        self.trading_rate_limit_pause_or_pass()
         params = {}
         if limit_level is not None:
             params["limitLevel"] = limit_level
@@ -994,7 +1015,7 @@ class IGService:
 
     def fetch_working_orders(self, session=None, version='2'):
         """Returns all open working orders for the active account"""
-        self.non_trading_rate_limit_pause()  # ?? maybe considered trading request
+        self.non_trading_rate_limit_pause_or_pass()  # ?? maybe considered trading request
         params = {}
         endpoint = "/workingorders"
         action = "read"
@@ -1075,7 +1096,7 @@ class IGService:
         session=None,
     ):
         """Creates an OTC working order"""
-        self.trading_rate_limit_pause()
+        self.trading_rate_limit_pause_or_pass()
         version = "2"
         if good_till_date is not None and type(good_till_date) is not int:
             good_till_date = conv_datetime(good_till_date, version)
@@ -1119,7 +1140,7 @@ class IGService:
 
     def delete_working_order(self, deal_id, session=None):
         """Deletes an OTC working order"""
-        self.trading_rate_limit_pause()
+        self.trading_rate_limit_pause_or_pass()
         version = "2"
         params = {}
         url_params = {"deal_id": deal_id}
@@ -1148,7 +1169,7 @@ class IGService:
         session=None,
     ):
         """Updates an OTC working order"""
-        self.trading_rate_limit_pause()
+        self.trading_rate_limit_pause_or_pass()
         version = "2"
         if good_till_date is not None and type(good_till_date) is not int:
             good_till_date = conv_datetime(good_till_date, version)
@@ -1180,7 +1201,7 @@ class IGService:
 
     def fetch_client_sentiment_by_instrument(self, market_id, session=None):
         """Returns the client sentiment for the given instrument's market"""
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         params = {}
         if isinstance(market_id, (list,)):
@@ -1200,7 +1221,7 @@ class IGService:
     def fetch_related_client_sentiment_by_instrument(self, market_id, session=None):
         """Returns a list of related (also traded) client sentiment for
         the given instrument's market"""
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         params = {}
         url_params = {"market_id": market_id}
@@ -1215,7 +1236,7 @@ class IGService:
     def fetch_top_level_navigation_nodes(self, session=None):
         """Returns all top-level nodes (market categories) in the market
         navigation hierarchy."""
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         params = {}
         endpoint = "/marketnavigation"
@@ -1260,7 +1281,7 @@ class IGService:
     def fetch_sub_nodes_by_node(self, node, session=None):
         """Returns all sub-nodes of the given node in the market
         navigation hierarchy"""
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         params = {}
         url_params = {"node": node}
@@ -1276,7 +1297,7 @@ class IGService:
 
     def fetch_market_by_epic(self, epic, session=None):
         """Returns the details of the given market"""
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "3"
         params = {}
         url_params = {"epic": epic}
@@ -1303,7 +1324,7 @@ class IGService:
         :return: list of market details
         :rtype: Munch instance if configured, else dict
         """
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         params = {"epics": epics}
         if version == '2':
             params["filter"] = 'ALL' if detailed else 'SNAPSHOT_ONLY'
@@ -1319,7 +1340,7 @@ class IGService:
 
     def search_markets(self, search_term, session=None):
         """Returns all markets matching the search term"""
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         endpoint = "/markets"
         params = {"searchTerm": search_term}
@@ -1610,7 +1631,7 @@ class IGService:
 
     def fetch_all_watchlists(self, session=None):
         """Returns all watchlists belonging to the active account"""
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         params = {}
         endpoint = "/watchlists"
@@ -1623,7 +1644,7 @@ class IGService:
 
     def create_watchlist(self, name, epics, session=None):
         """Creates a watchlist"""
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         params = {"name": name, "epics": epics}
         endpoint = "/watchlists"
@@ -1634,7 +1655,7 @@ class IGService:
 
     def delete_watchlist(self, watchlist_id, session=None):
         """Deletes a watchlist"""
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         params = {}
         url_params = {"watchlist_id": watchlist_id}
@@ -1646,7 +1667,7 @@ class IGService:
 
     def fetch_watchlist_markets(self, watchlist_id, session=None):
         """Returns the given watchlist's markets"""
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         params = {}
         url_params = {"watchlist_id": watchlist_id}
@@ -1660,7 +1681,7 @@ class IGService:
 
     def add_market_to_watchlist(self, watchlist_id, epic, session=None):
         """Adds a market to a watchlist"""
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         params = {"epic": epic}
         url_params = {"watchlist_id": watchlist_id}
@@ -1672,7 +1693,7 @@ class IGService:
 
     def remove_market_from_watchlist(self, watchlist_id, epic, session=None):
         """Remove a market from a watchlist"""
-        self.non_trading_rate_limit_pause()
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         params = {}
         url_params = {"watchlist_id": watchlist_id, "epic": epic}
@@ -1694,18 +1715,7 @@ class IGService:
         action = "delete"
         self._req(action, endpoint, params, session, version)
         self.session.close()
-
-        self._bucket_threads_run = False
-
-        try:
-            self._trading_requests_queue.get(block=False)
-        except Empty:
-            pass
-
-        try:
-            self._non_trading_requests_queue.get(block=False)
-        except Empty:
-            pass
+        self._exit_bucket_threads()
 
     def get_encryption_key(self, session=None):
         """Get encryption key to encrypt the password"""
@@ -1754,7 +1764,8 @@ class IGService:
         self._manage_headers(response)
         data = self.parse_response(response.text)
 
-        self.setup_rate_limiter()
+        if self._use_rate_limiter:
+            self.setup_rate_limiter()
 
         return data
 
