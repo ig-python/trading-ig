@@ -1,0 +1,16 @@
+[
+  {
+    "name": "TEST_APPLICATION",
+  
+    "apiKey": "123456789abcdef123456789abcdef1234567890",
+    "status": "ENABLED",
+    "allowanceApplicationOverall": 60,
+    "allowanceAccountTrading": 100,
+    "allowanceAccountOverall": 30,
+    "allowanceAccountHistoricalData": 10000,
+    "concurrentSubscriptionsLimit": 40,
+    "allowEquities": false,
+    "allowQuoteOrders": false,
+    "createdDate": "2015-01-01"
+  }
+]
