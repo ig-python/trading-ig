@@ -160,7 +160,7 @@ class IGService:
         return_dataframe=_HAS_PANDAS,
         return_munch=_HAS_MUNCH,
         retryer=None,
-        use_rate_limiter = False
+        use_rate_limiter=False
     ):
         """Constructor, calls the method required to connect to
         the API (accepts acc_type = LIVE or DEMO)"""
@@ -235,6 +235,7 @@ class IGService:
 
         # TODO
         # Create a leaky token bucket for allowanceAccountHistoricalData
+        return
 
     def _token_bucket_trading(self, ):
         while self._bucket_threads_run:
@@ -253,7 +254,8 @@ class IGService:
             self._trading_requests_queue.get(block=True)
             self._trading_times.append(time.time())
             self._trading_times = [req_time for req_time in self._trading_times if req_time > time.time()-60]
-            logging.info(f'Number of trading requests in last 60 seonds = {len(self._trading_times)}')
+            logging.info(f'Number of trading requests in last 60 seonds = '
+                         f'{len(self._trading_times)} of {self._trading_requests_per_minute}')
         return
 
     def non_trading_rate_limit_pause_or_pass(self, ):
@@ -261,7 +263,8 @@ class IGService:
             self._non_trading_requests_queue.get(block=True)
             self._non_trading_times.append(time.time())
             self._non_trading_times = [req_time for req_time in self._non_trading_times if req_time > time.time()-60]
-            logging.info(f'Number of non trading requests in last 60 seonds = {len(self._non_trading_times)}')
+            logging.info(f'Number of non trading requests in last 60 seonds = '
+                         f'{len(self._non_trading_times)} of {self._non_trading_requests_per_minute}')
         return
 
     def _exit_bucket_threads(self,):
@@ -276,6 +279,8 @@ class IGService:
                     self._non_trading_requests_queue.get(block=False)
                 except Empty:
                     pass
+        return
+
     def _get_session(self, session):
         """Returns a Requests session (from self.session) if session is None
         or session if it's not None (cached session with requests-cache
