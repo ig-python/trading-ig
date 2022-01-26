@@ -21,7 +21,7 @@
       },
       {
         "code": "GBP",
-        "symbol": "£",
+        "symbol": "Â£",
         "baseExchangeRate": 1.0,
         "exchangeRate": 1.0,
         "isDefault": true
