@@ -1,5 +1,8 @@
 # Release notes
 
+## 0.0.17 (2022-01-26)
+* added an optional rate limiter, with leaky bucket algo (PR#243)
+
 ## 0.0.16 (2022-01-01)
 * fix for http error 405 response from IG when confirming deal (PR#237)
 * updating Poetry for automated testing
