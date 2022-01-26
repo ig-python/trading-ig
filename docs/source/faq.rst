@@ -75,10 +75,20 @@ The limits for the LIVE environment are published `here <https://labs.ig.com/faq
 lower, and have been known to change randomly and without notice. If you see one of these errors, you have
 exceeded one of the limits.
 
+You can query the limits associated with either a LIVE or DEMO API key after logging on by calling::
+
+IGService.get_client_apps()
+
+This is the rate used when a new IGService object is created with the use_rate_limiter kwarg set as True.
+
 How to avoid hitting the rate limits?
 -------------------------------------
 
-There are two options. The first is manage it yourself with your own code. Since version 0.0.10, ``trading_ig``
+There are three options. 
+
+The first is manage it yourself with your own code. 
+
+Secondly, since version 0.0.10, ``trading_ig``
 has support for `tenacity <https://github.com/jd/tenacity>`_, a general purpose retrying library. You can initialise
 the ``IGService`` class with a ``Retrying`` instance, like::
 
@@ -96,6 +106,52 @@ rate limit would not be re-attempted.
 See the integration and unit test for examples, and the `tenacity docs <https://tenacity.readthedocs.io/en/latest/>`_
 for more options
 
+The final option, is to initialise the ``IGService`` class with ``use_rate_limiter=True``, ideally with tenacity as well::
+
+    from trading_ig.rest import IGService, ApiExceededException
+    from tenacity import Retrying, wait_exponential, retry_if_exception_type
+
+    retryer = Retrying(wait=wait_exponential(),
+        retry=retry_if_exception_type(ApiExceededException))
+    ig_service = IGService('username', 'password', 'api_key', retryer=retryer, use_rate_limiter=True)
+
+The rate limiter queries the API for the request limits associated with the API key you logged in with when the 
+session is created.
+
+There are four limit types `defined by the API <https://labs.ig.com/rest-trading-api-reference/service-detail?id=595>`_:
+
+.. list-table::
+   :widths: 50 50
+
+   * - allowanceAccountHistoricalData 
+     - Historical price data data points per minute allowance
+   * - allowanceAccountOverall
+     - Per account request per minute allowance
+   * - allowanceAccountTrading
+     - Per account trading request per minute allowance
+   * - allowanceApplicationOverall
+     - Overall request per minute allowance
+
+The limits are different between demo and live, live being less restrictive.
+
+The rate limiter does not use allowanceApplicationOverall since this applies accross multiple API logins.
+It also does not use allowanceAccountHistoricalData becuase this has not yet been implemented.
+
+allowanceAccountOverall is used to set the rate for non-trading requests.
+allowanceAccountTrading is used to set the rate for trading requests.
+
+The rate limiter actually uses the published values per minute less two, largely to account 
+for the session refresh overhead which happens every 60 seconds. You may still see some 403 errors,
+but it should be a lot less.
+
+The rate limiter uses these values to effectively release a token for each rate at the required interval.
+Methods which make requests will block briefly waiting for a new token to be released for the 
+associated rate limit. 
+
+When the rate limiter is enabled, the number of requests sent and availble per minute is shown by the logging.
+
+The rate limiter functionality uses threads which exit when ``IGService.logoff()`` is called, so it is 
+important to ensure a logoff happens or these threads will be left spinning until ``__del__()`` cleans them up.
 
 Why do see an error like ``REJECT_CFD_ORDER_ON_SPREADBET_ACCOUNT``?
 -------------------------------------------------------------------
