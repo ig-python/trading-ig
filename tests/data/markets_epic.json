@@ -1,0 +1,135 @@
+{
+  "instrument": {
+    "epic": "CO.D.CFI.Month2.IP",
+    "expiry": "DEC-24",
+    "name": "Carbon Emissions",
+    "forceOpenAllowed": true,
+    "stopsLimitsAllowed": true,
+    "lotSize": 1.0,
+    "unit": "AMOUNT",
+    "type": "COMMODITIES",
+    "controlledRiskAllowed": true,
+    "streamingPricesAvailable": true,
+    "marketId": "CFI",
+    "currencies": [
+      {
+        "code": "EUR",
+        "symbol": "E",
+        "baseExchangeRate": 1.195885,
+        "exchangeRate": 0.81,
+        "isDefault": false
+      },
+      {
+        "code": "GBP",
+        "symbol": "£",
+        "baseExchangeRate": 1.0,
+        "exchangeRate": 1.0,
+        "isDefault": true
+      }
+    ],
+    "sprintMarketsMinimumExpiryTime": null,
+    "sprintMarketsMaximumExpiryTime": null,
+    "marginDepositBands": [
+      {
+        "min": 0,
+        "max": 495,
+        "margin": 10,
+        "currency": "EUR"
+      },
+      {
+        "min": 495,
+        "max": 990,
+        "margin": 15,
+        "currency": "EUR"
+      },
+      {
+        "min": 990,
+        "max": 2722.5,
+        "margin": 20,
+        "currency": "EUR"
+      },
+      {
+        "min": 2722.5,
+        "max": null,
+        "margin": 30,
+        "currency": "EUR"
+      }
+    ],
+    "marginFactor": 10,
+    "marginFactorUnit": "PERCENTAGE",
+    "slippageFactor": {
+      "unit": "pct",
+      "value": 50.0
+    },
+    "limitedRiskPremium": {
+      "value": 30,
+      "unit": "POINTS"
+    },
+    "openingHours": {
+      "marketTimes": [
+        {
+          "openTime": "07:00",
+          "closeTime": "17:00"
+        }
+      ]
+    },
+    "expiryDetails": {
+      "lastDealingDate": "2024-12-16T17:00",
+      "settlementInfo": "Settles based on the official settlement price of the ICE ECX Carbon Emissions future on the last dealing day +/- IG dealing spread."
+    },
+    "rolloverDetails": {
+      "lastRolloverTime": "2024-12-16T16:45",
+      "rolloverInfo": "Usually, initial position closed at official closing level of day before last dealing day +/- closing spread; new position in next contract opened at official closing level of the new contract from same day, +/-  opening spread."
+    },
+    "newsCode": "CO2",
+    "chartCode": null,
+    "country": null,
+    "valueOfOnePip": null,
+    "onePipMeans": null,
+    "contractSize": null,
+    "specialInfo": [ "MAX KNOCK OUT LEVEL DISTANCE", "DEFAULT KNOCK OUT LEVEL DISTANCE" ]
+  },
+  "dealingRules": {
+    "minStepDistance": {
+      "unit": "POINTS",
+      "value": 1.0
+    },
+    "minDealSize": {
+      "unit": "POINTS",
+      "value": 0.25
+    },
+    "minControlledRiskStopDistance": {
+      "unit": "PERCENTAGE",
+      "value": 10.0
+    },
+    "minNormalStopOrLimitDistance": {
+      "unit": "POINTS",
+      "value": 10.0
+    },
+    "maxStopOrLimitDistance": {
+      "unit": "PERCENTAGE",
+      "value": 75.0
+    },
+    "controlledRiskSpacing": {
+      "unit": "POINTS",
+      "value": 10.0
+    },
+    "marketOrderPreference": "AVAILABLE_DEFAULT_OFF",
+    "trailingStopsPreference": "AVAILABLE"
+  },
+  "snapshot": {
+    "marketStatus": "OFFLINE",
+    "netChange": 324,
+    "percentageChange": 3.76,
+    "updateTime": "16:59:55",
+    "delayTime": 0,
+    "bid": 8933.0,
+    "offer": 8939.0,
+    "high": 9022.0,
+    "low": 7487.0,
+    "binaryOdds": null,
+    "decimalPlacesFactor": 1,
+    "scalingFactor": 1,
+    "controlledRiskExtraSpread": 30
+  }
+}

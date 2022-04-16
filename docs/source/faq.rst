@@ -75,10 +75,20 @@ The limits for the LIVE environment are published `here <https://labs.ig.com/faq
 lower, and have been known to change randomly and without notice. If you see one of these errors, you have
 exceeded one of the limits.
 
+You can query the limits associated with either a LIVE or DEMO API key after logging on by calling::
+
+IGService.get_client_apps()
+
+This is the rate used when a new IGService object is created with the use_rate_limiter kwarg set as True.
+
 How to avoid hitting the rate limits?
 -------------------------------------
 
-There are two options. The first is manage it yourself with your own code. Since version 0.0.10, ``trading_ig``
+There are three options.
+
+The first is manage it yourself with your own code.
+
+Secondly, since version 0.0.10, ``trading_ig``
 has support for `tenacity <https://github.com/jd/tenacity>`_, a general purpose retrying library. You can initialise
 the ``IGService`` class with a ``Retrying`` instance, like::
 
@@ -96,6 +106,52 @@ rate limit would not be re-attempted.
 See the integration and unit test for examples, and the `tenacity docs <https://tenacity.readthedocs.io/en/latest/>`_
 for more options
 
+The final option, is to initialise the ``IGService`` class with ``use_rate_limiter=True``, ideally with tenacity as well::
+
+    from trading_ig.rest import IGService, ApiExceededException
+    from tenacity import Retrying, wait_exponential, retry_if_exception_type
+
+    retryer = Retrying(wait=wait_exponential(),
+        retry=retry_if_exception_type(ApiExceededException))
+    ig_service = IGService('username', 'password', 'api_key', retryer=retryer, use_rate_limiter=True)
+
+The rate limiter queries the API for the request limits associated with the API key you logged in with when the
+session is created.
+
+There are four limit types `defined by the API <https://labs.ig.com/rest-trading-api-reference/service-detail?id=595>`_:
+
+.. list-table::
+   :widths: 50 50
+
+   * - allowanceAccountHistoricalData
+     - Historical price data data points per minute allowance
+   * - allowanceAccountOverall
+     - Per account request per minute allowance
+   * - allowanceAccountTrading
+     - Per account trading request per minute allowance
+   * - allowanceApplicationOverall
+     - Overall request per minute allowance
+
+The limits are different between demo and live, live being less restrictive.
+
+The rate limiter does not use allowanceApplicationOverall since this applies accross multiple API logins.
+It also does not use allowanceAccountHistoricalData becuase this has not yet been implemented.
+
+allowanceAccountOverall is used to set the rate for non-trading requests.
+allowanceAccountTrading is used to set the rate for trading requests.
+
+The rate limiter actually uses the published values per minute less two, largely to account
+for the session refresh overhead which happens every 60 seconds. You may still see some 403 errors,
+but it should be a lot less.
+
+The rate limiter uses these values to effectively release a token for each rate at the required interval.
+Methods which make requests will block briefly waiting for a new token to be released for the
+associated rate limit.
+
+When the rate limiter is enabled, the number of requests sent and availble per minute is shown by the logging.
+
+The rate limiter functionality uses threads which exit when ``IGService.logoff()`` is called, so it is
+important to ensure a logoff happens or these threads will be left spinning until ``__del__()`` cleans them up.
 
 Why do see an error like ``REJECT_CFD_ORDER_ON_SPREADBET_ACCOUNT``?
 -------------------------------------------------------------------
@@ -276,25 +332,29 @@ support was added with version 0.0.10 (July 2021). The old style config was remo
 
 
 .. _why-is-pandas-an-optional-dependency-in-pyproject-toml:
-.. _optional_dependencies:
+.. _optional-dependencies:
 
 Why are some dependencies marked as optional in ``pyproject.toml``?
 -------------------------------------------------------------------
 
-Flexibility:
+Short answer: flexibility. Longer answer:
 
 * The original intent of the project was that ``pandas`` and ``munch`` usage was optional. At a low level the
-  IG APIs return JSON data in the response body, and this library aims to be a flexible as possible in how
-  applications use it. If your project has pandas available, then this library will convert the response into a pandas
-  DataFrame where it makes sense to do so. Examples are historical price data, or account activity. If not, it just
-  returns a dict of the response data. It's the same for munch - fetching market info for a given epic will return
-  a munch object if that library is available in your environment, or a dict if not
+  IG APIs return JSON data in the response body; this project aims to be a flexible as possible in how
+  applications use that data. If your project has pandas available, then the data will be converted into a pandas
+  DataFrame where it makes sense to do so. Time series data for example, like historical price data, or account
+  activity. If not, it returns a dict of the response data. It's the same for munch - fetching market info for a
+  given epic will return a munch object if that library is available in your environment, or a dict if not
 
 * if this project is defined as a dependency in a higher level project (ie as a library), it should not
   define which version of pandas is used. That should be defined in the parent project
 
-* ``tenacity`` support was added in version 0.0.10 as one possible way to handle the IG rate limits, but there are many
-  other ways to do so. To be as flexible as possible for users of this library, tenacity is also marked optional
+* ``tenacity`` support was added in version 0.0.10 as one possible way to handle the IG rate limits. However, it
+  is a brute force method, effectively waiting an ever increasing amount of time between attempts until a request
+  succeeds. It works well for the nightly integration test, where time taken is not important, but
+  for high speed trading with real money it may not be be best solution. There are many other ways to handle the
+  limits, and each will depend on the characteristics of the application. To be as flexible as possible for users
+  of this project, tenacity is also marked optional
 
 How do I find the epic for market 'X'?
 --------------------------------------

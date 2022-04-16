@@ -21,7 +21,7 @@ Dependencies
 ------------
 
 A number of dependencies in this project are marked as 'optional', this is *by design*. There is a brief
-explanation in :ref:`this FAQ item <optional_dependencies>`.
+explanation in :ref:`this FAQ item <optional-dependencies>`.
 
 For full details, see `pyproject.toml <https://github.com/ig-python/ig-markets-api-python-library/blob/master/pyproject.toml>`_
 
