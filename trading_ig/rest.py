@@ -1128,7 +1128,7 @@ class IGService:
         if deal_reference:
             params["dealReference"] = deal_reference
         if force_open:
-            params["force_open"] = 'true'
+            params["forceOpen"] = 'true'
         if good_till_date:
             params["goodTillDate"] = good_till_date
 
