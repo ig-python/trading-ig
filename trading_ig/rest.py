@@ -858,12 +858,12 @@ class IGService:
         for i in range(5):
             response = self._req(action, endpoint, params, session, version)
             if not response.status_code == 200:
-                logger.info("Deal id %s not found, retrying." % deal_id)
+                logger.info("Error fetching open positions, retrying.")
                 time.sleep(1)
             else:
                 break
         data = self.parse_response(response.text)
-        
+
         if self.return_dataframe:
 
             list = data["positions"]
