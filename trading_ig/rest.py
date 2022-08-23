@@ -815,7 +815,7 @@ class IGService:
         action = "read"
         for i in range(5):
             response = self._req(action, endpoint, params, session, version)
-            if response.status_code == 404:
+            if not response.status_code == 200:
                 logger.info("Deal reference %s not found, retrying." % deal_reference)
                 time.sleep(1)
             else:
@@ -833,7 +833,7 @@ class IGService:
         action = "read"
         for i in range(5):
             response = self._req(action, endpoint, params, session, version)
-            if response.status_code == 404:
+            if not response.status_code == 200:
                 logger.info("Deal id %s not found, retrying." % deal_id)
                 time.sleep(1)
             else:
@@ -855,8 +855,15 @@ class IGService:
         params = {}
         endpoint = "/positions"
         action = "read"
-        response = self._req(action, endpoint, params, session, version)
+        for i in range(5):
+            response = self._req(action, endpoint, params, session, version)
+            if not response.status_code == 200:
+                logger.info("Error fetching open positions, retrying.")
+                time.sleep(1)
+            else:
+                break
         data = self.parse_response(response.text)
+
         if self.return_dataframe:
 
             list = data["positions"]
