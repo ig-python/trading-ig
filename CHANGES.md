@@ -1,5 +1,9 @@
 # Release notes
 
+## 0.0.18 (2022-08-23)
+* better fix for http error 405 when confirming deal (PR#256)
+* fix use of forceOpen param when opening a new position (PR#250)
+
 ## 0.0.17 (2022-01-26)
 * added an optional rate limiter, with leaky bucket algo (PR#243)
 

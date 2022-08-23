@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "trading_ig"
-version = "0.0.17"
+version = "0.0.18"
 description = "A lightweight Python wrapper for the IG Markets API"
-authors = ["Femto Trader <femto.trader@gmail.com>"]
+authors = ["Femto Trader <femto.trader@gmail.com>", "Andy Geach <andy@bugorfeature.net>"]
 maintainers = ["Andy Geach <andy@bugorfeature.net>"]
 license = "BSD-3-Clause"
 readme = "README.rst"
