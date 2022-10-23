@@ -321,7 +321,7 @@ class TestIntegration:
         assert isinstance(response, dict)
 
     def test_fetch_markets_by_epics(self, ig_service: IGService):
-        markets_list = ig_service.fetch_markets_by_epics("IX.D.SPTRD.MONTH1.IP,IX.D.FTSE.MONTH1.IP", version='1')
+        markets_list = ig_service.fetch_markets_by_epics("IX.D.SPTRD.MONTH1.IP,IX.D.FTSE.DAILY.IP", version='1')
         assert isinstance(markets_list, list)
         assert len(markets_list) == 2
         assert markets_list[0].instrument.name == 'FTSE 100'

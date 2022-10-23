@@ -77,6 +77,6 @@ See also
 Credits
 -------
 
-Created by Femto Trader, Lewis Barber, Sudipta Basak
+Created by Femto Trader, Lewis Barber, Sudipta Basak, Andy Geach
 
 Maintained by Andy Geach
