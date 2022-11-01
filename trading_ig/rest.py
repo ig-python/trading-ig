@@ -350,10 +350,9 @@ class IGService:
     def colname_unique(d_cols):
         """Returns a set of column names (unique)"""
         s = set()
-        for _, lst in d_cols.items():
-            for colname in lst:
-                s.add(colname)
-        return s
+        for lst in d_cols.values():
+            s.update(lst)
+        return list(s)
 
     @staticmethod
     def expand_columns(data, d_cols, flag_col_prefix=False, col_overlap_allowed=None):
@@ -866,8 +865,8 @@ class IGService:
 
         if self.return_dataframe:
 
-            list = data["positions"]
-            data = pd.DataFrame(list)
+            lst = data["positions"]
+            data = pd.DataFrame(lst)
 
             cols = {
                 "position": [
