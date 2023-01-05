@@ -1363,7 +1363,21 @@ class IGService:
         return data
 
     def format_prices(self, prices, version, flag_calc_spread=False):
-        """Format prices data as a DataFrame with hierarchical columns"""
+        """
+        Format prices data as a DataFrame with hierarchical columns
+
+        Do not call this method directly - it is designed to be passed into
+        the fetch_historical_prices*() methods. See tests for examples
+
+        param prices: raw price data
+        :type prices: list of dict
+        :param version: API endpoint version
+        :type version: str
+        :param flag_calc_spread: include spread
+        :type flag_calc_spread: bool
+        :return: prices as pandas.DataFrame
+        :rtype: pandas.DataFrame
+        """
 
         if len(prices) == 0:
             raise (Exception("Historical price data not found"))
@@ -1423,17 +1437,32 @@ class IGService:
 
     def flat_prices(self, prices, version):
 
-        """Format price data as a flat DataFrame, no hierarchy"""
+        """
+        Format prices data as a flat DataFrame, no hierarchy
+
+        Do not call this method directly - it is designed to be passed into
+        the fetch_historical_prices*() methods. See tests for examples
+
+        param prices: raw price data
+        :type prices: list of dict
+        :param version: API endpoint version
+        :type version: str
+        :return: prices as pandas.DataFrame
+        :rtype: pandas.DataFrame
+        """
 
         if len(prices) == 0:
             raise (Exception("Historical price data not found"))
 
         df = json_normalize(prices)
-        df = df.set_index("snapshotTimeUTC")
-        df.index = pd.to_datetime(df.index, format="%Y-%m-%dT%H:%M:%S")
+        if version == "3":
+            df = df.set_index("snapshotTimeUTC")
+            df = df.drop(columns=['snapshotTime'])
+        else:
+            df = df.set_index("snapshotTime")
+        df.index = pd.to_datetime(df.index, format=DATE_FORMATS[int(version)])
         df.index.name = "DateTime"
-        df = df.drop(columns=['snapshotTime',
-                              'openPrice.lastTraded',
+        df = df.drop(columns=['openPrice.lastTraded',
                               'closePrice.lastTraded',
                               'highPrice.lastTraded',
                               'lowPrice.lastTraded'])
@@ -1450,14 +1479,31 @@ class IGService:
 
     def mid_prices(self, prices, version):
 
-        """Format price data as a flat DataFrame, no hierarchy, calculating mid prices"""
+        """
+        Format price data as a flat DataFrame, no hierarchy, calculating
+        mid-prices
+
+        Do not call this method directly - it is designed to be passed into
+        the fetch_historical_prices*() methods. See tests for examples
+
+        param prices: raw price data
+        :type prices: list of dict
+        :param version: API endpoint version
+        :type version: str
+        :return: prices as pandas.DataFrame
+        :rtype: pandas.DataFrame
+        """
 
         if len(prices) == 0:
             raise (Exception("Historical price data not found"))
 
         df = json_normalize(prices)
-        df = df.set_index("snapshotTimeUTC")
-        df.index = pd.to_datetime(df.index, format="%Y-%m-%dT%H:%M:%S")
+        if version == "3":
+            df = df.set_index("snapshotTimeUTC")
+            df = df.drop(columns=['snapshotTime'])
+        else:
+            df = df.set_index("snapshotTime")
+        df.index = pd.to_datetime(df.index, format=DATE_FORMATS[int(version)])
         df.index.name = "DateTime"
 
         df['Open'] = df[['openPrice.bid', 'openPrice.ask']].mean(axis=1)
@@ -1465,7 +1511,7 @@ class IGService:
         df['Low'] = df[['lowPrice.bid', 'lowPrice.ask']].mean(axis=1)
         df['Close'] = df[['closePrice.bid', 'closePrice.ask']].mean(axis=1)
 
-        df = df.drop(columns=['snapshotTime', 'openPrice.lastTraded', 'closePrice.lastTraded',
+        df = df.drop(columns=['openPrice.lastTraded', 'closePrice.lastTraded',
                               'highPrice.lastTraded', 'lowPrice.lastTraded',
                               "openPrice.bid", "openPrice.ask",
                               "closePrice.bid", "closePrice.ask",
