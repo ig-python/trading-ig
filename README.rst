@@ -22,10 +22,6 @@
     :target: https://pypi.python.org/pypi/trading_ig/
     :alt: Downloads monthly
 
-.. image:: https://requires.io/github/ig-python/ig-markets-api-python-library/requirements.svg?branch=master
-    :target: https://requires.io/github/ig-python/ig-markets-api-python-library/requirements/?branch=master
-    :alt: Requirements Status
-
 .. image:: https://readthedocs.org/projects/trading-ig/badge/?version=latest
     :target: https://trading-ig.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
