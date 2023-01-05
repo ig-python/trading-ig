@@ -401,5 +401,3 @@ team, their response was:
     is correct and the cash should also be disabled. Our developers have an existing project to bring the Cash
     epic in line with the future contracts but going forward you would not be able to download data on any of the
     VIX epics using API.
-
-
