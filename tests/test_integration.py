@@ -359,6 +359,24 @@ class TestIntegration:
         assert isinstance(response["prices"], pd.DataFrame)
         assert len(response["prices"]) == 4
 
+    def test_fetch_historical_prices_by_epic_and_numpoints_flat(self, ig_service: IGService):
+        response = ig_service.fetch_historical_prices_by_epic_and_num_points(
+            "CS.D.EURUSD.MINI.IP", "H", 4, format=ig_service.flat_prices
+        )
+        assert isinstance(response["allowance"], dict)
+        assert isinstance(response["prices"], pd.DataFrame)
+        assert response["prices"].shape[0] == 4
+        assert response["prices"].shape[1] == 9
+
+    def test_fetch_historical_prices_by_epic_and_numpoints_mid(self, ig_service: IGService):
+        response = ig_service.fetch_historical_prices_by_epic_and_num_points(
+            "CS.D.EURUSD.MINI.IP", "H", 4, format=ig_service.mid_prices
+        )
+        assert isinstance(response["allowance"], dict)
+        assert isinstance(response["prices"], pd.DataFrame)
+        assert response["prices"].shape[0] == 4
+        assert response["prices"].shape[1] == 5
+
     def test_fetch_historical_prices_by_epic_and_date_range_v1(self, ig_service: IGService):
         response = ig_service.fetch_historical_prices_by_epic_and_date_range(
             "CS.D.EURUSD.MINI.IP", "D", "2020:09:01-00:00:00", "2020:09:04-23:59:59", version='1'
@@ -374,6 +392,60 @@ class TestIntegration:
         assert isinstance(response["allowance"], dict)
         assert isinstance(response["prices"], pd.DataFrame)
         assert len(response["prices"]) == 4
+
+    def test_fetch_historical_prices_by_epic_and_date_range_flat_v1(self, ig_service: IGService):
+        response = ig_service.fetch_historical_prices_by_epic_and_date_range(
+            "CS.D.EURUSD.MINI.IP",
+            "D",
+            "2020-09-01 00:00:00",
+            "2020-09-04 23:59:59",
+            format=ig_service.flat_prices,
+            version="1"
+        )
+        assert isinstance(response["allowance"], dict)
+        assert isinstance(response["prices"], pd.DataFrame)
+        assert response["prices"].shape[0] == 4
+        assert response["prices"].shape[1] == 9
+
+    def test_fetch_historical_prices_by_epic_and_date_range_flat_v2(self, ig_service: IGService):
+        response = ig_service.fetch_historical_prices_by_epic_and_date_range(
+            "CS.D.EURUSD.MINI.IP",
+            "D",
+            "2020-09-01 00:00:00",
+            "2020-09-04 23:59:59",
+            format=ig_service.flat_prices
+        )
+        assert isinstance(response["allowance"], dict)
+        assert isinstance(response["prices"], pd.DataFrame)
+        assert response["prices"].shape[0] == 4
+        assert response["prices"].shape[1] == 9
+
+    def test_fetch_historical_prices_by_epic_and_date_range_mid_v1(self, ig_service: IGService):
+        response = ig_service.fetch_historical_prices_by_epic_and_date_range(
+            "CS.D.EURUSD.MINI.IP",
+            "D",
+            "2020-09-01 00:00:00",
+            "2020-09-04 23:59:59",
+            format=ig_service.mid_prices,
+            version="1"
+        )
+        assert isinstance(response["allowance"], dict)
+        assert isinstance(response["prices"], pd.DataFrame)
+        assert response["prices"].shape[0] == 4
+        assert response["prices"].shape[1] == 5
+
+    def test_fetch_historical_prices_by_epic_and_date_range_mid_v2(self, ig_service: IGService):
+        response = ig_service.fetch_historical_prices_by_epic_and_date_range(
+            "CS.D.EURUSD.MINI.IP",
+            "D",
+            "2020-09-01 00:00:00",
+            "2020-09-04 23:59:59",
+            format=ig_service.mid_prices
+        )
+        assert isinstance(response["allowance"], dict)
+        assert isinstance(response["prices"], pd.DataFrame)
+        assert response["prices"].shape[0] == 4
+        assert response["prices"].shape[1] == 5
 
     def test_fetch_historical_prices_by_epic_dates(self, ig_service: IGService):
         result = ig_service.fetch_historical_prices_by_epic(
@@ -441,6 +513,36 @@ class TestIntegration:
         # assert default paged row count
         assert result['prices'].shape[0] == 6
         assert result['metadata']['pageData']['pageNumber'] == 3
+
+    def test_fetch_historical_prices_by_epic_flat(self, ig_service: IGService):
+        result = ig_service.fetch_historical_prices_by_epic(
+            epic='MT.D.GC.Month2.IP',
+            resolution='W',
+            numpoints=5,
+            format=ig_service.flat_prices)
+
+        prices = result['prices']
+        assert isinstance(result, dict)
+        assert isinstance(prices, pd.DataFrame)
+
+        # assert DataFrame shape
+        assert prices.shape[0] == 5
+        assert prices.shape[1] == 9
+
+    def test_fetch_historical_prices_by_epic_mid(self, ig_service: IGService):
+        result = ig_service.fetch_historical_prices_by_epic(
+            epic='MT.D.GC.Month2.IP',
+            resolution='W',
+            numpoints=5,
+            format=ig_service.mid_prices)
+
+        prices = result['prices']
+        assert isinstance(result, dict)
+        assert isinstance(prices, pd.DataFrame)
+
+        # assert DataFrame shape
+        assert prices.shape[0] == 5
+        assert prices.shape[1] == 5
 
     def test_create_open_position(self, ig_service: IGService):
 
