@@ -1,5 +1,13 @@
 # Release notes
 
+## 0.0.19 (2023-01-05)
+* fix for 'ValueError: columns cannot be a set' error with pandas 1.5.2+ (PR#267)
+* fetch_historical_prices*() methods improvements (Issue #272)
+* remove requirements status badge (Issue #259)
+* publish with API token (Issue #260)
+* specify importlib-metadata version to prevent flake8 problems with python 3.7
+* updating github actions to latest versions
+
 ## 0.0.18 (2022-08-23)
 * better fix for http error 405 when confirming deal (PR#256)
 * fix use of forceOpen param when opening a new position (PR#250)
