@@ -26,8 +26,8 @@
     :target: https://trading-ig.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-.. image:: https://coveralls.io/repos/github/ig-python/ig-markets-api-python-library/badge.svg
-    :target: https://coveralls.io/github/ig-python/ig-markets-api-python-library
+.. image:: https://coveralls.io/repos/github/ig-python/trading-ig/badge.svg
+    :target: https://coveralls.io/github/ig-python/trading_ig
     :alt: Test Coverage
 
 trading_ig
@@ -54,7 +54,7 @@ Dependencies
 A number of dependencies in this project are marked as 'optional', this is *by design*. There is a brief
 explanation in `this FAQ item <https://trading_ig.readthedocs.io/en/latest/faq.html#optional-dependencies>`_.
 
-For full details, see `pyproject.toml <https://github.com/ig-python/ig-markets-api-python-library/blob/master/pyproject.toml>`_
+For full details, see `pyproject.toml <https://github.com/ig-python/trading-ig/blob/master/pyproject.toml>`_
 
 Installation
 ------------
@@ -71,8 +71,8 @@ With all the optional dependencies::
 
 Cloning the project with Poetry::
 
-    $ git clone https://github.com/ig-python/ig-markets-api-python-library
-    $ cd ig-markets-api-python-library
+    $ git clone https://github.com/ig-python/trading-ig
+    $ cd trading-ig
     $ poetry install
 
 And with all optional dependencies::
@@ -95,5 +95,5 @@ Docs
 License
 -------
 
-BSD (See `LICENSE <https://github.com/ig-python/ig-markets-api-python-library/blob/master/LICENSE>`_)
+BSD (See `LICENSE <https://github.com/ig-python/trading-ig/blob/master/LICENSE>`_)
 

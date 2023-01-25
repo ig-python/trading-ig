@@ -3,7 +3,7 @@
 
 """
 IG Markets API Library for Python
-https://github.com/ig-python/ig-markets-api-python-library/
+https://github.com/ig-python/trading-ig/
 by Femto Trader - https://github.com/femtotrader
 """
 
