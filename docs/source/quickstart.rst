@@ -16,8 +16,8 @@ With all the optional dependencies::
 
 Cloning the project with Poetry::
 
-    $ git clone https://github.com/ig-python/ig-markets-api-python-library
-    $ cd ig-markets-api-python-library
+    $ git clone https://github.com/ig-python/trading-ig
+    $ cd trading-ig
     $ poetry install
 
 And with all optional dependencies::

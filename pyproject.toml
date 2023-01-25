@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "trading_ig"
-version = "0.0.19"
+version = "0.0.20"
 description = "A lightweight Python wrapper for the IG Markets API"
 authors = ["Femto Trader <femto.trader@gmail.com>", "Andy Geach <andy@bugorfeature.net>"]
 maintainers = ["Andy Geach <andy@bugorfeature.net>"]
 license = "BSD-3-Clause"
 readme = "README.rst"
-homepage = "https://github.com/ig-python/ig-markets-api-python-library"
-repository = "https://github.com/ig-python/ig-markets-api-python-library"
+homepage = "https://github.com/ig-python/trading-ig"
+repository = "https://github.com/ig-python/trading-ig"
 documentation = "https://trading-ig.rtfd.io/"
 keywords = ["trading", "spread betting", "CFDs"]
 classifiers = [
@@ -56,7 +56,7 @@ sphinx-rtd-theme = {version = "^1.0.0", optional = true}
 importlib-metadata = "==4.13.0"
 
 [tool.poetry.urls]
-"Issues" = "https://github.com/ig-python/ig-markets-api-python-library/issues"
+"Issues" = "https://github.com/ig-python/trading-ig/issues"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -185,8 +185,8 @@ Why does my Lightstreamer connection fail after 2 hours / every day?
 This problem has come up many times, and there is not really a good solution yet. Have a look at the discussions in
 these issues:
 
-* `Issue 84 <https://github.com/ig-python/ig-markets-api-python-library/issues/84>`_
-* `Issue 182 <https://github.com/ig-python/ig-markets-api-python-library/issues/182>`_
+* `Issue 84 <https://github.com/ig-python/trading-ig/issues/84>`_
+* `Issue 182 <https://github.com/ig-python/trading-ig/issues/182>`_
 
 Contributions welcome!
 
@@ -300,8 +300,8 @@ problems will be reported back in the response. You should
 
     * check the documentation (`REST <https://labs.ig.com/rest-trading-api-reference>`__,
       `Streaming <https://labs.ig.com/streaming-api-reference>`__) to make sure you are calling the APIs correctly
-    * look at the `sample code <https://github.com/ig-python/ig-markets-api-python-library/tree/master/sample>`_ and
-      `unit and integration tests <https://github.com/ig-python/ig-markets-api-python-library/tree/master/tests>`_.
+    * look at the `sample code <https://github.com/ig-python/trading-ig/tree/master/sample>`_ and
+      `unit and integration tests <https://github.com/ig-python/trading-ig/tree/master/tests>`_.
       There are example snippets for most API endpoints.
     * repeat the API call using the IG companion tools (`REST <https://labs.ig.com/sample-apps/api-companion/index.html>`__,
       `Streaming <https://labs.ig.com/sample-apps/streaming-companion/index.html>`__). If you get the same result, then

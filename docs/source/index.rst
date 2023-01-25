@@ -23,7 +23,7 @@ Dependencies
 A number of dependencies in this project are marked as 'optional', this is *by design*. There is a brief
 explanation in :ref:`this FAQ item <optional-dependencies>`.
 
-For full details, see `pyproject.toml <https://github.com/ig-python/ig-markets-api-python-library/blob/master/pyproject.toml>`_
+For full details, see `pyproject.toml <https://github.com/ig-python/trading-ig/blob/master/pyproject.toml>`_
 
 Support
 ------------
@@ -37,7 +37,7 @@ If you have a problem when using this library, please think carefully about the 
 * a request for a feature
 * missing or confusing documentation
 
-then please create an `issue <https://github.com/ig-python/ig-markets-api-python-library/issues>`_. See the guidance
+then please create an `issue <https://github.com/ig-python/trading-ig/issues>`_. See the guidance
 notes :ref:`here <report_problem>`.
 
 For anything else, please use the documentation and tools provided by IG
@@ -61,7 +61,7 @@ Contributions are welcome. We use some automated linting and testing so please m
 License
 -------
 
-BSD (See `LICENSE <https://github.com/ig-python/ig-markets-api-python-library/blob/master/LICENSE>`_)
+BSD (See `LICENSE <https://github.com/ig-python/trading-ig/blob/master/LICENSE>`_)
 
 See also
 --------
