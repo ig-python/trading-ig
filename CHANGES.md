@@ -1,5 +1,8 @@
 # Release notes
 
+## 0.0.20 (2023-01-25)
+* repo name changed to 'trading-ig'
+
 ## 0.0.19 (2023-01-05)
 * fix for 'ValueError: columns cannot be a set' error with pandas 1.5.2+ (PR#267)
 * fetch_historical_prices*() methods improvements (Issue #272)
