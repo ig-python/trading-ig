@@ -17,8 +17,8 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'trading_ig'
-copyright = '2015 - 2022, FemtoTrader, Andy Geach'
+project = 'trading-ig'
+copyright = '2015 - 2023, FemtoTrader, Andy Geach'
 author = 'FemtoTrader'
 
 

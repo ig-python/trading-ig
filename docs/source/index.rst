@@ -1,4 +1,4 @@
-trading_ig
+trading-ig
 ==========
 
 A lightweight Python wrapper for the IG Markets API. Simplifies access to the IG REST and Streaming APIs.
