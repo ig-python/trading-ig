@@ -9,7 +9,7 @@ import six
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 
-OPT_URL = "https://trading_ig.readthedocs.io/en/latest/faq.html#optional-dependencies"
+OPT_URL = "https://trading-ig.readthedocs.io/en/latest/faq.html#optional-dependencies"
 
 try:
     import pandas as pd

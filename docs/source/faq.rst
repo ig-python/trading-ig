@@ -88,7 +88,7 @@ There are three options.
 
 The first is manage it yourself with your own code. 
 
-Secondly, since version 0.0.10, ``trading_ig``
+Secondly, since version 0.0.10, ``trading-ig``
 has support for `tenacity <https://github.com/jd/tenacity>`_, a general purpose retrying library. You can initialise
 the ``IGService`` class with a ``Retrying`` instance, like::
 

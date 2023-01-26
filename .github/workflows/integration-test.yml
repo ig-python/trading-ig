@@ -1,5 +1,5 @@
 
-name: trading_ig integration test
+name: trading-ig integration test
 
 on:
   schedule:

@@ -1,25 +1,25 @@
-.. image:: https://img.shields.io/pypi/v/trading_ig.svg
-    :target: https://pypi.python.org/pypi/trading_ig/
+.. image:: https://img.shields.io/pypi/v/trading-ig.svg
+    :target: https://pypi.python.org/pypi/trading-ig/
     :alt: Latest Version
 
-.. image:: https://img.shields.io/pypi/pyversions/trading_ig.svg
-    :target: https://pypi.python.org/pypi/trading_ig/
+.. image:: https://img.shields.io/pypi/pyversions/trading-ig.svg
+    :target: https://pypi.python.org/pypi/trading-ig/
     :alt: Supported Python versions
 
-.. image:: https://img.shields.io/pypi/wheel/trading_ig.svg
-    :target: https://pypi.python.org/pypi/trading_ig/
+.. image:: https://img.shields.io/pypi/wheel/trading-ig.svg
+    :target: https://pypi.python.org/pypi/trading-ig/
     :alt: Wheel format
 
-.. image:: https://img.shields.io/pypi/l/trading_ig.svg
-    :target: https://pypi.python.org/pypi/trading_ig/
+.. image:: https://img.shields.io/pypi/l/trading-ig.svg
+    :target: https://pypi.python.org/pypi/trading-ig/
     :alt: License
 
-.. image:: https://img.shields.io/pypi/status/trading_ig.svg
-    :target: https://pypi.python.org/pypi/trading_ig/
+.. image:: https://img.shields.io/pypi/status/trading-ig.svg
+    :target: https://pypi.python.org/pypi/trading-ig/
     :alt: Development Status
 
-.. image:: https://img.shields.io/pypi/dm/trading_ig.svg
-    :target: https://pypi.python.org/pypi/trading_ig/
+.. image:: https://img.shields.io/pypi/dm/trading-ig.svg
+    :target: https://pypi.python.org/pypi/trading-ig/
     :alt: Downloads monthly
 
 .. image:: https://readthedocs.org/projects/trading-ig/badge/?version=latest
@@ -27,10 +27,10 @@
     :alt: Documentation Status
 
 .. image:: https://coveralls.io/repos/github/ig-python/trading-ig/badge.svg
-    :target: https://coveralls.io/github/ig-python/trading_ig
+    :target: https://coveralls.io/github/ig-python/trading-ig
     :alt: Test Coverage
 
-trading_ig
+trading-ig
 ==========
 
 A lightweight Python wrapper for the IG Markets API. Simplifies access to the IG REST and Streaming APIs.
@@ -52,7 +52,7 @@ Dependencies
 ------------
 
 A number of dependencies in this project are marked as 'optional', this is *by design*. There is a brief
-explanation in `this FAQ item <https://trading_ig.readthedocs.io/en/latest/faq.html#optional-dependencies>`_.
+explanation in `this FAQ item <https://trading-ig.readthedocs.io/en/latest/faq.html#optional-dependencies>`_.
 
 For full details, see `pyproject.toml <https://github.com/ig-python/trading-ig/blob/master/pyproject.toml>`_
 
@@ -63,11 +63,11 @@ This project uses `Poetry <https://python-poetry.org/>`_.
 
 Adding to an existing Poetry project::
 
-    $ poetry add trading_ig
+    $ poetry add trading-ig
 
 With all the optional dependencies::
 
-    $ poetry add trading_ig[pandas,munch,tenacity]
+    $ poetry add trading-ig[pandas,munch,tenacity]
 
 Cloning the project with Poetry::
 
@@ -81,16 +81,16 @@ And with all optional dependencies::
 
 Installing with pip::
 
-    $ pip install trading_ig
+    $ pip install trading-ig
 
 And with all optional dependencies::
 
-    $ pip install trading_ig pandas munch tenacity
+    $ pip install trading-ig pandas munch tenacity
 
 Docs
 ----
 
-`<https://trading_ig.readthedocs.io/>`_
+`<https://trading-ig.readthedocs.io/>`_
 
 License
 -------

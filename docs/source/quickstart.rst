@@ -8,11 +8,11 @@ This project uses `Poetry <https://python-poetry.org/>`_.
 
 Adding to an existing Poetry project::
 
-    $ poetry add trading_ig
+    $ poetry add trading-ig
 
 With all the optional dependencies::
 
-    $ poetry add trading_ig[pandas,munch,tenacity]
+    $ poetry add trading-ig[pandas,munch,tenacity]
 
 Cloning the project with Poetry::
 
@@ -26,11 +26,11 @@ And with all optional dependencies::
 
 Installing with pip::
 
-    $ pip install trading_ig
+    $ pip install trading-ig
 
 And with all optional dependencies::
 
-    $ pip install trading_ig pandas munch tenacity
+    $ pip install trading-ig pandas munch tenacity
 
 
 Configuration

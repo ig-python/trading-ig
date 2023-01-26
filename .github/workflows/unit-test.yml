@@ -1,4 +1,4 @@
-name: trading_ig unit tests
+name: trading-ig unit tests
 
 on:
   push:
