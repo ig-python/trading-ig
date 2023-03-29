@@ -1122,6 +1122,7 @@ class IGService:
             "size": size,
             "timeInForce": time_in_force,
             "type": order_type,
+            "forceOpen": 'false',
         }
         if limit_distance:
             params["limitDistance"] = limit_distance
