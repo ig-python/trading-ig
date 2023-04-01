@@ -45,6 +45,10 @@ def main():
         mode="MERGE",
         #items=["L1:CS.D.GBPUSD.CFD.IP", "L1:CS.D.USDJPY.CFD.IP"], # sample CFD epics
         items=["L1:CS.D.GBPUSD.TODAY.IP", "L1:IX.D.FTSE.DAILY.IP"], # sample spreadbet epics
+        # items=["L1:IX.D.SUNDOW.DAILY.IP", "L1:IX.D.SUNDAX.DAILY.IP", "IX.D.SUNFUN.DAILY.IP",
+        #        "L1:IX.D.SUNGBPUSD.DAILY.IP", "L1:IX.D.SUNEURUSD.DAILY.IP",
+        #        "L1:IX.D.SUNUSDJPY.DAILY.IP"], # sample weekend spreadbet epics
+        # items=["L1:CS.D.BITCOIN.TODAY.IP", "L1:CS.D.ETHUSD.TODAY.IP"], # sample crypto spreadbet epics
         fields=["UPDATE_TIME", "BID", "OFFER", "CHANGE", "MARKET_STATE"],
     )
 
