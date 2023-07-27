@@ -129,14 +129,14 @@ class TestIntegration:
         assert response.shape[1] == 9
 
     def test_fetch_account_activity_from_to(self, ig_service: IGService):
-        to_date = datetime(2021, 7, 31)
+        to_date = datetime(2023, 7, 18)
         from_date = to_date - timedelta(days=7)
         response = ig_service.fetch_account_activity(from_date=from_date, to_date=to_date)
         assert isinstance(response, pd.DataFrame)
         assert response.shape[1] == 9
 
     def test_fetch_account_activity_detailed(self, ig_service):
-        to_date = datetime(2021, 7, 31)
+        to_date = datetime(2023, 7, 18)
         from_date = to_date - timedelta(days=7)
         response = ig_service.fetch_account_activity(from_date=from_date, to_date=to_date, detailed=True)
         assert isinstance(response, pd.DataFrame)
@@ -150,7 +150,7 @@ class TestIntegration:
         assert response.shape[0] == 0
 
     def test_fetch_account_activity_fiql(self, ig_service: IGService):
-        to_date = datetime(2021, 7, 31)
+        to_date = datetime(2023, 7, 18)
         from_date = to_date - timedelta(days=30)
         response = ig_service.fetch_account_activity(from_date=from_date, to_date=to_date,
                                                         fiql_filter='channel==PUBLIC_WEB_API')

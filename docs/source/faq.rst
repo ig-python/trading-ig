@@ -150,8 +150,8 @@ associated rate limit.
 
 When the rate limiter is enabled, the number of requests sent and availble per minute is shown by the logging.
 
-The rate limiter functionality uses threads which exit when ``IGService.logoff()`` is called, so it is
-important to ensure a logoff happens or these threads will be left spinning until ``__del__()`` cleans them up.
+The rate limiter functionality uses threads which exit when ``IGService.logout()`` is called, so it is
+important to ensure log out happens or these threads will be left spinning until ``__del__()`` cleans them up.
 
 Why do see an error like ``REJECT_CFD_ORDER_ON_SPREADBET_ACCOUNT``?
 -------------------------------------------------------------------
