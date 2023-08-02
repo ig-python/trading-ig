@@ -36,7 +36,7 @@ class StreamingManager:
 
     def start_tick_subscription(self, epic) -> int:
         tick_sub = TickerSubscription(epic)
-        tick_sub.addlistener(self.on_tick_update)
+        tick_sub.addlistener(self.on_update)
         sub_key = self.service.ls_client.subscribe(tick_sub)
         self._sub_keys[epic] = sub_key
         return sub_key
@@ -52,7 +52,7 @@ class StreamingManager:
         # let's give it a few seconds
         timeout = time.time() + 3
         while True:
-            print("waiting")
+            self.log.debug("Waiting for ticker...")
             if epic in self._tickers or time.time() > timeout:
                 break
             time.sleep(0.25)
@@ -61,7 +61,7 @@ class StreamingManager:
             raise Exception(f"No ticker found for {epic}, giving up")
         return ticker
 
-    def on_tick_update(self, update):
+    def on_update(self, update):
         self._queue.put(update)
 
     def stop_subscriptions(self):
@@ -86,7 +86,6 @@ class Consumer(Thread):
 
     def run(self):
         self.log.info("Consumer: Running")
-        # consume items
         while True:
             item = self._queue.get()
 
@@ -95,9 +94,9 @@ class Consumer(Thread):
             if name.startswith("CHART:"):
                 self._handle_ticker_update(item)
 
-            self.log.info(f"Alive. queue length: {self._queue.qsize()}")
-        # all done
-        # print("Consumer thread: Done")
+            self.log.debug(
+                f"Consumer thread alive. queue length: {self._queue.qsize()}"
+            )
 
     def _handle_ticker_update(self, item):
         epic = Ticker.identifier(item["name"])
@@ -107,5 +106,4 @@ class Consumer(Thread):
             self.manager.tickers[epic] = ticker
 
         ticker = self.manager.tickers[epic]
-        # print(f"Consumer thread found ticker: {ticker}")
         ticker.populate(item["values"])
