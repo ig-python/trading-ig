@@ -7,7 +7,7 @@ import sys
 import traceback
 import logging
 
-from .lightstreamer import LSClient
+from .lightstreamer import LSClient, Subscription
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,9 @@ class IGStreamService(object):
         self.ls_client = None
 
     def create_session(self, encryption=False, version='2'):
-        ig_session = self.ig_service.create_session(encryption=encryption, version=version)
+        ig_session = self.ig_service.create_session(
+            encryption=encryption, version=version
+        )
         # if we have created a v3 session, we also need the session tokens
         if version == '3':
             self.ig_service.read_session(fetch_session_tokens='true')
@@ -41,6 +43,12 @@ class IGStreamService(object):
             logger.error("Unable to connect to Lightstreamer Server")
             logger.error(traceback.format_exc())
             sys.exit(1)
+
+    def subscribe(self, subscription: Subscription):
+        return self.ls_client.subscribe(subscription)
+
+    def unsubscribe(self, subscription_key: int):
+        return self.ls_client.unsubscribe(subscription_key)
 
     def unsubscribe_all(self):
         # To avoid a RuntimeError: dictionary changed size during iteration
