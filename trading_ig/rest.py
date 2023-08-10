@@ -205,11 +205,13 @@ class IGService:
 
         self._trading_requests_per_minute = acc['allowanceAccountTrading'] - MAGIC_NUMBER
         logger.info(f"Published IG Trading Request limits for trading request: "
-                     f"{acc['allowanceAccountTrading']} per minute. Using: {self._trading_requests_per_minute}")
+                    f"{acc['allowanceAccountTrading']} per minute. "
+                    f"Using: {self._trading_requests_per_minute}")
 
         self._non_trading_requests_per_minute = acc['allowanceAccountOverall'] - MAGIC_NUMBER
         logger.info(f"Published IG Trading Request limits for non-trading request: "
-                     f"{acc['allowanceAccountOverall']} per minute. Using {self._non_trading_requests_per_minute}")
+                    f"{acc['allowanceAccountOverall']} per minute. "
+                    f"Using {self._non_trading_requests_per_minute}")
 
         time.sleep(60.0 / self._non_trading_requests_per_minute)
 
@@ -254,8 +256,8 @@ class IGService:
             self._trading_requests_queue.get(block=True)
             self._trading_times.append(time.time())
             self._trading_times = [req_time for req_time in self._trading_times if req_time > time.time()-60]
-            logger.info(f'Number of trading requests in last 60 seonds = '
-                         f'{len(self._trading_times)} of {self._trading_requests_per_minute}')
+            logger.info(f'Number of trading requests in last 60 seconds = '
+                        f'{len(self._trading_times)} of {self._trading_requests_per_minute}')
         return
 
     def non_trading_rate_limit_pause_or_pass(self, ):
@@ -263,8 +265,8 @@ class IGService:
             self._non_trading_requests_queue.get(block=True)
             self._non_trading_times.append(time.time())
             self._non_trading_times = [req_time for req_time in self._non_trading_times if req_time > time.time()-60]
-            logger.info(f'Number of non trading requests in last 60 seonds = '
-                         f'{len(self._non_trading_times)} of {self._non_trading_requests_per_minute}')
+            logger.info(f'Number of non trading requests in last 60 seconds = '
+                        f'{len(self._non_trading_times)} of {self._non_trading_requests_per_minute}')
         return
 
     def _exit_bucket_threads(self,):
