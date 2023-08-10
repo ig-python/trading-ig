@@ -84,7 +84,7 @@ class IGSessionCRUD(object):
         session = self._get_session(session)
         session.headers.update({'VERSION': version})
         response = session.post(url, data=json.dumps(params))
-        logging.info(f"POST '{endpoint}', resp {response.status_code}")
+        logger.info(f"POST '{endpoint}', resp {response.status_code}")
         if response.status_code in [401, 403]:
             if 'exceeded-api-key-allowance' in response.text:
                 raise ApiExceededException()
@@ -101,7 +101,7 @@ class IGSessionCRUD(object):
         response = session.get(url, params=params)
         # handle 'read_session' with 'fetchSessionTokens=true'
         handle_session_tokens(response, self.session)
-        logging.info(f"GET '{endpoint}', resp {response.status_code}")
+        logger.info(f"GET '{endpoint}', resp {response.status_code}")
         return response
 
     def update(self, endpoint, params, session, version):
@@ -110,7 +110,7 @@ class IGSessionCRUD(object):
         session = self._get_session(session)
         session.headers.update({'VERSION': version})
         response = session.put(url, data=json.dumps(params))
-        logging.info(f"PUT '{endpoint}', resp {response.status_code}")
+        logger.info(f"PUT '{endpoint}', resp {response.status_code}")
         return response
 
     def delete(self, endpoint, params, session, version):
@@ -120,7 +120,7 @@ class IGSessionCRUD(object):
         session.headers.update({'VERSION': version})
         session.headers.update({'_method': 'DELETE'})
         response = session.post(url, data=json.dumps(params))
-        logging.info(f"DELETE (POST) '{endpoint}', resp {response.status_code}")
+        logger.info(f"DELETE (POST) '{endpoint}', resp {response.status_code}")
         if '_method' in session.headers:
             del session.headers['_method']
         return response
@@ -204,11 +204,11 @@ class IGService:
         MAGIC_NUMBER = 2
 
         self._trading_requests_per_minute = acc['allowanceAccountTrading'] - MAGIC_NUMBER
-        logging.info(f"Published IG Trading Request limits for trading request: "
+        logger.info(f"Published IG Trading Request limits for trading request: "
                      f"{acc['allowanceAccountTrading']} per minute. Using: {self._trading_requests_per_minute}")
 
         self._non_trading_requests_per_minute = acc['allowanceAccountOverall'] - MAGIC_NUMBER
-        logging.info(f"Published IG Trading Request limits for non-trading request: "
+        logger.info(f"Published IG Trading Request limits for non-trading request: "
                      f"{acc['allowanceAccountOverall']} per minute. Using {self._non_trading_requests_per_minute}")
 
         time.sleep(60.0 / self._non_trading_requests_per_minute)
@@ -254,7 +254,7 @@ class IGService:
             self._trading_requests_queue.get(block=True)
             self._trading_times.append(time.time())
             self._trading_times = [req_time for req_time in self._trading_times if req_time > time.time()-60]
-            logging.info(f'Number of trading requests in last 60 seonds = '
+            logger.info(f'Number of trading requests in last 60 seonds = '
                          f'{len(self._trading_times)} of {self._trading_requests_per_minute}')
         return
 
@@ -263,7 +263,7 @@ class IGService:
             self._non_trading_requests_queue.get(block=True)
             self._non_trading_times.append(time.time())
             self._non_trading_times = [req_time for req_time in self._non_trading_times if req_time > time.time()-60]
-            logging.info(f'Number of non trading requests in last 60 seonds = '
+            logger.info(f'Number of non trading requests in last 60 seonds = '
                          f'{len(self._non_trading_times)} of {self._non_trading_requests_per_minute}')
         return
 
@@ -643,7 +643,7 @@ class IGService:
             else:
                 parse_result = urlparse(paging["next"])
                 query = parse_qs(parse_result.query)
-                logging.debug(f"fetch_account_activity() next query: '{query}'")
+                logger.debug(f"fetch_account_activity() next query: '{query}'")
                 if 'from' in query:
                     params["from"] = query["from"][0]
                 else:
@@ -1811,7 +1811,7 @@ class IGService:
         if version == '3' and self.ACC_NUMBER is None:
             raise IGException('Account number must be set for v3 sessions')
 
-        logging.info(f"Creating new v{version} session for user '{self.IG_USERNAME}' at '{self.BASE_URL}'")
+        logger.info(f"Creating new v{version} session for user '{self.IG_USERNAME}' at '{self.BASE_URL}'")
         password = self.encrypted_password(session) if encryption else self.IG_PASSWORD
         params = {"identifier": self.IG_USERNAME, "password": password}
         if encryption:
@@ -1837,7 +1837,7 @@ class IGService:
         :return: HTTP status code
         :rtype: int
         """
-        logging.info(f"Refreshing session '{self.IG_USERNAME}'")
+        logger.info(f"Refreshing session '{self.IG_USERNAME}'")
         params = {"refresh_token": self._refresh_token}
         endpoint = "/session/refresh-token"
         action = "create"
@@ -1880,15 +1880,15 @@ class IGService:
             - if possible, the session can be renewed with a special refresh token
             - if not, a new session will be created
         """
-        logging.debug("Checking session status...")
+        logger.debug("Checking session status...")
         if self._valid_until is not None and datetime.now() > self._valid_until:
             if self._refresh_token:
                 # we are in a v3 session, need to refresh
                 try:
-                    logging.info("Current session has expired, refreshing...")
+                    logger.info("Current session has expired, refreshing...")
                     self.refresh_session()
                 except IGException:
-                    logging.info("Refresh failed, logging in again...")
+                    logger.info("Refresh failed, logging in again...")
                     self._refresh_token = None
                     self._valid_until = None
                     del self.session.headers['Authorization']
