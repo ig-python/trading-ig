@@ -666,37 +666,39 @@ class IGService:
 
     @staticmethod
     def format_activities(raw_json):
-        df = pd.json_normalize(raw_json["activities"],
-                                 record_path=['details', ['actions']],
-                                 meta=['date', 'epic', 'period', 'dealId', 'channel', 'type', 'status', 'description',
-                                       ['details', 'marketName'],
-                                       ['details', 'goodTillDate'],
-                                       ['details', 'currency'],
-                                       ['details', 'size'],
-                                       ['details', 'direction'],
-                                       ['details', 'level'],
-                                       ['details', 'stopLevel'],
-                                       ['details', 'stopDistance'],
-                                       ['details', 'guaranteedStop'],
-                                       ['details', 'trailingStopDistance'],
-                                       ['details', 'trailingStep'],
-                                       ['details', 'limitLevel'],
-                                       ['details', 'limitDistance']],
-                                 )
+        df = pd.json_normalize(
+            raw_json["activities"],
+            record_path=['details', ['actions']],
+            meta=['date', 'epic', 'period', 'dealId', 'channel',
+                 'type', 'status', 'description',
+                 ['details', 'marketName'],
+                 ['details', 'goodTillDate'],
+                 ['details', 'currency'],
+                 ['details', 'size'],
+                 ['details', 'direction'],
+                 ['details', 'level'],
+                 ['details', 'stopLevel'],
+                 ['details', 'stopDistance'],
+                 ['details', 'guaranteedStop'],
+                 ['details', 'trailingStopDistance'],
+                 ['details', 'trailingStep'],
+                 ['details', 'limitLevel'],
+                 ['details', 'limitDistance']],
+            )
 
         df = df.rename(columns={'details.marketName': 'marketName',
-                                    'details.goodTillDate': 'goodTillDate',
-                                    'details.currency': 'currency',
-                                    'details.size': 'size',
-                                    'details.direction': 'direction',
-                                    'details.level': 'level',
-                                    'details.stopLevel': 'stopLevel',
-                                    'details.stopDistance': 'stopDistance',
-                                    'details.guaranteedStop': 'guaranteedStop',
-                                    'details.trailingStopDistance': 'trailingStopDistance',
-                                    'details.trailingStep': 'trailingStep',
-                                    'details.limitLevel': 'limitLevel',
-                                    'details.limitDistance': 'limitDistance'})
+                                'details.goodTillDate': 'goodTillDate',
+                                'details.currency': 'currency',
+                                'details.size': 'size',
+                                'details.direction': 'direction',
+                                'details.level': 'level',
+                                'details.stopLevel': 'stopLevel',
+                                'details.stopDistance': 'stopDistance',
+                                'details.guaranteedStop': 'guaranteedStop',
+                                'details.trailingStopDistance': 'trailingStopDistance',
+                                'details.trailingStep': 'trailingStep',
+                                'details.limitLevel': 'limitLevel',
+                                'details.limitDistance': 'limitDistance'})
 
         cols = df.columns.tolist()
         cols = cols[2:] + cols[:2]
