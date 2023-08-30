@@ -73,7 +73,7 @@ class Subscription(object):
         Lightstremar Text Protocol specifications.
         """
         if value == "$":
-            return u""
+            return ""
         elif value == "#":
             return None
         elif not value:
@@ -176,7 +176,7 @@ class LSClient(object):
         a new session.
         """
 
-        if not notify and sys.platform.startswith('linux'):
+        if not notify and sys.platform.startswith("linux"):
             log.warning(
                 "systemd.daemon not available, "
                 "no watchdog notifications will be sent."
@@ -279,7 +279,7 @@ class LSClient(object):
                 log.warning("No connection to Lightstreamer")
 
     def subscribe(self, subscription):
-        """"Perform a subscription request to Lightstreamer Server."""
+        """ "Perform a subscription request to Lightstreamer Server."""
         # Register the Subscription with a new subscription key
         self._current_subscription_key += 1
         self._subscriptions[self._current_subscription_key] = subscription
