@@ -211,12 +211,18 @@ solutions:
 
 How do I check my PR will pass CI checks?
 -----------------------------------------
-This project uses some automated continuous integration (CI) processes whenever any code is committed, or if someone
-creates a PR. There are unit tests, and linting with ``flake8``. In addition, an integration test gets executed
-every night. The integration test takes a long time due to the :ref:`rate limits<rate_limits>`. Before
-making a PR, please make sure the tests pass. For linting::
+This project uses some automated continuous integration (CI) processes whenever
+any code is committed, or if someone creates a PR. There are unit tests, code
+formatting with ``black``, and linting with ``flake8``. In addition, an
+integration test gets executed every night. The integration test takes a long
+time due to the :ref:`rate limits<rate_limits>`. Before making a PR, please make
+sure the tests pass - PRs will be rejected if they do not. For code formatting::
 
-    $ poetry run flake8 trading_ig
+    $ poetry run black .
+
+and for linting::
+
+    $ poetry run flake8 trading_ig docs sample tests
 
 for unit tests::
 

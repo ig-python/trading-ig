@@ -33,8 +33,7 @@ DATE_FORMATS = {1: "%Y:%m:%d-%H:%M:%S", 2: "%Y/%m/%d %H:%M:%S", 3: "%Y/%m/%d %H:
 
 
 def conv_resol(resolution):
-    """Returns a string for resolution (from a Pandas)
-    """
+    """Returns a string for resolution (from a Pandas)"""
     if _HAS_PANDAS:
         from pandas.tseries.frequencies import to_offset
 
@@ -111,14 +110,14 @@ def print_full(x):
     """
     Prints out a full data frame, no column hiding
     """
-    pd.set_option('display.max_rows', None)
-    pd.set_option('display.max_columns', None)
-    pd.set_option('display.width', 2000)
+    pd.set_option("display.max_rows", None)
+    pd.set_option("display.max_columns", None)
+    pd.set_option("display.width", 2000)
     # pd.set_option('display.float_format', '{:20,.2f}'.format)
-    pd.set_option('display.max_colwidth', None)
+    pd.set_option("display.max_colwidth", None)
     print(x)
-    pd.reset_option('display.max_rows')
-    pd.reset_option('display.max_columns')
-    pd.reset_option('display.width')
-    pd.reset_option('display.float_format')
-    pd.reset_option('display.max_colwidth')
+    pd.reset_option("display.max_rows")
+    pd.reset_option("display.max_columns")
+    pd.reset_option("display.width")
+    pd.reset_option("display.float_format")
+    pd.reset_option("display.max_colwidth")

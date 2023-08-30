@@ -54,8 +54,9 @@ For anything else, please use the documentation and tools provided by IG
 Contributing
 ------------
 
-Contributions are welcome. We use some automated linting and testing so please make your code passes the tests, see
-:ref:`here <running_tests>`. And ideally, write some tests for the new code or feature.
+Contributions are welcome. We use automated formatting, linting and testing so
+please make your code passes the tests, see :ref:`here <running_tests>`. And
+ideally, write some tests for the new code or feature.
 
 
 License
