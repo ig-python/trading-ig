@@ -7,7 +7,7 @@ import sys
 import traceback
 import logging
 
-from .lightstreamer import LSClient, Subscription
+from lightstreamer.client import LightstreamerClient, Subscription
 
 logger = logging.getLogger(__name__)
 
@@ -19,23 +19,23 @@ class IGStreamService(object):
         self.acc_number = None
         self.ls_client = None
 
-    def create_session(self, encryption=False, version='2'):
+    def create_session(self, encryption=False, version="2"):
         ig_session = self.ig_service.create_session(
             encryption=encryption, version=version
         )
         # if we have created a v3 session, we also need the session tokens
-        if version == '3':
-            self.ig_service.read_session(fetch_session_tokens='true')
-        self.lightstreamerEndpoint = ig_session['lightstreamerEndpoint']
-        cst = self.ig_service.session.headers['CST']
-        xsecuritytoken = self.ig_service.session.headers['X-SECURITY-TOKEN']
+        if version == "3":
+            self.ig_service.read_session(fetch_session_tokens="true")
+        self.lightstreamerEndpoint = ig_session["lightstreamerEndpoint"]
+        cst = self.ig_service.session.headers["CST"]
+        xsecuritytoken = self.ig_service.session.headers["X-SECURITY-TOKEN"]
         ls_password = "CST-%s|XST-%s" % (cst, xsecuritytoken)
 
         # Establishing a new connection to Lightstreamer Server
         logger.info("Starting connection with %s" % self.lightstreamerEndpoint)
-        self.ls_client = LSClient(
-            self.lightstreamerEndpoint, adapter_set="", user=self.acc_number, password=ls_password
-        )
+        self.ls_client = LightstreamerClient(self.lightstreamerEndpoint, None)
+        self.ls_client.connectionDetails.setUser(self.acc_number)
+        self.ls_client.connectionDetails.setPassword(ls_password)
         try:
             self.ls_client.connect()
             return
@@ -45,16 +45,16 @@ class IGStreamService(object):
             sys.exit(1)
 
     def subscribe(self, subscription: Subscription):
-        return self.ls_client.subscribe(subscription)
+        self.ls_client.subscribe(subscription)
 
     def unsubscribe(self, subscription_key: int):
-        return self.ls_client.unsubscribe(subscription_key)
+        self.ls_client.unsubscribe(subscription_key)
 
     def unsubscribe_all(self):
         # To avoid a RuntimeError: dictionary changed size during iteration
-        subscriptions = self.ls_client._subscriptions.copy()
-        for subcription_key in subscriptions:
-            self.ls_client.unsubscribe(subcription_key)
+        subscriptions = self.ls_client.getSubscriptions().copy()
+        for sub in subscriptions:
+            self.ls_client.unsubscribe(sub)
 
     def disconnect(self):
         self.unsubscribe_all()

@@ -37,6 +37,7 @@ logger = logging.getLogger(__name__)
 
 class ApiExceededException(Exception):
     """Raised when our code hits the IG endpoint too often"""
+
     pass
 
 
@@ -54,11 +55,13 @@ class IGSessionCRUD(object):
         self.API_KEY = api_key
         self.session = session
 
-        self.session.headers.update({
-            "X-IG-API-KEY": self.API_KEY,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json; charset=UTF-8'
-        })
+        self.session.headers.update(
+            {
+                "X-IG-API-KEY": self.API_KEY,
+                "Content-Type": "application/json",
+                "Accept": "application/json; charset=UTF-8",
+            }
+        )
 
     def _get_session(self, session):
         """Returns a Requests session if session is None
@@ -82,11 +85,11 @@ class IGSessionCRUD(object):
         """Create = POST"""
         url = self._url(endpoint)
         session = self._get_session(session)
-        session.headers.update({'VERSION': version})
+        session.headers.update({"VERSION": version})
         response = session.post(url, data=json.dumps(params))
         logger.info(f"POST '{endpoint}', resp {response.status_code}")
         if response.status_code in [401, 403]:
-            if 'exceeded-api-key-allowance' in response.text:
+            if "exceeded-api-key-allowance" in response.text:
                 raise ApiExceededException()
             else:
                 raise IGException(f"HTTP error: {response.status_code} {response.text}")
@@ -97,7 +100,7 @@ class IGSessionCRUD(object):
         """Read = GET"""
         url = self._url(endpoint)
         session = self._get_session(session)
-        session.headers.update({'VERSION': version})
+        session.headers.update({"VERSION": version})
         response = session.get(url, params=params)
         # handle 'read_session' with 'fetchSessionTokens=true'
         handle_session_tokens(response, self.session)
@@ -108,7 +111,7 @@ class IGSessionCRUD(object):
         """Update = PUT"""
         url = self._url(endpoint)
         session = self._get_session(session)
-        session.headers.update({'VERSION': version})
+        session.headers.update({"VERSION": version})
         response = session.put(url, data=json.dumps(params))
         logger.info(f"PUT '{endpoint}', resp {response.status_code}")
         return response
@@ -117,12 +120,12 @@ class IGSessionCRUD(object):
         """Delete = POST"""
         url = self._url(endpoint)
         session = self._get_session(session)
-        session.headers.update({'VERSION': version})
-        session.headers.update({'_method': 'DELETE'})
+        session.headers.update({"VERSION": version})
+        session.headers.update({"_method": "DELETE"})
         response = session.post(url, data=json.dumps(params))
         logger.info(f"DELETE (POST) '{endpoint}', resp {response.status_code}")
-        if '_method' in session.headers:
-            del session.headers['_method']
+        if "_method" in session.headers:
+            del session.headers["_method"]
         return response
 
     def req(self, action, endpoint, params, session, version):
@@ -137,7 +140,6 @@ class IGSessionCRUD(object):
 
 
 class IGService:
-
     D_BASE_URL = {
         "live": "https://api.ig.com/gateway/deal",
         "demo": "https://demo-api.ig.com/gateway/deal",
@@ -160,7 +162,7 @@ class IGService:
         return_dataframe=_HAS_PANDAS,
         return_munch=_HAS_MUNCH,
         retryer=None,
-        use_rate_limiter=False
+        use_rate_limiter=False,
     ):
         """Constructor, calls the method required to connect to
         the API (accepts acc_type = LIVE or DEMO)"""
@@ -174,8 +176,9 @@ class IGService:
         try:
             self.BASE_URL = self.D_BASE_URL[acc_type.lower()]
         except Exception:
-            raise IGException("Invalid account type '%s', please provide LIVE or DEMO" %
-                              acc_type)
+            raise IGException(
+                "Invalid account type '%s', please provide LIVE or DEMO" % acc_type
+            )
 
         self.return_dataframe = return_dataframe
         self.return_munch = return_munch
@@ -187,31 +190,42 @@ class IGService:
 
         self.crud_session = IGSessionCRUD(self.BASE_URL, self.API_KEY, self.session)
 
-    def setup_rate_limiter(self, ):
-
+    def setup_rate_limiter(
+        self,
+    ):
         data = self.get_client_apps()
         for acc in data:
-            if acc['apiKey'] == self.API_KEY:
+            if acc["apiKey"] == self.API_KEY:
                 break
 
-        # If self.create_session() is called a second time, we should exit any currently running threads
+        # If self.create_session() is called a second time, we should exit any
+        # currently running threads
         self._exit_bucket_threads()
 
-        # Horrific magic number to reduce API published allowable requests per minute to a
-        # value that wont result in 403 -> error.public-api.exceeded-account-trading-allowance
+        # Horrific magic number to reduce API published allowable requests per minute
+        # to a value that wont result in
+        # 403 -> error.public-api.exceeded-account-trading-allowance
         # Tested for non_trading = 30 (live) and 10 (demo) requests per minute.
         # This wouldn't be needed if IG's API functioned as published!
         MAGIC_NUMBER = 2
 
-        self._trading_requests_per_minute = acc['allowanceAccountTrading'] - MAGIC_NUMBER
-        logger.info(f"Published IG Trading Request limits for trading request: "
-                    f"{acc['allowanceAccountTrading']} per minute. "
-                    f"Using: {self._trading_requests_per_minute}")
+        self._trading_requests_per_minute = (
+            acc["allowanceAccountTrading"] - MAGIC_NUMBER
+        )
+        logger.info(
+            f"Published IG Trading Request limits for trading request: "
+            f"{acc['allowanceAccountTrading']} per minute. "
+            f"Using: {self._trading_requests_per_minute}"
+        )
 
-        self._non_trading_requests_per_minute = acc['allowanceAccountOverall'] - MAGIC_NUMBER
-        logger.info(f"Published IG Trading Request limits for non-trading request: "
-                    f"{acc['allowanceAccountOverall']} per minute. "
-                    f"Using {self._non_trading_requests_per_minute}")
+        self._non_trading_requests_per_minute = (
+            acc["allowanceAccountOverall"] - MAGIC_NUMBER
+        )
+        logger.info(
+            f"Published IG Trading Request limits for non-trading request: "
+            f"{acc['allowanceAccountOverall']} per minute. "
+            f"Using {self._non_trading_requests_per_minute}"
+        )
 
         time.sleep(60.0 / self._non_trading_requests_per_minute)
 
@@ -222,7 +236,9 @@ class IGService:
         self._trading_requests_queue = Queue(trading_requests_burst)
         # prefill the bucket so we can burst
         [self._trading_requests_queue.put(True) for i in range(trading_requests_burst)]
-        token_bucket_trading_thread = Thread(target=self._token_bucket_trading,)
+        token_bucket_trading_thread = Thread(
+            target=self._token_bucket_trading,
+        )
         token_bucket_trading_thread.start()
         self._trading_times = []
 
@@ -230,8 +246,13 @@ class IGService:
         non_trading_requests_burst = 1  # If IG ever allow bursting, increase this
         self._non_trading_requests_queue = Queue(non_trading_requests_burst)
         # prefill the bucket so we can burst
-        [self._non_trading_requests_queue.put(True) for i in range(non_trading_requests_burst)]
-        token_bucket_non_trading_thread = Thread(target=self._token_bucket_non_trading,)
+        [
+            self._non_trading_requests_queue.put(True)
+            for i in range(non_trading_requests_burst)
+        ]
+        token_bucket_non_trading_thread = Thread(
+            target=self._token_bucket_non_trading,
+        )
         token_bucket_non_trading_thread.start()
         self._non_trading_times = []
 
@@ -239,37 +260,60 @@ class IGService:
         # Create a leaky token bucket for allowanceAccountHistoricalData
         return
 
-    def _token_bucket_trading(self, ):
+    def _token_bucket_trading(
+        self,
+    ):
         while self._bucket_threads_run:
-            time.sleep(60.0/self._trading_requests_per_minute)
+            time.sleep(60.0 / self._trading_requests_per_minute)
             self._trading_requests_queue.put(True, block=True)
         return
 
-    def _token_bucket_non_trading(self, ):
+    def _token_bucket_non_trading(
+        self,
+    ):
         while self._bucket_threads_run:
-            time.sleep(60.0/self._non_trading_requests_per_minute)
+            time.sleep(60.0 / self._non_trading_requests_per_minute)
             self._non_trading_requests_queue.put(True, block=True)
         return
 
-    def trading_rate_limit_pause_or_pass(self, ):
+    def trading_rate_limit_pause_or_pass(
+        self,
+    ):
         if self._use_rate_limiter:
             self._trading_requests_queue.get(block=True)
             self._trading_times.append(time.time())
-            self._trading_times = [req_time for req_time in self._trading_times if req_time > time.time()-60]
-            logger.info(f'Number of trading requests in last 60 seconds = '
-                        f'{len(self._trading_times)} of {self._trading_requests_per_minute}')
+            self._trading_times = [
+                req_time
+                for req_time in self._trading_times
+                if req_time > time.time() - 60
+            ]
+            logger.info(
+                f"Number of trading requests in last 60 seconds = "
+                f"{len(self._trading_times)} of {self._trading_requests_per_minute}"
+            )
         return
 
-    def non_trading_rate_limit_pause_or_pass(self, ):
+    def non_trading_rate_limit_pause_or_pass(
+        self,
+    ):
         if self._use_rate_limiter:
             self._non_trading_requests_queue.get(block=True)
             self._non_trading_times.append(time.time())
-            self._non_trading_times = [req_time for req_time in self._non_trading_times if req_time > time.time()-60]
-            logger.info(f'Number of non trading requests in last 60 seconds = '
-                        f'{len(self._non_trading_times)} of {self._non_trading_requests_per_minute}')
+            self._non_trading_times = [
+                req_time
+                for req_time in self._non_trading_times
+                if req_time > time.time() - 60
+            ]
+            logger.info(
+                f"Number of non trading requests in last 60 seconds = "
+                f"{len(self._non_trading_times)} of "
+                f"{self._non_trading_requests_per_minute}"
+            )
         return
 
-    def _exit_bucket_threads(self,):
+    def _exit_bucket_threads(
+        self,
+    ):
         if self._use_rate_limiter:
             if self._bucket_threads_run:
                 self._bucket_threads_run = False
@@ -299,18 +343,20 @@ class IGService:
             session = session
         return session
 
-    def _req(self, action, endpoint, params, session, version='1', check=True):
+    def _req(self, action, endpoint, params, session, version="1", check=True):
         """
         Wraps the _request() function, applying a tenacity.Retrying object if configured
         """
         if self._retryer is not None:
-            result = self._retryer.__call__(self._request, action, endpoint, params, session, version, check)
+            result = self._retryer.__call__(
+                self._request, action, endpoint, params, session, version, check
+            )
         else:
             result = self._request(action, endpoint, params, session, version, check)
 
         return result
 
-    def _request(self, action, endpoint, params, session, version='1', check=True):
+    def _request(self, action, endpoint, params, session, version="1", check=True):
         """Creates a CRUD request and returns response"""
         session = self._get_session(session)
         if check:
@@ -318,19 +364,27 @@ class IGService:
         response = self.crud_session.req(action, endpoint, params, session, version)
 
         if response.status_code >= 500:
-            raise (IGException(f"Server problem: status code: {response.status_code}, reason: {response.reason}"))
+            raise (
+                IGException(
+                    f"Server problem: status code: {response.status_code}, "
+                    f"reason: {response.reason}"
+                )
+            )
 
-        response.encoding = 'utf-8'
+        response.encoding = "utf-8"
         if self._api_limit_hit(response.text):
             raise ApiExceededException()
         return response
 
     @staticmethod
     def _api_limit_hit(response_text):
-        # note we don't check for historical data allowance - it only gets reset once a week
-        return 'exceeded-api-key-allowance' in response_text or \
-               'exceeded-account-allowance' in response_text or \
-               'exceeded-account-trading-allowance' in response_text
+        # note we don't check for historical data allowance - it only gets reset
+        # once a week
+        return (
+            "exceeded-api-key-allowance" in response_text
+            or "exceeded-account-allowance" in response_text
+            or "exceeded-account-trading-allowance" in response_text
+        )
 
     # ---------- PARSE_RESPONSE ----------- #
 
@@ -361,7 +415,7 @@ class IGService:
         """Expand columns"""
         if col_overlap_allowed is None:
             col_overlap_allowed = []
-        for (col_lev1, lst_col) in d_cols.items():
+        for col_lev1, lst_col in d_cols.items():
             ser = data[col_lev1]
             del data[col_lev1]
             for col in lst_col:
@@ -370,7 +424,7 @@ class IGService:
                         colname = col_lev1 + "_" + col
                     else:
                         colname = col
-                    data[colname] = ser.map(lambda x: x[col], na_action='ignore')
+                    data[colname] = ser.map(lambda x: x[col], na_action="ignore")
                 else:
                     raise (NotImplementedError("col overlap: %r" % col))
         return data
@@ -389,9 +443,8 @@ class IGService:
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
         if self.return_dataframe:
-
             data = pd.DataFrame(data["accounts"])
-            d_cols = {"balance": [u"available", u"balance", u"deposit", u"profitLoss"]}
+            d_cols = {"balance": ["available", "balance", "deposit", "profitLoss"]}
             data = self.expand_columns(data, d_cols, False)
 
             if len(data) == 0:
@@ -435,8 +488,10 @@ class IGService:
 
     def update_account_preferences(self, trailing_stops_enabled=False, session=None):
         """
-        Updates the account preferences. Currently only one value supported - trailing stops
-        :param trailing_stops_enabled: whether trailing stops should be enabled for the account
+        Updates the account preferences. Currently only one value supported -
+            trailing stops
+        :param trailing_stops_enabled: whether trailing stops should be enabled for
+            the account
         :type trailing_stops_enabled: bool
         :param session: session object. Optional
         :type session: requests.Session
@@ -448,10 +503,10 @@ class IGService:
         params = {}
         endpoint = "/accounts/preferences"
         action = "update"
-        params['trailingStopsEnabled'] = 'true' if trailing_stops_enabled else 'false'
+        params["trailingStopsEnabled"] = "true" if trailing_stops_enabled else "false"
         response = self._req(action, endpoint, params, session, version)
         update_status = self.parse_response(response.text)
-        return update_status['status']
+        return update_status["status"]
 
     def fetch_account_activity_by_period(self, milliseconds, session=None):
         """
@@ -467,21 +522,36 @@ class IGService:
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
         if self.return_dataframe:
-
             data = pd.DataFrame(data["activities"])
 
             if len(data) == 0:
                 columns = [
-                    "actionStatus", "activity", "activityHistoryId", "channel", "currency", "date",
-                    "dealId", "epic", "level", "limit", "marketName", "period", "result", "size",
-                    "stop", "stopType", "time"
+                    "actionStatus",
+                    "activity",
+                    "activityHistoryId",
+                    "channel",
+                    "currency",
+                    "date",
+                    "dealId",
+                    "epic",
+                    "level",
+                    "limit",
+                    "marketName",
+                    "period",
+                    "result",
+                    "size",
+                    "stop",
+                    "stopType",
+                    "time",
                 ]
                 data = pd.DataFrame(columns=columns)
                 return data
 
         return data
 
-    def fetch_account_activity_by_date(self, from_date: datetime, to_date: datetime, session=None):
+    def fetch_account_activity_by_date(
+        self, from_date: datetime, to_date: datetime, session=None
+    ):
         """
         Returns the account activity history for period between the specified dates
         """
@@ -494,22 +564,35 @@ class IGService:
 
         params = {}
         url_params = {
-            "fromDate": from_date.strftime('%d-%m-%Y'),
-            "toDate": to_date.strftime('%d-%m-%Y')
+            "fromDate": from_date.strftime("%d-%m-%Y"),
+            "toDate": to_date.strftime("%d-%m-%Y"),
         }
         endpoint = "/history/activity/{fromDate}/{toDate}".format(**url_params)
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
         if _HAS_PANDAS and self.return_dataframe:
-
             data = pd.DataFrame(data["activities"])
 
             if len(data) == 0:
                 columns = [
-                    "actionStatus", "activity", "activityHistoryId", "channel", "currency", "date",
-                    "dealId", "epic", "level", "limit", "marketName", "period", "result", "size",
-                    "stop", "stopType", "time"
+                    "actionStatus",
+                    "activity",
+                    "activityHistoryId",
+                    "channel",
+                    "currency",
+                    "date",
+                    "dealId",
+                    "epic",
+                    "level",
+                    "limit",
+                    "marketName",
+                    "period",
+                    "result",
+                    "size",
+                    "stop",
+                    "stopType",
+                    "time",
                 ]
                 data = pd.DataFrame(columns=columns)
                 return data
@@ -517,28 +600,30 @@ class IGService:
         return data
 
     def fetch_account_activity_v2(
-            self,
-            from_date: datetime = None,
-            to_date: datetime = None,
-            max_span_seconds: int = None,
-            page_size: int = 20,
-            session=None):
-
+        self,
+        from_date: datetime = None,
+        to_date: datetime = None,
+        max_span_seconds: int = None,
+        page_size: int = 20,
+        session=None,
+    ):
         """
         Returns the account activity history (v2)
 
-        If the result set spans multiple 'pages', this method will automatically get all the results and
-        bundle them into one object.
+        If the result set spans multiple 'pages', this method will automatically get
+        all the results and bundle them into one object.
 
         :param from_date: start date and time. Optional
         :type from_date: datetime
-        :param to_date: end date and time. A date without time refers to the end of that day. Defaults to
-        today. Optional
+        :param to_date: end date and time. A date without time refers to the end of
+            that day. Defaults to today. Optional
         :type to_date: datetime
-        :param max_span_seconds: Limits the timespan in seconds through to current time (not applicable if a
-        date range has been specified). Default 600. Optional
+        :param max_span_seconds: Limits the timespan in seconds through to current
+            time (not applicable if a date range has been specified). Default 600.
+            Optional
         :type max_span_seconds: int
-        :param page_size: number of records per page. Default 20. Optional. Use 0 to turn off paging
+        :param page_size: number of records per page. Default 20. Optional. Use 0 to
+            turn off paging
         :type page_size: int
         :param session: session object. Optional
         :type session: Session
@@ -549,9 +634,9 @@ class IGService:
         version = "2"
         params = {}
         if from_date:
-            params["from"] = from_date.strftime('%Y-%m-%dT%H:%M:%S')
+            params["from"] = from_date.strftime("%Y-%m-%dT%H:%M:%S")
         if to_date:
-            params["to"] = to_date.strftime('%Y-%m-%dT%H:%M:%S')
+            params["to"] = to_date.strftime("%Y-%m-%dT%H:%M:%S")
         if max_span_seconds:
             params["maxSpanSeconds"] = max_span_seconds
         params["pageSize"] = page_size
@@ -568,8 +653,9 @@ class IGService:
             data = self.parse_response(response.text)
             activities.extend(data["activities"])
             page_data = data["metadata"]["pageData"]
-            if page_data["totalPages"] == 0 or \
-                    (page_data["pageNumber"] == page_data["totalPages"]):
+            if page_data["totalPages"] == 0 or (
+                page_data["pageNumber"] == page_data["totalPages"]
+            ):
                 more_results = False
             else:
                 pagenumber += 1
@@ -581,27 +667,28 @@ class IGService:
         return data
 
     def fetch_account_activity(
-            self,
-            from_date: datetime = None,
-            to_date: datetime = None,
-            detailed=False,
-            deal_id: str = None,
-            fiql_filter: str = None,
-            page_size: int = 50,
-            session=None):
-
+        self,
+        from_date: datetime = None,
+        to_date: datetime = None,
+        detailed=False,
+        deal_id: str = None,
+        fiql_filter: str = None,
+        page_size: int = 50,
+        session=None,
+    ):
         """
         Returns the account activity history (v3)
 
-        If the result set spans multiple 'pages', this method will automatically get all the results and
-        bundle them into one object.
+        If the result set spans multiple 'pages', this method will automatically get
+        all the results and bundle them into one object.
 
         :param from_date: start date and time. Optional
         :type from_date: datetime
-        :param to_date: end date and time. A date without time refers to the end of that day. Defaults to
-        today. Optional
+        :param to_date: end date and time. A date without time refers to the end of
+            that day. Defaults to today. Optional
         :type to_date: datetime
-        :param detailed: Indicates whether to retrieve additional details about the activity. Default False. Optional
+        :param detailed: Indicates whether to retrieve additional details about the
+            activity. Default False. Optional
         :type detailed: bool
         :param deal_id: deal ID. Optional
         :type deal_id: str
@@ -618,9 +705,9 @@ class IGService:
         version = "3"
         params = {}
         if from_date:
-            params["from"] = from_date.strftime('%Y-%m-%dT%H:%M:%S')
+            params["from"] = from_date.strftime("%Y-%m-%dT%H:%M:%S")
         if to_date:
-            params["to"] = to_date.strftime('%Y-%m-%dT%H:%M:%S')
+            params["to"] = to_date.strftime("%Y-%m-%dT%H:%M:%S")
         if detailed:
             params["detailed"] = "true"
         if deal_id:
@@ -646,11 +733,11 @@ class IGService:
                 parse_result = urlparse(paging["next"])
                 query = parse_qs(parse_result.query)
                 logger.debug(f"fetch_account_activity() next query: '{query}'")
-                if 'from' in query:
+                if "from" in query:
                     params["from"] = query["from"][0]
                 else:
                     del params["from"]
-                if 'to' in query:
+                if "to" in query:
                     params["to"] = query["to"][0]
                 else:
                     del params["to"]
@@ -668,37 +755,49 @@ class IGService:
     def format_activities(raw_json):
         df = pd.json_normalize(
             raw_json["activities"],
-            record_path=['details', ['actions']],
-            meta=['date', 'epic', 'period', 'dealId', 'channel',
-                 'type', 'status', 'description',
-                 ['details', 'marketName'],
-                 ['details', 'goodTillDate'],
-                 ['details', 'currency'],
-                 ['details', 'size'],
-                 ['details', 'direction'],
-                 ['details', 'level'],
-                 ['details', 'stopLevel'],
-                 ['details', 'stopDistance'],
-                 ['details', 'guaranteedStop'],
-                 ['details', 'trailingStopDistance'],
-                 ['details', 'trailingStep'],
-                 ['details', 'limitLevel'],
-                 ['details', 'limitDistance']],
-            )
+            record_path=["details", ["actions"]],
+            meta=[
+                "date",
+                "epic",
+                "period",
+                "dealId",
+                "channel",
+                "type",
+                "status",
+                "description",
+                ["details", "marketName"],
+                ["details", "goodTillDate"],
+                ["details", "currency"],
+                ["details", "size"],
+                ["details", "direction"],
+                ["details", "level"],
+                ["details", "stopLevel"],
+                ["details", "stopDistance"],
+                ["details", "guaranteedStop"],
+                ["details", "trailingStopDistance"],
+                ["details", "trailingStep"],
+                ["details", "limitLevel"],
+                ["details", "limitDistance"],
+            ],
+        )
 
-        df = df.rename(columns={'details.marketName': 'marketName',
-                                'details.goodTillDate': 'goodTillDate',
-                                'details.currency': 'currency',
-                                'details.size': 'size',
-                                'details.direction': 'direction',
-                                'details.level': 'level',
-                                'details.stopLevel': 'stopLevel',
-                                'details.stopDistance': 'stopDistance',
-                                'details.guaranteedStop': 'guaranteedStop',
-                                'details.trailingStopDistance': 'trailingStopDistance',
-                                'details.trailingStep': 'trailingStep',
-                                'details.limitLevel': 'limitLevel',
-                                'details.limitDistance': 'limitDistance'})
+        df = df.rename(
+            columns={
+                "details.marketName": "marketName",
+                "details.goodTillDate": "goodTillDate",
+                "details.currency": "currency",
+                "details.size": "size",
+                "details.direction": "direction",
+                "details.level": "level",
+                "details.stopLevel": "stopLevel",
+                "details.stopDistance": "stopDistance",
+                "details.guaranteedStop": "guaranteedStop",
+                "details.trailingStopDistance": "trailingStopDistance",
+                "details.trailingStep": "trailingStep",
+                "details.limitLevel": "limitLevel",
+                "details.limitDistance": "limitDistance",
+            }
+        )
 
         cols = df.columns.tolist()
         cols = cols[2:] + cols[:2]
@@ -723,7 +822,6 @@ class IGService:
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
         if self.return_dataframe:
-
             data = pd.DataFrame(data["transactions"])
 
             if len(data) == 0:
@@ -783,7 +881,6 @@ class IGService:
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
         if self.return_dataframe:
-
             data = pd.DataFrame(data["transactions"])
 
             if len(data) == 0:
@@ -846,7 +943,7 @@ class IGService:
         data = self.parse_response(response.text)
         return data
 
-    def fetch_open_positions(self, session=None, version='2'):
+    def fetch_open_positions(self, session=None, version="2"):
         """
         Returns all open positions for the active account. Supports both v1 and v2
         :param session: session object, otional
@@ -870,31 +967,56 @@ class IGService:
         data = self.parse_response(response.text)
 
         if self.return_dataframe:
-
             lst = data["positions"]
             data = pd.DataFrame(lst)
 
             cols = {
                 "position": [
-                    "contractSize", "createdDate", "createdDateUTC", "dealId", "dealReference", "size", "direction",
-                    "limitLevel", "level", "currency", "controlledRisk", "stopLevel", "trailingStep",
-                    "trailingStopDistance", "limitedRiskPremium"
+                    "contractSize",
+                    "createdDate",
+                    "createdDateUTC",
+                    "dealId",
+                    "dealReference",
+                    "size",
+                    "direction",
+                    "limitLevel",
+                    "level",
+                    "currency",
+                    "controlledRisk",
+                    "stopLevel",
+                    "trailingStep",
+                    "trailingStopDistance",
+                    "limitedRiskPremium",
                 ],
                 "market": [
-                    "instrumentName", "expiry", "epic", "instrumentType", "lotSize", "high", "low",
-                    "percentageChange", "netChange", "bid", "offer", "updateTime", "updateTimeUTC",
-                    "delayTime", "streamingPricesAvailable", "marketStatus", "scalingFactor"
-                ]
+                    "instrumentName",
+                    "expiry",
+                    "epic",
+                    "instrumentType",
+                    "lotSize",
+                    "high",
+                    "low",
+                    "percentageChange",
+                    "netChange",
+                    "bid",
+                    "offer",
+                    "updateTime",
+                    "updateTimeUTC",
+                    "delayTime",
+                    "streamingPricesAvailable",
+                    "marketStatus",
+                    "scalingFactor",
+                ],
             }
 
-            if version == '1':
-                cols['position'].remove('createdDateUTC')
-                cols['position'].remove('dealReference')
-                cols['position'].remove('size')
-                cols['position'].insert(3, 'dealSize')
-                cols['position'].remove('level')
-                cols['position'].insert(6, 'openLevel')
-                cols['market'].remove('updateTimeUTC')
+            if version == "1":
+                cols["position"].remove("createdDateUTC")
+                cols["position"].remove("dealReference")
+                cols["position"].remove("size")
+                cols["position"].insert(3, "dealSize")
+                cols["position"].remove("level")
+                cols["position"].insert(6, "openLevel")
+                cols["market"].remove("updateTimeUTC")
 
             if len(data) == 0:
                 data = pd.DataFrame(columns=self.colname_unique(cols))
@@ -993,16 +1115,17 @@ class IGService:
             raise IGException(response.text)
 
     def update_open_position(
-            self,
-            limit_level,
-            stop_level,
-            deal_id,
-            guaranteed_stop=False,
-            trailing_stop=False,
-            trailing_stop_distance=None,
-            trailing_stop_increment=None,
-            session=None,
-            version='2'):
+        self,
+        limit_level,
+        stop_level,
+        deal_id,
+        guaranteed_stop=False,
+        trailing_stop=False,
+        trailing_stop_distance=None,
+        trailing_stop_increment=None,
+        session=None,
+        version="2",
+    ):
         """Updates an OTC position"""
         self.trading_rate_limit_pause_or_pass()
         params = {}
@@ -1011,9 +1134,9 @@ class IGService:
         if stop_level is not None:
             params["stopLevel"] = stop_level
         if guaranteed_stop:
-            params["guaranteedStop"] = 'true'
+            params["guaranteedStop"] = "true"
         if trailing_stop:
-            params["trailingStop"] = 'true'
+            params["trailingStop"] = "true"
         if trailing_stop_distance is not None:
             params["trailingStopDistance"] = trailing_stop_distance
         if trailing_stop_increment is not None:
@@ -1030,50 +1153,78 @@ class IGService:
         else:
             raise IGException(response.text)
 
-    def fetch_working_orders(self, session=None, version='2'):
+    def fetch_working_orders(self, session=None, version="2"):
         """Returns all open working orders for the active account"""
-        self.non_trading_rate_limit_pause_or_pass()  # ?? maybe considered trading request
+        self.non_trading_rate_limit_pause_or_pass()  # maybe considered trading request
         params = {}
         endpoint = "/workingorders"
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
         if self.return_dataframe:
-
             lst = data["workingOrders"]
             data = pd.DataFrame(lst)
 
-            col_names_v1 = [u"size", u"trailingStopDistance", u"direction", u"level", u"requestType", u"currencyCode",
-                            u"contingentLimit", u"trailingTriggerIncrement", u"dealId", u"contingentStop", u"goodTill",
-                            u"controlledRisk", u"trailingStopIncrement", u"createdDate", u"epic",
-                            u"trailingTriggerDistance", u"dma"]
-            col_names_v2 = [u"createdDate", u"currencyCode", u"dealId", u"direction", u"dma", u"epic",
-                            u"goodTillDate", u"goodTillDateISO", u"guaranteedStop", u"limitDistance",
-                            u"orderLevel", u"orderSize", u"orderType", u"stopDistance", u"timeInForce"]
+            col_names_v1 = [
+                "size",
+                "trailingStopDistance",
+                "direction",
+                "level",
+                "requestType",
+                "currencyCode",
+                "contingentLimit",
+                "trailingTriggerIncrement",
+                "dealId",
+                "contingentStop",
+                "goodTill",
+                "controlledRisk",
+                "trailingStopIncrement",
+                "createdDate",
+                "epic",
+                "trailingTriggerDistance",
+                "dma",
+            ]
+            col_names_v2 = [
+                "createdDate",
+                "currencyCode",
+                "dealId",
+                "direction",
+                "dma",
+                "epic",
+                "goodTillDate",
+                "goodTillDateISO",
+                "guaranteedStop",
+                "limitDistance",
+                "orderLevel",
+                "orderSize",
+                "orderType",
+                "stopDistance",
+                "timeInForce",
+            ]
 
             d_cols = {
                 "marketData": [
-                    u"instrumentName",
-                    u"exchangeId",
-                    u"streamingPricesAvailable",
-                    u"offer",
-                    u"low",
-                    u"bid",
-                    u"updateTime",
-                    u"expiry",
-                    u"high",
-                    u"marketStatus",
-                    u"delayTime",
-                    u"lotSize",
-                    u"percentageChange",
-                    u"epic",
-                    u"netChange",
-                    u"instrumentType",
-                    u"scalingFactor",
+                    "instrumentName",
+                    "exchangeId",
+                    "streamingPricesAvailable",
+                    "offer",
+                    "low",
+                    "bid",
+                    "updateTime",
+                    "expiry",
+                    "high",
+                    "marketStatus",
+                    "delayTime",
+                    "lotSize",
+                    "percentageChange",
+                    "epic",
+                    "netChange",
+                    "instrumentType",
+                    "scalingFactor",
                 ]
             }
 
-            if version == '1':
+            if version == "1":
                 d_cols["workingOrderData"] = col_names_v1
             else:
                 d_cols["workingOrderData"] = col_names_v2
@@ -1128,7 +1279,7 @@ class IGService:
             "size": size,
             "timeInForce": time_in_force,
             "type": order_type,
-            "forceOpen": 'false',
+            "forceOpen": "false",
         }
         if limit_distance:
             params["limitDistance"] = limit_distance
@@ -1141,7 +1292,7 @@ class IGService:
         if deal_reference:
             params["dealReference"] = deal_reference
         if force_open:
-            params["forceOpen"] = 'true'
+            params["forceOpen"] = "true"
         if good_till_date:
             params["goodTillDate"] = good_till_date
 
@@ -1262,7 +1413,6 @@ class IGService:
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
         if self.return_dataframe:
-
             data["markets"] = pd.DataFrame(data["markets"])
             if len(data["markets"]) == 0:
                 columns = [
@@ -1308,7 +1458,6 @@ class IGService:
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
         if self.return_dataframe:
-
             data["markets"] = pd.DataFrame(data["markets"])
             data["nodes"] = pd.DataFrame(data["nodes"])
         return data
@@ -1327,13 +1476,13 @@ class IGService:
             data = munchify(data)
         return data
 
-    def fetch_markets_by_epics(self, epics, detailed=True, session=None, version='2'):
+    def fetch_markets_by_epics(self, epics, detailed=True, session=None, version="2"):
         """
         Returns the details of the given markets
         :param epics: comma separated list of epics
         :type epics: str
-        :param detailed: Whether to return detailed info or snapshot data only. Only supported for
-        version 2. Optional, default True
+        :param detailed: Whether to return detailed info or snapshot data only.
+            Only supported for version 2. Optional, default True
         :type detailed: bool
         :param session: session object. Optional, default None
         :type session: requests.Session
@@ -1344,16 +1493,16 @@ class IGService:
         """
         self.non_trading_rate_limit_pause_or_pass()
         params = {"epics": epics}
-        if version == '2':
-            params["filter"] = 'ALL' if detailed else 'SNAPSHOT_ONLY'
+        if version == "2":
+            params["filter"] = "ALL" if detailed else "SNAPSHOT_ONLY"
         endpoint = "/markets"
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
         if self.return_munch:
-            data = munchify(data['marketDetails'])
+            data = munchify(data["marketDetails"])
         else:
-            data = data['marketDetails']
+            data = data["marketDetails"]
         return data
 
     def search_markets(self, search_term, session=None):
@@ -1443,7 +1592,6 @@ class IGService:
         return df2
 
     def flat_prices(self, prices, version):
-
         """
         Format prices data as a flat DataFrame, no hierarchy
 
@@ -1464,28 +1612,35 @@ class IGService:
         df = json_normalize(prices)
         if version == "3":
             df = df.set_index("snapshotTimeUTC")
-            df = df.drop(columns=['snapshotTime'])
+            df = df.drop(columns=["snapshotTime"])
         else:
             df = df.set_index("snapshotTime")
         df.index = pd.to_datetime(df.index, format=DATE_FORMATS[int(version)])
         df.index.name = "DateTime"
-        df = df.drop(columns=['openPrice.lastTraded',
-                              'closePrice.lastTraded',
-                              'highPrice.lastTraded',
-                              'lowPrice.lastTraded'])
-        df = df.rename(columns={"openPrice.bid": "open.bid",
-                                "openPrice.ask": "open.ask",
-                                "closePrice.bid": "close.bid",
-                                "closePrice.ask": "close.ask",
-                                "highPrice.bid": "high.bid",
-                                "highPrice.ask": "high.ask",
-                                "lowPrice.bid": "low.bid",
-                                "lowPrice.ask": "low.ask",
-                                "lastTradedVolume": "volume"})
+        df = df.drop(
+            columns=[
+                "openPrice.lastTraded",
+                "closePrice.lastTraded",
+                "highPrice.lastTraded",
+                "lowPrice.lastTraded",
+            ]
+        )
+        df = df.rename(
+            columns={
+                "openPrice.bid": "open.bid",
+                "openPrice.ask": "open.ask",
+                "closePrice.bid": "close.bid",
+                "closePrice.ask": "close.ask",
+                "highPrice.bid": "high.bid",
+                "highPrice.ask": "high.ask",
+                "lowPrice.bid": "low.bid",
+                "lowPrice.ask": "low.ask",
+                "lastTradedVolume": "volume",
+            }
+        )
         return df
 
     def mid_prices(self, prices, version):
-
         """
         Format price data as a flat DataFrame, no hierarchy, calculating
         mid-prices
@@ -1507,23 +1662,33 @@ class IGService:
         df = json_normalize(prices)
         if version == "3":
             df = df.set_index("snapshotTimeUTC")
-            df = df.drop(columns=['snapshotTime'])
+            df = df.drop(columns=["snapshotTime"])
         else:
             df = df.set_index("snapshotTime")
         df.index = pd.to_datetime(df.index, format=DATE_FORMATS[int(version)])
         df.index.name = "DateTime"
 
-        df['Open'] = df[['openPrice.bid', 'openPrice.ask']].mean(axis=1)
-        df['High'] = df[['highPrice.bid', 'highPrice.ask']].mean(axis=1)
-        df['Low'] = df[['lowPrice.bid', 'lowPrice.ask']].mean(axis=1)
-        df['Close'] = df[['closePrice.bid', 'closePrice.ask']].mean(axis=1)
+        df["Open"] = df[["openPrice.bid", "openPrice.ask"]].mean(axis=1)
+        df["High"] = df[["highPrice.bid", "highPrice.ask"]].mean(axis=1)
+        df["Low"] = df[["lowPrice.bid", "lowPrice.ask"]].mean(axis=1)
+        df["Close"] = df[["closePrice.bid", "closePrice.ask"]].mean(axis=1)
 
-        df = df.drop(columns=['openPrice.lastTraded', 'closePrice.lastTraded',
-                              'highPrice.lastTraded', 'lowPrice.lastTraded',
-                              "openPrice.bid", "openPrice.ask",
-                              "closePrice.bid", "closePrice.ask",
-                              "highPrice.bid", "highPrice.ask",
-                              "lowPrice.bid", "lowPrice.ask"])
+        df = df.drop(
+            columns=[
+                "openPrice.lastTraded",
+                "closePrice.lastTraded",
+                "highPrice.lastTraded",
+                "lowPrice.lastTraded",
+                "openPrice.bid",
+                "openPrice.ask",
+                "closePrice.bid",
+                "closePrice.ask",
+                "highPrice.bid",
+                "highPrice.ask",
+                "lowPrice.bid",
+                "lowPrice.ask",
+            ]
+        )
         df = df.rename(columns={"lastTradedVolume": "Volume"})
 
         return df
@@ -1538,9 +1703,8 @@ class IGService:
         pagesize=20,
         session=None,
         format=None,
-        wait=1
+        wait=1,
     ):
-
         """
         Fetches historical prices for the given epic.
 
@@ -1596,8 +1760,9 @@ class IGService:
             data = self.parse_response(response.text)
             prices.extend(data["prices"])
             page_data = data["metadata"]["pageData"]
-            if page_data["totalPages"] == 0 or \
-                    (page_data["pageNumber"] == page_data["totalPages"]):
+            if page_data["totalPages"] == 0 or (
+                page_data["pageNumber"] == page_data["totalPages"]
+            ):
                 more_results = False
             else:
                 pagenumber += 1
@@ -1609,13 +1774,13 @@ class IGService:
             format = self.format_prices
         if self.return_dataframe:
             data["prices"] = format(data["prices"], version)
-            data['prices'] = data['prices'].fillna(value=np.nan)
+            data["prices"] = data["prices"].fillna(value=np.nan)
         self.log_allowance(data["metadata"])
         return data
 
-    def fetch_historical_prices_by_epic_and_num_points(self, epic, resolution,
-                                                       numpoints, session=None,
-                                                       format=None):
+    def fetch_historical_prices_by_epic_and_num_points(
+        self, epic, resolution, numpoints, session=None, format=None
+    ):
         """Returns a list of historical prices for the given epic, resolution,
         number of points"""
         version = "2"
@@ -1631,28 +1796,37 @@ class IGService:
             format = self.format_prices
         if self.return_dataframe:
             data["prices"] = format(data["prices"], version)
-            data['prices'] = data['prices'].fillna(value=np.nan)
+            data["prices"] = data["prices"].fillna(value=np.nan)
         return data
 
     def fetch_historical_prices_by_epic_and_date_range(
-        self, epic, resolution, start_date, end_date, session=None, format=None, version='2'
+        self,
+        epic,
+        resolution,
+        start_date,
+        end_date,
+        session=None,
+        format=None,
+        version="2",
     ):
         """
-        Returns a list of historical prices for the given epic, resolution, multiplier and date range. Supports
-        both versions 1 and 2
+        Returns a list of historical prices for the given epic, resolution, multiplier
+        and date range. Supports both versions 1 and 2
         :param epic: IG epic
         :type epic: str
-        :param resolution: timescale for returned data. Expected values 'M', 'D', '1H' etc
+        :param resolution: timescale for returned data. Expected values 'M', 'D',
+            '1H' etc
         :type resolution: str
-        :param start_date: start date for returned data. For v1, format '2020:09:01-00:00:00', for v2 use
-            '2020-09-01 00:00:00'
+        :param start_date: start date for returned data. For v1, format
+            '2020:09:01-00:00:00', for v2 use '2020-09-01 00:00:00'
         :type start_date: str
-        :param end_date: end date for returned data. For v1, format '2020:09:01-00:00:00', for v2 use
-            '2020-09-01 00:00:00'
+        :param end_date: end date for returned data. For v1, format
+            '2020:09:01-00:00:00', for v2 use '2020-09-01 00:00:00'
         :type end_date: str
         :param session: HTTP session
         :type session: requests.Session
-        :param format: function defining how the historic price data should be converted into a Dataframe
+        :param format: function defining how the historic price data should be
+            converted into a Dataframe
         :type format: function
         :param version: API method version
         :type version: str
@@ -1662,15 +1836,22 @@ class IGService:
         if self.return_dataframe:
             resolution = conv_resol(resolution)
         params = {}
-        if version == '1':
+        if version == "1":
             start_date = conv_datetime(start_date, version)
             end_date = conv_datetime(end_date, version)
             params = {"startdate": start_date, "enddate": end_date}
             url_params = {"epic": epic, "resolution": resolution}
             endpoint = "/prices/{epic}/{resolution}".format(**url_params)
         else:
-            url_params = {"epic": epic, "resolution": resolution, "startDate": start_date, "endDate": end_date}
-            endpoint = "/prices/{epic}/{resolution}/{startDate}/{endDate}".format(**url_params)
+            url_params = {
+                "epic": epic,
+                "resolution": resolution,
+                "startDate": start_date,
+                "endDate": end_date,
+            }
+            endpoint = "/prices/{epic}/{resolution}/{startDate}/{endDate}".format(
+                **url_params
+            )
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         del self.session.headers["VERSION"]
@@ -1679,15 +1860,17 @@ class IGService:
             format = self.format_prices
         if self.return_dataframe:
             data["prices"] = format(data["prices"], version)
-            data['prices'] = data['prices'].fillna(value=np.nan)
+            data["prices"] = data["prices"].fillna(value=np.nan)
         return data
 
     def log_allowance(self, data):
-        remaining_allowance = data['allowance']['remainingAllowance']
-        allowance_expiry_secs = data['allowance']['allowanceExpiry']
+        remaining_allowance = data["allowance"]["remainingAllowance"]
+        allowance_expiry_secs = data["allowance"]["allowanceExpiry"]
         allowance_expiry = datetime.today() + timedelta(seconds=allowance_expiry_secs)
-        logger.info("Historic price data allowance: %s remaining until %s" %
-                    (remaining_allowance, allowance_expiry))
+        logger.info(
+            "Historic price data allowance: %s remaining until %s"
+            % (remaining_allowance, allowance_expiry)
+        )
 
     # -------- END -------- #
 
@@ -1799,7 +1982,7 @@ class IGService:
         message = b64encode(string.encode())
         return b64encode(PKCS1_v1_5.new(rsakey).encrypt(message)).decode()
 
-    def create_session(self, session=None, encryption=False, version='2'):
+    def create_session(self, session=None, encryption=False, version="2"):
         """
         Creates a session, obtaining tokens for subsequent API access
 
@@ -1807,17 +1990,21 @@ class IGService:
 
         :param session: HTTP session
         :type session: requests.Session
-        :param encryption: whether or not the password should be encrypted. Required for some regions
+        :param encryption: whether or not the password should be encrypted.
+            Required for some regions
         :type encryption: Boolean
         :param version: API method version
         :type version: str
         :return: JSON response body, parsed into dict
         :rtype: dict
         """
-        if version == '3' and self.ACC_NUMBER is None:
-            raise IGException('Account number must be set for v3 sessions')
+        if version == "3" and self.ACC_NUMBER is None:
+            raise IGException("Account number must be set for v3 sessions")
 
-        logger.info(f"Creating new v{version} session for user '{self.IG_USERNAME}' at '{self.BASE_URL}'")
+        logger.info(
+            f"Creating new v{version} session for user '{self.IG_USERNAME}' at "
+            f"'{self.BASE_URL}'"
+        )
         password = self.encrypted_password(session) if encryption else self.IG_PASSWORD
         params = {"identifier": self.IG_USERNAME, "password": password}
         if encryption:
@@ -1833,9 +2020,10 @@ class IGService:
 
         return data
 
-    def refresh_session(self, session=None, version='1'):
+    def refresh_session(self, session=None, version="1"):
         """
-        Refreshes a v3 session. Tokens only last for 60 seconds, so need to be renewed regularly
+        Refreshes a v3 session. Tokens only last for 60 seconds, so need to be
+            renewed regularly
         :param session: HTTP session object
         :type session: requests.Session
         :param version: API method version
@@ -1853,7 +2041,8 @@ class IGService:
 
     def _manage_headers(self, response):
         """
-        Manages authentication headers - different behaviour depending on the session creation version
+        Manages authentication headers - different behaviour depending on the
+            session creation version
         :param response: HTTP response
         :type response: requests.Response
         """
@@ -1861,10 +2050,10 @@ class IGService:
         handle_session_tokens(response, self.session)
         # handle v3 logins
         if response.text:
-            self.session.headers.update({'IG-ACCOUNT-ID': self.ACC_NUMBER})
+            self.session.headers.update({"IG-ACCOUNT-ID": self.ACC_NUMBER})
             payload = json.loads(response.text)
-            if 'oauthToken' in payload:
-                self._handle_oauth(payload['oauthToken'])
+            if "oauthToken" in payload:
+                self._handle_oauth(payload["oauthToken"])
 
     def _handle_oauth(self, oauth):
         """
@@ -1872,11 +2061,11 @@ class IGService:
         :param oauth: 'oauth' portion of the response body
         :type oauth: dict
         """
-        access_token = oauth['access_token']
-        token_type = oauth['token_type']
-        self.session.headers.update({'Authorization': f"{token_type} {access_token}"})
-        self._refresh_token = oauth['refresh_token']
-        validity = int(oauth['expires_in'])
+        access_token = oauth["access_token"]
+        token_type = oauth["token_type"]
+        self.session.headers.update({"Authorization": f"{token_type} {access_token}"})
+        self._refresh_token = oauth["refresh_token"]
+        validity = int(oauth["expires_in"])
         self._valid_until = datetime.now() + timedelta(seconds=validity)
 
     def _check_session(self):
@@ -1897,8 +2086,8 @@ class IGService:
                     logger.info("Refresh failed, logging in again...")
                     self._refresh_token = None
                     self._valid_until = None
-                    del self.session.headers['Authorization']
-                    self.create_session(version='3')
+                    del self.session.headers["Authorization"]
+                    self.create_session(version="3")
 
     def switch_account(self, account_id, default_account, session=None):
         """Switches active accounts, optionally setting the default account"""
@@ -1911,7 +2100,7 @@ class IGService:
         data = self.parse_response(response.text)
         return data
 
-    def read_session(self, fetch_session_tokens='false', session=None):
+    def read_session(self, fetch_session_tokens="false", session=None):
         """Retrieves current session details"""
         version = "1"
         params = {"fetchSessionTokens": fetch_session_tokens}
@@ -1978,13 +2167,16 @@ class IGService:
 
 def handle_session_tokens(response, session):
     """
-    Copy session tokens from response to headers, so they will be present for all future requests
+    Copy session tokens from response to headers, so they will be present for all
+        future requests
     :param response: HTTP response object
     :type response: requests.Response
     :param session: HTTP session object
     :type session: requests.Session
     """
     if "CST" in response.headers:
-        session.headers.update({'CST': response.headers['CST']})
+        session.headers.update({"CST": response.headers["CST"]})
     if "X-SECURITY-TOKEN" in response.headers:
-        session.headers.update({'X-SECURITY-TOKEN': response.headers['X-SECURITY-TOKEN']})
+        session.headers.update(
+            {"X-SECURITY-TOKEN": response.headers["X-SECURITY-TOKEN"]}
+        )

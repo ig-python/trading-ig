@@ -18,6 +18,7 @@ import logging
 import threading
 import traceback
 import sys
+import warnings
 
 from six.moves.urllib.request import urlopen as _urlopen
 from six.moves.urllib.parse import urlparse as parse_url, urljoin, urlencode
@@ -60,6 +61,12 @@ class Subscription(object):
     """Represents a Subscription to be submitted to a Lightstreamer Server."""
 
     def __init__(self, mode, items, fields, adapter=""):
+        warnings.warn(
+            "trading_ig.lightstreamer.Subscription is deprecated, and will be removed "
+            "in a future version; use the official Lightstreamer Python client instead",
+            DeprecationWarning,
+            2,
+        )
         self.item_names = items
         self._items_map = {}
         self.field_names = fields
@@ -73,7 +80,7 @@ class Subscription(object):
         Lightstremar Text Protocol specifications.
         """
         if value == "$":
-            return u""
+            return ""
         elif value == "#":
             return None
         elif not value:
@@ -122,6 +129,12 @@ class LSClient(object):
     """Manages the communication with Lightstreamer Server"""
 
     def __init__(self, base_url, adapter_set="", user="", password=""):
+        warnings.warn(
+            "trading_ig.lightstreamer.LSClient is deprecated, and will be removed in "
+            "a future version; use the official Lightstreamer Python client instead",
+            DeprecationWarning,
+            2,
+        )
         self._base_url = parse_url(base_url)
         self._adapter_set = adapter_set
         self._user = user
@@ -176,7 +189,7 @@ class LSClient(object):
         a new session.
         """
 
-        if not notify and sys.platform.startswith('linux'):
+        if not notify and sys.platform.startswith("linux"):
             log.warning(
                 "systemd.daemon not available, "
                 "no watchdog notifications will be sent."
@@ -279,7 +292,7 @@ class LSClient(object):
                 log.warning("No connection to Lightstreamer")
 
     def subscribe(self, subscription):
-        """"Perform a subscription request to Lightstreamer Server."""
+        """ "Perform a subscription request to Lightstreamer Server."""
         # Register the Subscription with a new subscription key
         self._current_subscription_key += 1
         self._subscriptions[self._current_subscription_key] = subscription

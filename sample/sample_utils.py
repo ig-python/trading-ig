@@ -1,3 +1,7 @@
+def wait_for_input():
+    input("{0:-^80}\n".format("HIT CR TO UNSUBSCRIBE AND DISCONNECT"))
+
+
 # sample weekend spreadbet epics
 weekend_epics = [
     "IX.D.SUNDOW.DAILY.IP",
@@ -5,7 +9,7 @@ weekend_epics = [
     "IX.D.SUNFUN.DAILY.IP",
     "IX.D.SUNGBPUSD.DAILY.IP",
     "IX.D.SUNEURUSD.DAILY.IP",
-    "IX.D.SUNUSDJPY.DAILY.IP"
+    "IX.D.SUNUSDJPY.DAILY.IP",
 ]
 
 # sample crypto spreadbet epics
@@ -28,10 +32,7 @@ crypto_epics = [
 ]
 
 # sample CFD FX epics
-cfd_fx_epics = [
-    "CS.D.GBPUSD.CFD.IP",
-    "CS.D.USDJPY.CFD.IP"
-]
+cfd_fx_epics = ["CS.D.GBPUSD.CFD.IP", "CS.D.USDJPY.CFD.IP"]
 
 # sample spreadbet Index epics
 index_epics = [
@@ -97,49 +98,4 @@ futures_epics = [
     "CF.D.EURUSD.SEP.IP",
     "IR.D.FF.Month10.IP",
     "IX.D.FTSE.MONTH2.IP",
-    # "EN.D.LGO.Month1.IP",
-    # "EN.D.RB.Month2.IP",
-    # "EN.D.NG.Month2.IP",
-    # "CF.D.GBPUSD.SEP.IP",
-    # "IR.D.FLG.Month2.IP",
-    # "MT.D.GC.Month2.IP",
-    # "IX.D.HANGSENG.NEAR.IP",
-    # "EN.D.HO.Month1.IP",
-    # "IX.D.IBEX.Month1.IP",
-    # "IR.D.JGB.Month3.IP",
-    # "CF.D.USDJPY.SEP.IP",
-    # "CO.D.LH.Month1.IP",
-    # "CO.D.LC.Month1.IP",
-    # "IX.D.SINGAPORE.MONTH2.IP",
-    # "IX.D.NASDAQ.MONTH3.IP",
-    # "IX.D.NIKFUT.FAR3.IP",
-    # "CF.D.NZDUSD.SEP.IP",
-    # "CO.D.O.Month1.IP",
-    # "IR.D.FOAT.Month1.IP",
-    # "CO.D.OJ.Month1.IP",
-    # "IX.D.OMX.MONTH1.IP",
-    # "MT.D.PA.Month1.IP",
-    # "MT.D.PL.Month1.IP",
-    # "CO.D.RR.Month1.IP",
-    # "CO.D.LKD.Month1.IP",
-    # "IX.D.RUSSELL.MONTH1.IP",
-    # "IR.D.FGBS.Month1.IP",
-    # "MT.D.SI.Month1.IP",
-    # "IX.D.SMI.MONTH1.IP",
-    # "IR.D.FSS.Month8.IP",
-    # "CO.D.S.Month1.IP",
-    # "CO.D.SM.Month1.IP",
-    # "CO.D.BO.Month1.IP",
-    # "IX.D.SPTRD.MONTH2.IP",
-    # "CO.D.SB.Month6.IP",
-    # "CO.D.LSU.Month5.IP",
-    # "IR.D.10YEAR100.Month1.IP",
-    # "IR.D.02YEAR100.Month1.IP",
-    # "IR.D.ULTRA100.Month1.IP",
-    # "IR.D.BOND100.Month1.IP",
-    # "IR.D.05YEAR100.Month1.IP",
-    # "IN.D.VSTOXX.MONTH3.IP",
-    # "IN.D.VIX.MONTH1.IP",
-    # "CO.D.LWB.Month4.IP",
-    # "CO.D.W.Month1.IP",
 ]

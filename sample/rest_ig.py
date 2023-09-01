@@ -10,12 +10,12 @@ from trading_ig import IGService
 from trading_ig.config import config
 import logging
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
 # if you need to cache to DB your requests
 from datetime import timedelta
 import requests_cache
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 def main():
@@ -25,6 +25,8 @@ def main():
     session = requests_cache.CachedSession(
         cache_name="cache", backend="sqlite", expire_after=expire_after
     )
+
+    print(session.headers)
     # set expire_after=None if you don't want cache expiration
     # set expire_after=0 if you don't want to cache queries
 
@@ -32,11 +34,16 @@ def main():
 
     # no cache
     ig_service = IGService(
-        config.username, config.password, config.api_key, config.acc_type, acc_number=config.acc_number
+        config.username,
+        config.password,
+        config.api_key,
+        config.acc_type,
+        acc_number=config.acc_number,
     )
 
     # if you want to globally cache queries
-    # ig_service = IGService(config.username, config.password, config.api_key, config.acc_type, session)
+    # ig_service = IGService(config.username, config.password, config.api_key,
+    #   config.acc_type, session)
 
     ig_service.create_session()
     # ig_stream_service.create_session(version='3')
@@ -59,7 +66,7 @@ def main():
 
     # epic = 'CS.D.EURUSD.MINI.IP'
     epic = "IX.D.ASX.IFM.IP"  # US (SPY) - mini
-    #epic = "CS.D.GBPUSD.CFD.IP"  # sample CFD epic
+    # epic = "CS.D.GBPUSD.CFD.IP"  # sample CFD epic
 
     resolution = "D"
     # see from pandas.tseries.frequencies import to_offset
@@ -70,19 +77,26 @@ def main():
     response = ig_service.fetch_historical_prices_by_epic_and_num_points(
         epic, resolution, num_points
     )
+    print(response)
     # Exception: error.public-api.exceeded-account-historical-data-allowance
 
     # if you want to cache this query
-    # response = ig_service.fetch_historical_prices_by_epic_and_num_points(epic, resolution, num_points, session)
+    # response = ig_service.fetch_historical_prices_by_epic_and_num_points(
+    #   epic, resolution, num_points, session
+    # )
 
     # df_ask = response['prices']['ask']
     # print("ask prices:\n%s" % df_ask)
 
     # (start_date, end_date) = ('2015-09-15', '2015-09-28')
-    # response = ig_service.fetch_historical_prices_by_epic_and_date_range(epic, resolution, start_date, end_date)
+    # response = ig_service.fetch_historical_prices_by_epic_and_date_range(
+    #   epic, resolution, start_date, end_date
+    # )
 
     # if you want to cache this query
-    # response = ig_service.fetch_historical_prices_by_epic_and_date_range(epic, resolution, start_date, end_date, session)
+    # response = ig_service.fetch_historical_prices_by_epic_and_date_range(
+    #   epic, resolution, start_date, end_date, session
+    # )
     # df_ask = response['prices']['ask']
     # print("ask prices:\n%s" % df_ask)
 

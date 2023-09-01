@@ -17,9 +17,9 @@ jobs:
       with:
         python-version: '3.x'
     - name: Install Poetry
-      uses: abatilo/actions-poetry@v2.1.6
+      uses: abatilo/actions-poetry@v2.3.0
       with:
-        poetry-version: 1.1.12
+        poetry-version: 1.5.1
     - name: Build and publish
       env:
         PYPI_USERNAME: __token__
