@@ -3,13 +3,12 @@ import time
 from trading_ig import IGService, IGStreamService
 from trading_ig.config import config
 from trading_ig.streamer.manager import StreamingManager
-from sample.sample_utils import crypto_epics, fx_epics, index_epics, weekend_epics
+from sample.sample_utils import crypto_epics  # fx_epics, index_epics, weekend_epics
 
 try:
-    from rich.console import Console
     from rich.table import Table
     from rich.live import Live
-except:
+except ImportError:
     print("Rich must be installed for this sample")
 
 

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from trading_ig.lightstreamer import Subscription
+from lightstreamer.client import Subscription
 from .objects import nan, StreamObject
 
 
@@ -22,7 +22,6 @@ class TickerSubscription(Subscription):
     ]
 
     def __init__(self, epic: str):
-
         super().__init__(
             mode="DISTINCT",
             items=[f"CHART:{epic}:TICK"],

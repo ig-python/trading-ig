@@ -3,7 +3,7 @@ import time
 from trading_ig import IGService, IGStreamService
 from trading_ig.config import config
 from trading_ig.streamer.manager import StreamingManager
-from sample.sample_utils import crypto_epics, fx_epics, index_epics, weekend_epics
+from sample.sample_utils import crypto_epics  # fx_epics, index_epics, weekend_epics
 
 
 def main():
@@ -22,6 +22,7 @@ def main():
     sm = StreamingManager(ig)
 
     tickers = []
+    # test_epics = ["CS.D.BITCOIN.TODAY.IP"]
     for epic in crypto_epics:  # fx_epics, index_epics, crypto_epics
         sm.start_tick_subscription(epic)
         tickers.append(sm.ticker(epic))
@@ -31,9 +32,10 @@ def main():
             print(ticker)
         time.sleep(0.5)
 
+    # sm.stop_tick_subscription("CS.D.BITCOIN.TODAY.IP")
+
     sm.stop_subscriptions()
 
 
 if __name__ == "__main__":
     main()
-

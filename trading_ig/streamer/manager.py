@@ -3,6 +3,8 @@ from queue import Queue
 from threading import Thread
 import time
 
+from lightstreamer.client import SubscriptionListener, ItemUpdate
+
 from trading_ig import IGStreamService
 from .ticker import Ticker
 from .ticker import TickerSubscription
@@ -13,7 +15,7 @@ logger = logging.getLogger(__name__)
 class StreamingManager:
     def __init__(self, service: IGStreamService):
         self._service = service
-        self._sub_keys = {}
+        self._subs = {}
 
         # setup data objects
         self._tickers = {}
@@ -31,16 +33,16 @@ class StreamingManager:
     def tickers(self):
         return self._tickers
 
-    def start_tick_subscription(self, epic) -> int:
+    def start_tick_subscription(self, epic) -> TickerSubscription:
         tick_sub = TickerSubscription(epic)
-        tick_sub.addlistener(self.on_update)
-        sub_key = self.service.ls_client.subscribe(tick_sub)
-        self._sub_keys[epic] = sub_key
-        return sub_key
+        tick_sub.addListener(TickerListener(self._queue))
+        self.service.subscribe(tick_sub)
+        self._subs[epic] = tick_sub
+        return tick_sub
 
     def stop_tick_subscription(self, epic):
-        sub_key = self._sub_keys.pop(epic)
-        self.service.ls_client.unsubscribe(sub_key)
+        subscription = self._subs.pop(epic)
+        self.service.unsubscribe(subscription)
 
     def ticker(self, epic):
         # we won't have a ticker until at least one update is received from server,
@@ -68,6 +70,23 @@ class StreamingManager:
             self._consumer_thread = None
 
 
+class TickerListener(SubscriptionListener):
+    def __init__(self, queue: Queue) -> None:
+        self._queue = queue
+
+    def onItemUpdate(self, update: ItemUpdate):
+        self._queue.put(update)
+
+    def onSubscription(self):
+        logger.info("TickerListener onSubscription()")
+
+    def onSubscriptionError(self, code, message):
+        logger.info(f"TickerListener onSubscriptionError(): '{code}' {message}")
+
+    def onUnsubscription(self):
+        logger.info("TickerListener onUnsubscription()")
+
+
 class Consumer(Thread):
     def __init__(self, queue: Queue, manager: StreamingManager):
         super().__init__(name="ConsumerThread", daemon=True)
@@ -84,20 +103,18 @@ class Consumer(Thread):
             item = self._queue.get()
 
             # deal with each different type of update
-            name = item["name"]
+            name = item.getItemName()
             if name.startswith("CHART:"):
                 self._handle_ticker_update(item)
 
-            logger.debug(
-                f"Consumer thread alive. queue length: {self._queue.qsize()}"
-            )
+            logger.debug(f"Consumer thread alive. queue length: {self._queue.qsize()}")
 
-    def _handle_ticker_update(self, item):
-        epic = Ticker.identifier(item["name"])
+    def _handle_ticker_update(self, item: ItemUpdate):
+        epic = Ticker.identifier(item.getItemName())
 
         if epic not in self.manager.tickers:
             ticker = Ticker(epic)
             self.manager.tickers[epic] = ticker
 
         ticker = self.manager.tickers[epic]
-        ticker.populate(item["values"])
+        ticker.populate(item.getChangedFields())
