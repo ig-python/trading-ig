@@ -1,37 +1,32 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
-
-"""
-IG Markets Stream API sample with Python
-2015 FemtoTrader
-"""
-
+import sys
 import logging
+
+from lightstreamer.client import (
+    LightstreamerClient,
+    Subscription,
+    ConsoleLoggerProvider,
+    ConsoleLogLevel,
+    SubscriptionListener,
+    ItemUpdate,
+)
 
 from trading_ig import IGService, IGStreamService
 from trading_ig.config import config
-from trading_ig.lightstreamer import Subscription
+from sample.sample_utils import crypto_epics, wait_for_input
+
+logger = logging.getLogger(__name__)
+
+loggerProvider = ConsoleLoggerProvider(ConsoleLogLevel.INFO)
+LightstreamerClient.setLoggerProvider(loggerProvider)
+
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.INFO,
+    format="%(message)s",
+)
 
 
-# A simple function acting as a Subscription listener
-def on_prices_update(item_update):
-    # print("price: %s " % item_update)
-    print(
-        "{stock_name:<19}: Time {UPDATE_TIME:<8} - "
-        "Bid {BID:>5} - Ask {OFFER:>5}".format(
-            stock_name=item_update["name"], **item_update["values"]
-        )
-    )
-
-
-def on_account_update(balance_update):
-    print("balance: %s " % balance_update)
-
-
-def main():
-    logging.basicConfig(level=logging.INFO)
-    # logging.basicConfig(level=logging.DEBUG)
-
+def ig_stream_sample():
     ig_service = IGService(
         config.username,
         config.password,
@@ -44,56 +39,93 @@ def main():
     ig_stream_service.create_session()
     # ig_stream_service.create_session(version='3')
 
-    # Making a new Subscription in MERGE mode
-    subscription_prices = Subscription(
+    # create a new MARKET Subscription
+    market_subscription = Subscription(
         mode="MERGE",
-        # sample CFD epics
-        # items=["L1:CS.D.GBPUSD.CFD.IP", "L1:CS.D.USDJPY.CFD.IP"],
-        # sample spreadbet epics
-        items=[
-            "L1:CS.D.GBPUSD.TODAY.IP",
-            "L1:IX.D.FTSE.DAILY.IP",
+        # fx_epics, index_epics, weekend_epics, futures_epics, cfd_fx_epics
+        items=[f"MARKET:{epic}" for epic in crypto_epics],
+        fields=[
+            "UPDATE_TIME",
+            "BID",
+            "OFFER",
+            "CHANGE",
+            "MARKET_STATE",
+            "CHANGE_PCT",
+            "HIGH",
+            "LOW",
         ],
-        # sample weekend spreadbet epics
-        # items=["L1:IX.D.SUNDOW.DAILY.IP", "L1:IX.D.SUNDAX.DAILY.IP",
-        #        "IX.D.SUNFUN.DAILY.IP", "L1:IX.D.SUNGBPUSD.DAILY.IP",
-        #        "L1:IX.D.SUNEURUSD.DAILY.IP", "L1:IX.D.SUNUSDJPY.DAILY.IP"],
-        # sample crypto spreadbet epics
-        # items=["L1:CS.D.BITCOIN.TODAY.IP", "L1:CS.D.ETHUSD.TODAY.IP"],
-        fields=["UPDATE_TIME", "BID", "OFFER", "CHANGE", "MARKET_STATE"],
     )
 
-    # Adding the "on_price_update" function to Subscription
-    subscription_prices.addlistener(on_prices_update)
+    # adding a listener to MARKET subscription
+    market_subscription.addListener(MarketListener())
 
-    # Registering the Subscription
-    sub_key_prices = ig_stream_service.ls_client.subscribe(subscription_prices)
-    print(f"price subscription key {sub_key_prices}")
+    # registering the MARKET subscription
+    ig_stream_service.subscribe(market_subscription)
 
-    # Making another Subscription in MERGE mode
-    subscription_account = Subscription(
+    # create a new ACCOUNT subscription
+    account_subscription = Subscription(
         mode="MERGE",
-        items=["ACCOUNT:" + config.acc_number],
-        fields=["AVAILABLE_CASH"],
+        items=[f"ACCOUNT:{config.acc_number}"],
+        fields=["FUNDS", "MARGIN", "AVAILABLE_TO_DEAL", "PNL", "EQUITY", "EQUITY_USED"],
     )
 
-    # Adding the "on_balance_update" function to Subscription
-    subscription_account.addlistener(on_account_update)
+    # adding a listener to ACCOUNT subscription
+    account_subscription.addListener(AccountListener())
 
-    # Registering the Subscription
-    sub_key_account = ig_stream_service.ls_client.subscribe(subscription_account)
-    print(f"account subscription key {sub_key_account}")
+    # registering the ACCOUNT subscription
+    ig_stream_service.subscribe(account_subscription)
 
-    input(
-        "{0:-^80}\n".format(
-            "HIT CR TO UNSUBSCRIBE AND DISCONNECT FROM \
-    LIGHTSTREAMER"
-        )
-    )
+    # await updates
+    wait_for_input()
 
-    # Disconnecting
+    # disconnecting
     ig_stream_service.disconnect()
 
 
+class MarketListener(SubscriptionListener):
+    def onItemUpdate(self, update: ItemUpdate):
+        logger.info(
+            f"{update.getValue('UPDATE_TIME')} {update.getItemName()} "
+            f"Bid: {update.getValue('BID')}, "
+            f"Offer: {update.getValue('OFFER')}, "
+            f"Price change: {update.getValue('CHANGE')}, "
+            f"State: {update.getValue('MARKET_STATE')}, "
+            f"Change: {update.getValue('CHANGE_PCT')}%, "
+            f"High: {update.getValue('HIGH')}, "
+            f"Low: {update.getValue('LOW')}"
+        )
+
+    def onSubscription(self):
+        logger.info("MarketListener onSubscription()")
+
+    def onSubscriptionError(self, code, message):
+        logger.info(f"MarketListener onSubscriptionError(): '{code}' {message}")
+
+    def onUnsubscription(self):
+        logger.info("MarketListener onUnsubscription()")
+
+
+class AccountListener(SubscriptionListener):
+    def onItemUpdate(self, update: ItemUpdate):
+        logger.info(
+            f"{update.getItemName()} "
+            f"Funds: {update.getValue('FUNDS')}, "
+            f"Margin: {update.getValue('MARGIN')}, "
+            f"Available: {update.getValue('AVAILABLE_TO_DEAL')}, "
+            f"P&L: {update.getValue('PNL')}, "
+            f"Equity: {update.getValue('EQUITY')}, "
+            f"Equity used: {update.getValue('EQUITY_USED')}%"
+        )
+
+    def onSubscription(self):
+        logger.info("AccountListener onSubscription()")
+
+    def onSubscriptionError(self, code, message):
+        logger.info(f"AccountListener onSubscriptionError(): '{code}' {message}")
+
+    def onUnsubscription(self):
+        logger.info("AccountListener onUnsubscription()")
+
+
 if __name__ == "__main__":
-    main()
+    ig_stream_sample()

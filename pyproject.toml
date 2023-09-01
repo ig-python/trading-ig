@@ -33,6 +33,7 @@ requests = "^2.24"
 pycryptodome = "^3.9"
 requests-cache = "^0.5"
 six = "^1.15"
+lightstreamer-client-lib = "^1.0.3"
 
 pandas = { version = "^1", optional = true }
 munch = { version = "^2.5", optional = true }

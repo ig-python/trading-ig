@@ -7,7 +7,7 @@ import sys
 import traceback
 import logging
 
-from .lightstreamer import LSClient
+from lightstreamer.client import LightstreamerClient, Subscription
 
 logger = logging.getLogger(__name__)
 
@@ -33,12 +33,9 @@ class IGStreamService(object):
 
         # Establishing a new connection to Lightstreamer Server
         logger.info("Starting connection with %s" % self.lightstreamerEndpoint)
-        self.ls_client = LSClient(
-            self.lightstreamerEndpoint,
-            adapter_set="",
-            user=self.acc_number,
-            password=ls_password,
-        )
+        self.ls_client = LightstreamerClient(self.lightstreamerEndpoint, None)
+        self.ls_client.connectionDetails.setUser(self.acc_number)
+        self.ls_client.connectionDetails.setPassword(ls_password)
         try:
             self.ls_client.connect()
             return
@@ -47,11 +44,14 @@ class IGStreamService(object):
             logger.error(traceback.format_exc())
             sys.exit(1)
 
+    def subscribe(self, subscription: Subscription):
+        self.ls_client.subscribe(subscription)
+
     def unsubscribe_all(self):
         # To avoid a RuntimeError: dictionary changed size during iteration
-        subscriptions = self.ls_client._subscriptions.copy()
-        for subcription_key in subscriptions:
-            self.ls_client.unsubscribe(subcription_key)
+        subscriptions = self.ls_client.getSubscriptions().copy()
+        for sub in subscriptions:
+            self.ls_client.unsubscribe(sub)
 
     def disconnect(self):
         self.unsubscribe_all()
