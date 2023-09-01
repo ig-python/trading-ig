@@ -1,0 +1,3 @@
+# commit ref where codebased was treated with Black
+# this may be useful if using git blame, see https://black.readthedocs.io/en/stable/guides/introducing_black_to_your_project.html
+021e1c7d53ae037a354327fb0a6346e727e6230b
