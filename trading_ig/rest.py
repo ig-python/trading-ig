@@ -752,9 +752,9 @@ class IGService:
         return data
 
     @staticmethod
-    def format_activities(data):
-        data = pd.json_normalize(
-            data["activities"],
+    def format_activities(raw_json):
+        df = pd.json_normalize(
+            raw_json["activities"],
             record_path=["details", ["actions"]],
             meta=[
                 "date",
@@ -768,6 +768,7 @@ class IGService:
                 ["details", "marketName"],
                 ["details", "goodTillDate"],
                 ["details", "currency"],
+                ["details", "size"],
                 ["details", "direction"],
                 ["details", "level"],
                 ["details", "stopLevel"],
@@ -780,11 +781,12 @@ class IGService:
             ],
         )
 
-        data = data.rename(
+        df = df.rename(
             columns={
                 "details.marketName": "marketName",
                 "details.goodTillDate": "goodTillDate",
                 "details.currency": "currency",
+                "details.size": "size",
                 "details.direction": "direction",
                 "details.level": "level",
                 "details.stopLevel": "stopLevel",
@@ -797,9 +799,9 @@ class IGService:
             }
         )
 
-        cols = data.columns.tolist()
+        cols = df.columns.tolist()
         cols = cols[2:] + cols[:2]
-        data = data[cols]
+        data = df[cols]
 
         return data
 
