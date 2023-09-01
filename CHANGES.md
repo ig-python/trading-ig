@@ -1,5 +1,14 @@
 # Release notes
 
+## 0.0.21 (2023-09-01)
+* Black entire codebase
+* Black added to CI pipeline
+* flake8 entire codebase
+* using official Lightstreamer client SDK
+* fixed a bug in fetch_activity() where bet size was not included
+* 'forceOpen' defaults to False in create_working_order()
+* logging improvements
+
 ## 0.0.20 (2023-01-25)
 * repo name changed to 'trading-ig'
 

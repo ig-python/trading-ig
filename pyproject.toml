@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "trading-ig"
-version = "0.0.20"
+version = "0.0.21"
 description = "A lightweight Python wrapper for the IG Markets API"
 authors = ["Femto Trader <femto.trader@gmail.com>", "Andy Geach <andy@bugorfeature.net>"]
 maintainers = ["Andy Geach <andy@bugorfeature.net>"]
@@ -8,7 +8,7 @@ license = "BSD-3-Clause"
 readme = "README.rst"
 homepage = "https://github.com/ig-python/trading-ig"
 repository = "https://github.com/ig-python/trading-ig"
-documentation = "https://trading-ig.rtfd.io/"
+documentation = "https://trading-ig.readthedocs.io/"
 keywords = ["trading", "spread betting", "CFDs"]
 classifiers = [
     "Development Status :: 3 - Alpha",
