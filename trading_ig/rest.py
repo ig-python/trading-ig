@@ -1037,6 +1037,7 @@ class IGService:
         quote_id,
         size,
         session=None,
+        time_in_force=None,
     ):
         """Closes one or more OTC positions"""
         self.trading_rate_limit_pause_or_pass()
@@ -1051,6 +1052,8 @@ class IGService:
             "quoteId": quote_id,
             "size": size,
         }
+        if time_in_force is not None:
+            params["timeInForce"] = time_in_force
         endpoint = "/positions/otc"
         action = "delete"
         response = self._req(action, endpoint, params, session, version)
@@ -1080,6 +1083,7 @@ class IGService:
         trailing_stop,
         trailing_stop_increment,
         session=None,
+        time_in_force=None,
     ):
         """Creates an OTC position"""
         self.trading_rate_limit_pause_or_pass()
@@ -1102,6 +1106,8 @@ class IGService:
             "trailingStop": trailing_stop,
             "trailingStopIncrement": trailing_stop_increment,
         }
+        if time_in_force is not None:
+            params["timeInForce"] = time_in_force
 
         endpoint = "/positions/otc"
         action = "create"
