@@ -45,6 +45,12 @@ class IGException(Exception):
     pass
 
 
+class KycRequiredException(Exception):
+    """Raised when IG needs the user to confirm or re-confirm their KYC status"""
+
+    pass
+
+
 class IGSessionCRUD(object):
     """Session with CRUD operation"""
 
@@ -91,6 +97,11 @@ class IGSessionCRUD(object):
         if response.status_code in [401, 403]:
             if "exceeded-api-key-allowance" in response.text:
                 raise ApiExceededException()
+            if "error.public-api.failure.kyc.required" in response.text:
+                raise KycRequiredException(
+                    "KYC issue: you need to login manually to the web interface and "
+                    "complete IGs occasional Know Your Customer checks"
+                )
             else:
                 raise IGException(f"HTTP error: {response.status_code} {response.text}")
 
