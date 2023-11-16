@@ -43,6 +43,7 @@ class ApiExceededException(Exception):
 
 class TokenInvalidException(Exception):
     """Raised when the v3 session token is invalid or expired"""
+
     pass
 
 
