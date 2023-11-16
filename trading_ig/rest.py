@@ -392,7 +392,7 @@ class IGService:
         if self._api_limit_hit(response.text):
             raise ApiExceededException()
         if self._token_invalid(response.text):
-            logger.error(f"Invalid authentication token, triggering refresh...")
+            logger.error("Invalid authentication token, triggering refresh...")
             self._valid_until = datetime.now() - timedelta(seconds=15)
             raise TokenInvalidException()
         return response
