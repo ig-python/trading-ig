@@ -41,6 +41,11 @@ class ApiExceededException(Exception):
     pass
 
 
+class TokenInvalidException(Exception):
+    """Raised when the v3 session token is invalid or expired"""
+    pass
+
+
 class IGException(Exception):
     pass
 
@@ -385,6 +390,10 @@ class IGService:
         response.encoding = "utf-8"
         if self._api_limit_hit(response.text):
             raise ApiExceededException()
+        if self._token_invalid(response.text):
+            logger.error(f"Invalid authentication token, triggering refresh...")
+            self._valid_until = datetime.now() - timedelta(seconds=15)
+            raise TokenInvalidException()
         return response
 
     @staticmethod
@@ -396,6 +405,10 @@ class IGService:
             or "exceeded-account-allowance" in response_text
             or "exceeded-account-trading-allowance" in response_text
         )
+
+    @staticmethod
+    def _token_invalid(response_text):
+        return "oauth-token-invalid" in response_text
 
     # ---------- PARSE_RESPONSE ----------- #
 
