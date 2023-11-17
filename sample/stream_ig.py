@@ -75,6 +75,19 @@ def ig_stream_sample():
     # registering the ACCOUNT subscription
     ig_stream_service.subscribe(account_subscription)
 
+    # create a new TRADE Subscription
+    trade_subscription = Subscription(
+        mode="DISTINCT",
+        items=[f"TRADE:{config.acc_number}"],
+        fields=["CONFIRMS", "OPU", "WOU"],
+    )
+
+    # adding a listener to TRADE subscription
+    trade_subscription.addListener(TradeListener())
+
+    # registering the TRADE subscription
+    ig_stream_service.subscribe(trade_subscription)
+
     # await updates
     wait_for_input()
 
@@ -125,6 +138,25 @@ class AccountListener(SubscriptionListener):
 
     def onUnsubscription(self):
         logger.info("AccountListener onUnsubscription()")
+
+
+class TradeListener(SubscriptionListener):
+    def onItemUpdate(self, update: ItemUpdate):
+        logger.info(
+            f"{update.getItemName()} "
+            f"Confirms: {update.getValue('CONFIRMS')}, "
+            f"Open position updates: {update.getValue('OPU')}, "
+            f"Working order updates: {update.getValue('WOU')}, "
+        )
+
+    def onSubscription(self):
+        logger.info("TradeListener onSubscription()")
+
+    def onSubscriptionError(self, code, message):
+        logger.info(f"TradeListener onSubscriptionError(): '{code}' {message}")
+
+    def onUnsubscription(self):
+        logger.info("TradeListener onUnsubscription()")
 
 
 if __name__ == "__main__":
