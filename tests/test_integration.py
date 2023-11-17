@@ -173,7 +173,7 @@ class TestIntegration:
             from_date=from_date, to_date=to_date, detailed=True
         )
         assert isinstance(response, pd.DataFrame)
-        assert response.shape[1] == 22
+        assert response.shape[1] == 23
 
     def test_fetch_account_activity_old(self, ig_service: IGService):
         from_date = datetime(1970, 1, 1)

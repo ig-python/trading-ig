@@ -41,7 +41,19 @@ class ApiExceededException(Exception):
     pass
 
 
+class TokenInvalidException(Exception):
+    """Raised when the v3 session token is invalid or expired"""
+
+    pass
+
+
 class IGException(Exception):
+    pass
+
+
+class KycRequiredException(Exception):
+    """Raised when IG needs the user to confirm or re-confirm their KYC status"""
+
     pass
 
 
@@ -91,6 +103,11 @@ class IGSessionCRUD(object):
         if response.status_code in [401, 403]:
             if "exceeded-api-key-allowance" in response.text:
                 raise ApiExceededException()
+            if "error.public-api.failure.kyc.required" in response.text:
+                raise KycRequiredException(
+                    "KYC issue: you need to login manually to the web interface and "
+                    "complete IGs occasional Know Your Customer checks"
+                )
             else:
                 raise IGException(f"HTTP error: {response.status_code} {response.text}")
 
@@ -374,6 +391,10 @@ class IGService:
         response.encoding = "utf-8"
         if self._api_limit_hit(response.text):
             raise ApiExceededException()
+        if self._token_invalid(response.text):
+            logger.error("Invalid authentication token, triggering refresh...")
+            self._valid_until = datetime.now() - timedelta(seconds=15)
+            raise TokenInvalidException()
         return response
 
     @staticmethod
@@ -385,6 +406,10 @@ class IGService:
             or "exceeded-account-allowance" in response_text
             or "exceeded-account-trading-allowance" in response_text
         )
+
+    @staticmethod
+    def _token_invalid(response_text):
+        return "oauth-token-invalid" in response_text
 
     # ---------- PARSE_RESPONSE ----------- #
 
@@ -1037,6 +1062,7 @@ class IGService:
         quote_id,
         size,
         session=None,
+        time_in_force=None,
     ):
         """Closes one or more OTC positions"""
         self.trading_rate_limit_pause_or_pass()
@@ -1051,6 +1077,8 @@ class IGService:
             "quoteId": quote_id,
             "size": size,
         }
+        if time_in_force is not None:
+            params["timeInForce"] = time_in_force
         endpoint = "/positions/otc"
         action = "delete"
         response = self._req(action, endpoint, params, session, version)
@@ -1080,6 +1108,7 @@ class IGService:
         trailing_stop,
         trailing_stop_increment,
         session=None,
+        time_in_force=None,
     ):
         """Creates an OTC position"""
         self.trading_rate_limit_pause_or_pass()
@@ -1102,6 +1131,8 @@ class IGService:
             "trailingStop": trailing_stop,
             "trailingStopIncrement": trailing_stop_increment,
         }
+        if time_in_force is not None:
+            params["timeInForce"] = time_in_force
 
         endpoint = "/positions/otc"
         action = "create"
