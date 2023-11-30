@@ -62,6 +62,7 @@ environment variables
     $ export IG_SERVICE_PASSWORD="your_password"
     $ export IG_SERVICE_API_KEY="your_api_key"
     $ export IG_SERVICE_ACC_NUMBER="your_account_number"
+    $ export IG_SERVICE_ACC_TYPE="your_acc_type"
 
 
 Connection
