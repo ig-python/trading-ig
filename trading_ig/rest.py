@@ -20,7 +20,14 @@ from urllib.parse import urlparse, parse_qs
 
 from datetime import timedelta, datetime
 from .utils import _HAS_PANDAS, _HAS_MUNCH
-from .utils import conv_resol, conv_datetime, conv_to_ms, DATE_FORMATS
+from .utils import (
+    conv_resol,
+    conv_datetime,
+    conv_to_ms,
+    DATE_FORMATS,
+    api_limit_hit,
+    token_invalid,
+)
 
 if _HAS_MUNCH:
     from .utils import munchify
@@ -42,7 +49,7 @@ class ApiExceededException(Exception):
 
 
 class TokenInvalidException(Exception):
-    """Raised when the v3 session token is invalid or expired"""
+    """Raised when the session token is invalid or expired"""
 
     pass
 
@@ -101,8 +108,10 @@ class IGSessionCRUD(object):
         response = session.post(url, data=json.dumps(params))
         logger.info(f"POST '{endpoint}', resp {response.status_code}")
         if response.status_code in [401, 403]:
-            if "exceeded-api-key-allowance" in response.text:
+            if api_limit_hit(response.text):
                 raise ApiExceededException()
+            if token_invalid(response.text):
+                raise TokenInvalidException()
             if "error.public-api.failure.kyc.required" in response.text:
                 raise KycRequiredException(
                     "KYC issue: you need to login manually to the web interface and "
@@ -389,27 +398,13 @@ class IGService:
             )
 
         response.encoding = "utf-8"
-        if self._api_limit_hit(response.text):
+        if api_limit_hit(response.text):
             raise ApiExceededException()
-        if self._token_invalid(response.text):
+        if token_invalid(response.text):
             logger.error("Invalid authentication token, triggering refresh...")
             self._valid_until = datetime.now() - timedelta(seconds=15)
             raise TokenInvalidException()
         return response
-
-    @staticmethod
-    def _api_limit_hit(response_text):
-        # note we don't check for historical data allowance - it only gets reset
-        # once a week
-        return (
-            "exceeded-api-key-allowance" in response_text
-            or "exceeded-account-allowance" in response_text
-            or "exceeded-account-trading-allowance" in response_text
-        )
-
-    @staticmethod
-    def _token_invalid(response_text):
-        return "oauth-token-invalid" in response_text
 
     # ---------- PARSE_RESPONSE ----------- #
 
