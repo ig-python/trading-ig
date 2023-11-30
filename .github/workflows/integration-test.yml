@@ -2,8 +2,8 @@
 name: trading-ig integration test
 
 on:
-  #schedule:
-  #  - cron: '0 2 * * 0-4'
+  schedule:
+    - cron: '0 2 * * 0-4'
   workflow_dispatch:
     
 jobs:

@@ -22,7 +22,6 @@ def main():
     sm = StreamingManager(ig)
 
     tickers = []
-    # test_epics = ["CS.D.BITCOIN.TODAY.IP"]
     for epic in crypto_epics:  # fx_epics, index_epics, crypto_epics
         sm.start_tick_subscription(epic)
         tickers.append(sm.ticker(epic))
@@ -31,8 +30,6 @@ def main():
         for ticker in tickers:
             print(ticker)
         time.sleep(0.5)
-
-    # sm.stop_tick_subscription("CS.D.BITCOIN.TODAY.IP")
 
     sm.stop_subscriptions()
 

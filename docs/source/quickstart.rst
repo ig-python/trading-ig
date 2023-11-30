@@ -141,3 +141,12 @@ Assuming config as above
 >>> sub.addlistener(on_update)
 >>> ig_stream_service.ls_client.subscribe(sub)
 >>> ig_stream_service.disconnect()
+
+
+Using the Streamer classes to connect with the Streaming API
+------------------------------------------------------------
+
+See the streamer samples:
+
+* `sample/sample_ticker.py <https://github.com/ig-python/trading-ig/blob/master/sample/sample_ticker.py>`_
+* `sample/sample_ticker_rich.py <https://github.com/ig-python/trading-ig/blob/master/sample/sample_ticker_rich.py>`_
