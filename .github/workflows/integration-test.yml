@@ -3,7 +3,7 @@ name: trading-ig integration test
 
 on:
   schedule:
-    - cron: '0 2 * * 0-4'
+    - cron: '25 2 * * 1-4'
   workflow_dispatch:
     
 jobs:
