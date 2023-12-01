@@ -1,4 +1,9 @@
-from trading_ig.rest import IGService, IGException, ApiExceededException
+from trading_ig.rest import (
+    IGService,
+    IGException,
+    ApiExceededException,
+    TokenInvalidException,
+)
 from trading_ig.config import config
 import pandas as pd
 from datetime import datetime, timedelta
@@ -13,7 +18,8 @@ from tenacity import Retrying, wait_exponential, retry_if_exception_type
 def retrying():
     """test fixture creates a tenacity.Retrying instance"""
     return Retrying(
-        wait=wait_exponential(), retry=retry_if_exception_type(ApiExceededException)
+        wait=wait_exponential(),
+        retry=retry_if_exception_type((ApiExceededException, TokenInvalidException)),
     )
 
 
