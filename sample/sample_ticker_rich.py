@@ -60,7 +60,7 @@ def main():
                 f"{ticker.day_percent_change_mid:.2f}",
                 f"{ticker.day_high:.2f}",
                 f"{ticker.day_low:.2f}",
-                f"{ticker.timestamp.strftime('%Y-%m-%d %H:%M:%S')}",
+                f"{ticker.timestamp.strftime('%Y-%m-%d %H:%M:%S') if ticker.timestamp else ''}",
             )
 
         return table
