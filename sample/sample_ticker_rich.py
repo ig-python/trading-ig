@@ -11,6 +11,8 @@ try:
 except ImportError:
     print("Rich must be installed for this sample")
 
+FORMAT = "%Y-%m-%d %H:%M:%S"
+
 
 def main():
     logging.basicConfig(level=logging.WARNING)
@@ -60,7 +62,7 @@ def main():
                 f"{ticker.day_percent_change_mid:.2f}",
                 f"{ticker.day_high:.2f}",
                 f"{ticker.day_low:.2f}",
-                f"{ticker.timestamp.strftime('%Y-%m-%d %H:%M:%S') if ticker.timestamp else ''}",
+                f"{ticker.timestamp.strftime(FORMAT) if ticker.timestamp else ''}",
             )
 
         return table
