@@ -6,6 +6,8 @@ import tenacity
 from tenacity import Retrying
 import pandas as pd
 
+RETRYABLE = (ApiExceededException, TokenInvalidException)
+
 
 class TestRetry:
     # test_retry
@@ -138,9 +140,7 @@ class TestRetry:
             "DEMO",
             retryer=Retrying(
                 wait=tenacity.wait_exponential(),
-                retry=tenacity.retry_if_exception_type(
-                    (ApiExceededException, TokenInvalidException)
-                ),
+                retry=tenacity.retry_if_exception_type(RETRYABLE),
             ),
         )
 

@@ -14,12 +14,15 @@ import time
 from tenacity import Retrying, wait_exponential, retry_if_exception_type
 
 
+RETRYABLE = (ApiExceededException, TokenInvalidException)
+
+
 @pytest.fixture(scope="module")
 def retrying():
     """test fixture creates a tenacity.Retrying instance"""
     return Retrying(
         wait=wait_exponential(),
-        retry=retry_if_exception_type((ApiExceededException, TokenInvalidException)),
+        retry=retry_if_exception_type(RETRYABLE),
     )
 
 

@@ -111,6 +111,7 @@ class IGSessionCRUD(object):
             if api_limit_hit(response.text):
                 raise ApiExceededException()
             if token_invalid(response.text):
+                logger.warning("Invalid session token, triggering refresh...")
                 raise TokenInvalidException()
             if "error.public-api.failure.kyc.required" in response.text:
                 raise KycRequiredException(
@@ -401,7 +402,7 @@ class IGService:
         if api_limit_hit(response.text):
             raise ApiExceededException()
         if token_invalid(response.text):
-            logger.error("Invalid authentication token, triggering refresh...")
+            logger.warning("Invalid session token, triggering refresh...")
             self._valid_until = datetime.now() - timedelta(seconds=15)
             raise TokenInvalidException()
         return response
