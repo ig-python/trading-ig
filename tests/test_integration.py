@@ -11,7 +11,12 @@ import pytest
 from random import randint, choice
 import logging
 import time
-from tenacity import Retrying, wait_exponential, retry_if_exception_type
+from tenacity import (
+    Retrying,
+    wait_exponential,
+    retry_if_exception_type,
+    stop_after_attempt,
+)
 
 
 RETRYABLE = (ApiExceededException, TokenInvalidException)
@@ -23,6 +28,16 @@ def retrying():
     return Retrying(
         wait=wait_exponential(),
         retry=retry_if_exception_type(RETRYABLE),
+    )
+
+
+@pytest.fixture(scope="module")
+def limited_retrying():
+    """test fixture creates a tenacity.Retrying instance with max 3 attempts"""
+    return Retrying(
+        wait=wait_exponential(),
+        retry=retry_if_exception_type(RETRYABLE),
+        stop=stop_after_attempt(3),
     )
 
 
@@ -844,13 +859,13 @@ class TestIntegration:
         result = ig_service.update_client_app(60, 60, config.api_key, "ENABLED")
         print(result)
 
-    def test_logout(self, retrying):
+    def test_logout(self, limited_retrying):
         ig_service = IGService(
             config.username,
             config.password,
             config.api_key,
             config.acc_type,
-            retryer=retrying,
+            retryer=limited_retrying,
         )
         ig_service.create_session()
         ig_service.logout()
