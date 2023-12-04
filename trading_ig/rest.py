@@ -112,6 +112,7 @@ class IGSessionCRUD(object):
                 raise ApiExceededException()
             if token_invalid(response.text):
                 logger.warning("Invalid session token, triggering refresh...")
+                del self.session.headers["Authorization"]
                 raise TokenInvalidException()
             if "error.public-api.failure.kyc.required" in response.text:
                 raise KycRequiredException(
