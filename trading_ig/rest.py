@@ -110,10 +110,6 @@ class IGSessionCRUD(object):
         if response.status_code in [401, 403]:
             if api_limit_hit(response.text):
                 raise ApiExceededException()
-            if token_invalid(response.text):
-                logger.warning("Invalid session token, triggering refresh...")
-                del self.session.headers["Authorization"]
-                raise TokenInvalidException()
             if "error.public-api.failure.kyc.required" in response.text:
                 raise KycRequiredException(
                     "KYC issue: you need to login manually to the web interface and "
