@@ -44,18 +44,22 @@ class StreamingManager:
         subscription = self._subs.pop(epic)
         self.service.unsubscribe(subscription)
 
-    def ticker(self, epic):
+    def ticker(self, epic, timeout_length=3):
         # we won't have a ticker until at least one update is received from server,
         # let's give it a few seconds
-        timeout = time.time() + 3
+        timeout = time.time() + timeout_length
         while True:
-            logger.debug("Waiting for ticker...")
+            logger.info(f"Waiting for ticker for '{epic}'...")
             if epic in self._tickers or time.time() > timeout:
                 break
             time.sleep(0.25)
-        ticker = self._tickers[epic]
-        if not ticker:
-            raise Exception(f"No ticker found for {epic}, giving up")
+        try:
+            ticker = self._tickers[epic]
+        except KeyError:
+            raise Exception(
+                f"No ticker found for {epic} after "
+                f"waiting {timeout_length} seconds - giving up"
+            )
         return ticker
 
     def on_update(self, update):
