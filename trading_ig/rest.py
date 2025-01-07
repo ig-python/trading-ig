@@ -1637,9 +1637,11 @@ class IGService:
         if version == "3":
             df = df.set_index("snapshotTimeUTC")
             df = df.drop(columns=["snapshotTime"])
+            date_format = "%Y-%m-%dT%H:%M:%S"
         else:
             df = df.set_index("snapshotTime")
-        df.index = pd.to_datetime(df.index, format=DATE_FORMATS[int(version)])
+            date_format = DATE_FORMATS[int(version)]
+        df.index = pd.to_datetime(df.index, format=date_format)
         df.index.name = "DateTime"
         df = df.drop(
             columns=[
