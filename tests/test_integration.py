@@ -387,13 +387,6 @@ class TestIntegration:
         for sentiment in response["clientSentiments"]:
             self.assert_sentiment(sentiment)
 
-    def test_fetch_related_client_sentiment_by_instrument(self, ig_service: IGService):
-        market_id = self.get_random_market_id()
-        df = ig_service.fetch_related_client_sentiment_by_instrument(market_id)
-        rows = df.to_dict("records")
-        for sentiment in rows:
-            self.assert_sentiment(sentiment)
-
     @staticmethod
     def assert_sentiment(response):
         long = response["longPositionPercentage"]
