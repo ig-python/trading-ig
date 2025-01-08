@@ -1615,8 +1615,8 @@ class IGService:
         df2 = pd.concat(data, axis=1, keys=keys)
 
         # force all object columns to be numeric, NaN if error
-        for col in df2.select_dtypes(include=['object']).columns:
-            df2[col] = pd.to_numeric(df2[col], errors='coerce')
+        for col in df2.select_dtypes(include=["object"]).columns:
+            df2[col] = pd.to_numeric(df2[col], errors="coerce")
 
         return df2
 
