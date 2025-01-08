@@ -28,20 +28,15 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.7,<4.0"
+python = ">=3.9,<4.0"
 requests = "^2.24"
 pycryptodome = "^3.9"
 requests-cache = "^0.5"
 six = "^1.15"
 lightstreamer-client-lib = "^1.0.3"
 
-pandas = [
-    {version = "^2.1", python = ">=3.9", optional = true},
-    {version = "^1.5", python = ">=3.8,<3.9", optional = true},
-    {version = "^1.3", python = ">=3.7.1,<3.8", optional = true},
-    {version = "^1.1", python = ">=3.6.1,<3.7.1", optional = true},
-]
-munch = { version = "^2.5", optional = true }
+pandas = {version = "^2", optional = true}
+munch = {version = "^2.5", optional = true}
 tenacity = {version = "^8", optional = true}
 
 [tool.poetry.extras]
