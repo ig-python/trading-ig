@@ -30,7 +30,7 @@ classifiers = [
 python = ">=3.9,<4.0"
 requests = "^2.24"
 pycryptodome = "^3.9"
-requests-cache = "^0.5"
+requests-cache = "^0.9"
 six = "^1.15"
 lightstreamer-client-lib = "^1.0.3"
 
