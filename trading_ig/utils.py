@@ -46,13 +46,13 @@ def conv_resol(resolution):
             to_offset("10Min"): "MINUTE_10",
             to_offset("15Min"): "MINUTE_15",
             to_offset("30Min"): "MINUTE_30",
-            to_offset("1H"): "HOUR",
-            to_offset("2H"): "HOUR_2",
-            to_offset("3H"): "HOUR_3",
-            to_offset("4H"): "HOUR_4",
+            to_offset("1h"): "HOUR",
+            to_offset("2h"): "HOUR_2",
+            to_offset("3h"): "HOUR_3",
+            to_offset("4h"): "HOUR_4",
             to_offset("D"): "DAY",
             to_offset("W"): "WEEK",
-            to_offset("M"): "MONTH",
+            to_offset("ME"): "MONTH",
         }
         offset = to_offset(resolution)
         if offset in d:
