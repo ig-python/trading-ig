@@ -33,7 +33,7 @@ if _HAS_MUNCH:
     from .utils import munchify
 
 if _HAS_PANDAS:
-    from .utils import pd, np
+    from .utils import pd
     from pandas import json_normalize
 
 from threading import Thread
