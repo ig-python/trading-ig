@@ -33,7 +33,7 @@ if _HAS_MUNCH:
     from .utils import munchify
 
 if _HAS_PANDAS:
-    from .utils import pd, np
+    from .utils import pd
     from pandas import json_normalize
 
 from threading import Thread
@@ -1613,6 +1613,11 @@ class IGService:
             keys.append("last")
 
         df2 = pd.concat(data, axis=1, keys=keys)
+
+        # force all object columns to be numeric, NaN if error
+        for col in df2.select_dtypes(include=["object"]).columns:
+            df2[col] = pd.to_numeric(df2[col], errors="coerce")
+
         return df2
 
     def flat_prices(self, prices, version):
@@ -1637,9 +1642,11 @@ class IGService:
         if version == "3":
             df = df.set_index("snapshotTimeUTC")
             df = df.drop(columns=["snapshotTime"])
+            date_format = "%Y-%m-%dT%H:%M:%S"
         else:
             df = df.set_index("snapshotTime")
-        df.index = pd.to_datetime(df.index, format=DATE_FORMATS[int(version)])
+            date_format = DATE_FORMATS[int(version)]
+        df.index = pd.to_datetime(df.index, format=date_format)
         df.index.name = "DateTime"
         df = df.drop(
             columns=[
@@ -1798,7 +1805,6 @@ class IGService:
             format = self.format_prices
         if self.return_dataframe:
             data["prices"] = format(data["prices"], version)
-            data["prices"] = data["prices"].fillna(value=np.nan)
         self.log_allowance(data["metadata"])
         return data
 
@@ -1820,7 +1826,6 @@ class IGService:
             format = self.format_prices
         if self.return_dataframe:
             data["prices"] = format(data["prices"], version)
-            data["prices"] = data["prices"].fillna(value=np.nan)
         return data
 
     def fetch_historical_prices_by_epic_and_date_range(
@@ -1884,7 +1889,6 @@ class IGService:
             format = self.format_prices
         if self.return_dataframe:
             data["prices"] = format(data["prices"], version)
-            data["prices"] = data["prices"].fillna(value=np.nan)
         return data
 
     def log_allowance(self, data):
