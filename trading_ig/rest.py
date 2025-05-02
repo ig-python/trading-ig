@@ -1393,7 +1393,7 @@ class IGService:
         Returns repeat dealing window status for account
         :param epic: filter epic, optional
         :type epic: str
-        :param session: session object, otional
+        :param session: session object, optional
         :type session: Session
         :return: repeat dealing windows for recently traded epics
         :rtype: dict
