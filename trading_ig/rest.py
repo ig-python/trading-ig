@@ -1402,7 +1402,7 @@ class IGService:
         version = "1"
         params = {}
         if epic is not None:
-            params["epic"] = epic            
+            params["epic"] = epic
         endpoint = "/repeat-dealing-window"
         action = "read"
         for i in range(5):
