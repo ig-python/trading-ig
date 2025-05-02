@@ -1387,7 +1387,7 @@ class IGService:
             return self.fetch_deal_by_deal_reference(deal_reference)
         else:
             raise IGException(response.text)
-        
+
     def fetch_repeat_dealing_window(self, epic=None, session=None):
         """
         Returns repeat dealing window status for account
