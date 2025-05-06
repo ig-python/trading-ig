@@ -1388,6 +1388,33 @@ class IGService:
         else:
             raise IGException(response.text)
 
+    def fetch_repeat_dealing_window(self, epic=None, session=None):
+        """
+        Returns repeat dealing window status for account
+        :param epic: filter epic, optional
+        :type epic: str
+        :param session: session object, optional
+        :type session: Session
+        :return: repeat dealing windows for recently traded epics
+        :rtype: dict
+        """
+        self.non_trading_rate_limit_pause_or_pass()
+        version = "1"
+        params = {}
+        if epic is not None:
+            params["epic"] = epic
+        endpoint = "/repeat-dealing-window"
+        action = "read"
+        for i in range(5):
+            response = self._req(action, endpoint, params, session, version)
+            if not response.status_code == 200:
+                logger.info("Error fetching repeat dealing window, retrying.")
+                time.sleep(1)
+            else:
+                break
+        data = self.parse_response(response.text)
+        return data
+
     # -------- END -------- #
 
     # -------- MARKETS -------- #
