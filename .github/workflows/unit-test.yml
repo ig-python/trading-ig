@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ "3.9", "3.10", "3.11" ]
+        python-version: [ "3.9", "3.10", "3.11", "3.12" ]
 
     steps:
 
@@ -25,13 +25,13 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install Poetry
-      uses: abatilo/actions-poetry@v2
+      uses: abatilo/actions-poetry@v3
       with:
-        poetry-version: 1.8.2
+        poetry-version: "latest"
 
     - name: Install dependencies
       run: |
-        python -m poetry install --extras "pandas munch tenacity"
+        poetry install --extras "pandas munch tenacity"
 
     - name: Prettify with black
       uses: psf/black@stable
@@ -40,8 +40,8 @@ jobs:
 
     - name: Lint with flake8
       run: |
-        python -m poetry run flake8 trading_ig docs sample tests
+        poetry run flake8 trading_ig docs sample tests
 
     - name: Unit tests with pytest
       run: |
-        python -m poetry run python -m pytest --ignore=tests/test_integration.py
+        poetry run pytest --ignore=tests/test_integration.py
