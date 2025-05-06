@@ -1388,6 +1388,33 @@ class IGService:
         else:
             raise IGException(response.text)
 
+    def fetch_repeat_dealing_window(self, epic=None, session=None):
+        """
+        Returns repeat dealing window status for account
+        :param epic: filter epic, optional
+        :type epic: str
+        :param session: session object, optional
+        :type session: Session
+        :return: repeat dealing windows for recently traded epics
+        :rtype: dict
+        """
+        self.non_trading_rate_limit_pause_or_pass()
+        version = "1"
+        params = {}
+        if epic is not None:
+            params["epic"] = epic
+        endpoint = "/repeat-dealing-window"
+        action = "read"
+        for i in range(5):
+            response = self._req(action, endpoint, params, session, version)
+            if not response.status_code == 200:
+                logger.info("Error fetching repeat dealing window, retrying.")
+                time.sleep(1)
+            else:
+                break
+        data = self.parse_response(response.text)
+        return data
+
     # -------- END -------- #
 
     # -------- MARKETS -------- #
@@ -1694,9 +1721,11 @@ class IGService:
         if version == "3":
             df = df.set_index("snapshotTimeUTC")
             df = df.drop(columns=["snapshotTime"])
+            date_format = "%Y-%m-%dT%H:%M:%S"
         else:
             df = df.set_index("snapshotTime")
-        df.index = pd.to_datetime(df.index, format=DATE_FORMATS[int(version)])
+            date_format = DATE_FORMATS[int(version)]
+        df.index = pd.to_datetime(df.index, format=date_format)
         df.index.name = "DateTime"
 
         df["Open"] = df[["openPrice.bid", "openPrice.ask"]].mean(axis=1)
