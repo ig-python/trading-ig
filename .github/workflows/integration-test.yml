@@ -12,23 +12,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
     - uses: actions/checkout@v4
-
     - name: Set up Python 3.10
       uses: actions/setup-python@v5
       with:
         python-version: "3.10"
-
     - name: Install Poetry
-      uses: abatilo/actions-poetry@v3
+      uses: abatilo/actions-poetry@v4
       with:
         poetry-version: "latest"
-
+    - name: Setup a local virtual environment
+      run: |
+        poetry config virtualenvs.create true --local
+        poetry config virtualenvs.in-project true --local
+    - uses: actions/cache@v3
+      name: Define a cache for the virtual environment based on the dependencies lock file
+      with:
+        path: ./.venv
+        key: venv-${{ hashFiles('poetry.lock') }}
     - name: Install dependencies
       run: |
         poetry install --extras "pandas munch tenacity"
-
     - name: Integration test with pytest
       env:
         IG_SERVICE_USERNAME:  ${{ secrets.IG_SERVICE_USERNAME }}
@@ -39,7 +43,6 @@ jobs:
       run: |
         poetry run coverage run -m --source=trading_ig pytest --log-cli-level=DEBUG --log-format="%(asctime)s %(levelname)s %(message)s" --log-date-format="%Y-%m-%d %H:%M:%S"
         poetry run coverage report
-
     - name: Coveralls
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
