@@ -18,6 +18,12 @@ from tenacity import (
     stop_after_attempt,
 )
 
+try:
+    import munch  # noqa: F401
+
+    munch_installed = True
+except ImportError:
+    munch_installed = False
 
 RETRYABLE = (ApiExceededException, TokenInvalidException)
 
@@ -417,6 +423,7 @@ class TestIntegration:
         response = ig_service.fetch_market_by_epic("CS.D.EURUSD.MINI.IP")
         assert isinstance(response, dict)
 
+    @pytest.mark.skipif(not munch_installed, reason="Requires munch")
     def test_fetch_markets_by_epics(self, ig_service: IGService):
         markets_list = ig_service.fetch_markets_by_epics(
             "IX.D.SPTRD.MONTH1.IP,IX.D.FTSE.DAILY.IP", version="1"
@@ -663,6 +670,7 @@ class TestIntegration:
         assert prices.shape[0] == 5
         assert prices.shape[1] == 5
 
+    @pytest.mark.skipif(not munch_installed, reason="Requires munch")
     def test_create_open_position(self, ig_service: IGService):
         epic = "IX.D.FTSE.DAILY.IP"
         market_info = ig_service.fetch_market_by_epic(epic)
@@ -728,6 +736,7 @@ class TestIntegration:
         assert close_result["dealStatus"] == "ACCEPTED"
         assert close_result["reason"] == "SUCCESS"
 
+    @pytest.mark.skipif(not munch_installed, reason="Requires munch")
     def test_create_working_order(self, ig_service: IGService):
         epic = "CS.D.GBPUSD.TODAY.IP"
         market_info = ig_service.fetch_market_by_epic(epic)
@@ -761,6 +770,7 @@ class TestIntegration:
         assert delete_result["dealStatus"] == "ACCEPTED"
         assert delete_result["reason"] == "SUCCESS"
 
+    @pytest.mark.skipif(not munch_installed, reason="Requires munch")
     def test_create_working_order_guaranteed_stop_loss(self, ig_service: IGService):
         epic = "CS.D.GBPUSD.TODAY.IP"
         market_info = ig_service.fetch_market_by_epic(epic)
