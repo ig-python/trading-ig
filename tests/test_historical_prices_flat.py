@@ -54,7 +54,6 @@ class TestHistoricalPricesFlat:
         responses.add(
             responses.GET,
             "https://demo-api.ig.com/gateway/deal/prices/MT.D.GC.Month2.IP",
-            match_querystring=False,
             headers={"CST": "abc123", "X-SECURITY-TOKEN": "xyz987"},
             json=response_body,
             status=200,
@@ -97,7 +96,6 @@ class TestHistoricalPricesFlat:
         responses.add(
             responses.GET,
             "https://demo-api.ig.com/gateway/deal/prices/MT.D.GC.Month2.IP",
-            match_querystring=False,
             headers={"CST": "abc123", "X-SECURITY-TOKEN": "xyz987"},
             json=response_body,
             status=200,
@@ -131,7 +129,6 @@ class TestHistoricalPricesFlat:
         responses.add(
             responses.GET,
             "https://demo-api.ig.com/gateway/deal/prices/MT.D.GC.Month2.IP",
-            match_querystring=False,
             headers={"CST": "abc123", "X-SECURITY-TOKEN": "xyz987"},
             json={
                 "errorCode": "Unable to convert value=3.14159 to type= Integer int"
@@ -159,7 +156,6 @@ class TestHistoricalPricesFlat:
         responses.add(
             responses.GET,
             "https://demo-api.ig.com/gateway/deal/prices/MT.D.GC.Month2.IP",
-            match_querystring=False,
             headers={"CST": "abc123", "X-SECURITY-TOKEN": "xyz987"},
             json=response_body,
             status=200,
