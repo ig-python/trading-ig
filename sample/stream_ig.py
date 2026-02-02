@@ -1,13 +1,12 @@
 import sys
 import logging
+from datetime import datetime
 
 from lightstreamer.client import (
-    LightstreamerClient,
     Subscription,
-    ConsoleLoggerProvider,
-    ConsoleLogLevel,
     SubscriptionListener,
     ItemUpdate,
+    ClientListener,
 )
 
 from trading_ig import IGService, IGStreamService
@@ -16,8 +15,6 @@ from sample.sample_utils import crypto_epics, wait_for_input
 
 logger = logging.getLogger(__name__)
 
-loggerProvider = ConsoleLoggerProvider(ConsoleLogLevel.INFO)
-LightstreamerClient.setLoggerProvider(loggerProvider)
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -88,6 +85,9 @@ def ig_stream_sample():
     # registering the TRADE subscription
     ig_stream_service.subscribe(trade_subscription)
 
+    # adding a ClientListener
+    ig_stream_service.add_client_listener(StatusListener())
+
     # await updates
     wait_for_input()
 
@@ -157,6 +157,11 @@ class TradeListener(SubscriptionListener):
 
     def onUnsubscription(self):
         logger.info("TradeListener onUnsubscription()")
+
+
+class StatusListener(ClientListener):
+    def onStatusChange(self, status):
+        print(f"{datetime.now()}: ***** {status} *****")
 
 
 if __name__ == "__main__":
