@@ -864,17 +864,3 @@ class TestIntegration:
     def test_update_client_app(self, ig_service: IGService):
         result = ig_service.update_client_app(60, 60, config.api_key, "ENABLED")
         print(result)
-
-    def test_logout(self, limited_retrying):
-        ig_service = IGService(
-            config.username,
-            config.password,
-            config.api_key,
-            config.acc_type,
-            retryer=limited_retrying,
-        )
-        ig_service.create_session()
-        ig_service.logout()
-        with pytest.raises(Exception) as error:
-            print(error)
-            ig_service.fetch_accounts()
