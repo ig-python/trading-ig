@@ -460,7 +460,7 @@ class TestIntegration:
 
     def test_fetch_historical_prices_by_epic_and_numpoints(self, ig_service: IGService):
         response = ig_service.fetch_historical_prices_by_epic_and_num_points(
-            "CS.D.EURUSD.MINI.IP", "H", 4
+            "CS.D.EURUSD.MINI.IP", "h", 4
         )
         assert isinstance(response["allowance"], dict)
         assert isinstance(response["prices"], pd.DataFrame)
@@ -470,7 +470,7 @@ class TestIntegration:
         self, ig_service: IGService
     ):
         response = ig_service.fetch_historical_prices_by_epic_and_num_points(
-            "CS.D.EURUSD.MINI.IP", "H", 4, format=ig_service.flat_prices
+            "CS.D.EURUSD.MINI.IP", "h", 4, format=ig_service.flat_prices
         )
         assert isinstance(response["allowance"], dict)
         assert isinstance(response["prices"], pd.DataFrame)
@@ -481,7 +481,7 @@ class TestIntegration:
         self, ig_service: IGService
     ):
         response = ig_service.fetch_historical_prices_by_epic_and_num_points(
-            "CS.D.EURUSD.MINI.IP", "H", 4, format=ig_service.mid_prices
+            "CS.D.EURUSD.MINI.IP", "h", 4, format=ig_service.mid_prices
         )
         assert isinstance(response["allowance"], dict)
         assert isinstance(response["prices"], pd.DataFrame)
