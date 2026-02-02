@@ -81,6 +81,7 @@ def ig_service(request, retrying):
     ig_service.logout()
 
 
+# TODO refactor for new navigation API
 @pytest.fixture()
 def top_level_nodes(ig_service: IGService):
     """test fixture gets the top level navigation nodes"""
@@ -270,6 +271,7 @@ class TestIntegration:
         with pytest.raises(IGException):
             ig_service.create_session()
 
+    @pytest.mark.xfail(reason="Navigation API has been changed by IG")
     def test_fetch_top_level_navigation_nodes(self, top_level_nodes):
         assert isinstance(top_level_nodes, pd.DataFrame)
 
@@ -402,6 +404,7 @@ class TestIntegration:
         assert isinstance(short, float)
         assert long + short == 100.0
 
+    @pytest.mark.xfail(reason="Navigation API has been changed by IG")
     def test_fetch_sub_nodes_by_node(self, ig_service: IGService, top_level_nodes):
         rand_index = randint(0, len(top_level_nodes) - 1)
         response = ig_service.fetch_sub_nodes_by_node(rand_index)
