@@ -163,8 +163,8 @@ class TestIntegration:
         assert isinstance(response, pd.DataFrame)
 
     def test_fetch_account_activity_by_date(self, ig_service: IGService):
-        to_date = datetime.now()
-        from_date = to_date - timedelta(days=7)
+        to_date = datetime.now() - timedelta(days=30)
+        from_date = to_date - timedelta(days=60)
         response = ig_service.fetch_account_activity_by_date(from_date, to_date)
         assert isinstance(response, pd.DataFrame)
 
@@ -174,8 +174,8 @@ class TestIntegration:
         assert isinstance(response, pd.DataFrame)
 
     def test_fetch_account_activity_v2_dates(self, ig_service):
-        to_date = datetime(2021, 7, 31)
-        from_date = to_date - timedelta(days=7)
+        to_date = datetime.now() - timedelta(days=30)
+        from_date = to_date - timedelta(days=60)
         response = ig_service.fetch_account_activity_v2(
             from_date=from_date, to_date=to_date
         )
@@ -189,8 +189,8 @@ class TestIntegration:
         assert response.shape[1] == 9
 
     def test_fetch_account_activity_from_to(self, ig_service: IGService):
-        to_date = datetime(2023, 7, 18)
-        from_date = to_date - timedelta(days=7)
+        to_date = datetime.now() - timedelta(days=30)
+        from_date = to_date - timedelta(days=60)
         response = ig_service.fetch_account_activity(
             from_date=from_date, to_date=to_date
         )
@@ -198,8 +198,8 @@ class TestIntegration:
         assert response.shape[1] == 9
 
     def test_fetch_account_activity_detailed(self, ig_service):
-        to_date = datetime(2023, 7, 18)
-        from_date = to_date - timedelta(days=7)
+        to_date = datetime.now() - timedelta(days=30)
+        from_date = to_date - timedelta(days=60)
         response = ig_service.fetch_account_activity(
             from_date=from_date, to_date=to_date, detailed=True
         )
@@ -208,7 +208,7 @@ class TestIntegration:
 
     def test_fetch_account_activity_old(self, ig_service: IGService):
         from_date = datetime(1970, 1, 1)
-        to_date = from_date + timedelta(days=7)
+        to_date = from_date + timedelta(days=60)
         response = ig_service.fetch_account_activity(
             from_date=from_date, to_date=to_date
         )
@@ -216,8 +216,8 @@ class TestIntegration:
         assert response.shape[0] == 0
 
     def test_fetch_account_activity_fiql(self, ig_service: IGService):
-        to_date = datetime(2023, 7, 18)
-        from_date = to_date - timedelta(days=30)
+        to_date = datetime.now() - timedelta(days=30)
+        from_date = to_date - timedelta(days=60)
         response = ig_service.fetch_account_activity(
             from_date=from_date, to_date=to_date, fiql_filter="channel==PUBLIC_WEB_API"
         )
@@ -459,6 +459,11 @@ class TestIntegration:
     def test_search_markets(self, ig_service: IGService):
         search_term = "EURUSD"
         response = ig_service.search_markets(search_term)
+        assert isinstance(response, pd.DataFrame)
+
+    def test_search_markets_v2(self, ig_service: IGService):
+        epics = "CS.D.GBPUSD.TODAY.IP"
+        response = ig_service.search_markets_v2(epics)
         assert isinstance(response, pd.DataFrame)
 
     def test_fetch_historical_prices_by_epic_and_numpoints(self, ig_service: IGService):
