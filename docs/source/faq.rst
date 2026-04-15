@@ -77,7 +77,7 @@ exceeded one of the limits.
 
 You can query the limits associated with either a LIVE or DEMO API key after logging on by calling::
 
-IGService.get_client_apps()
+    IGService.get_client_apps()
 
 This is the rate used when a new IGService object is created with the use_rate_limiter kwarg set as True.
 
