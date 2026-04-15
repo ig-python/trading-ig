@@ -191,8 +191,7 @@ class LSClient(object):
 
         if not notify and sys.platform.startswith("linux"):
             log.warning(
-                "systemd.daemon not available, "
-                "no watchdog notifications will be sent."
+                "systemd.daemon not available, no watchdog notifications will be sent."
             )
 
         self._stream_connection = self._call(

@@ -65,7 +65,6 @@ dev = [
     "coveralls>=3,<4",
     "sphinx",
     "sphinx-rtd-theme",
-    "black==23.3.0",
 ]
 
 [tool.uv.build-backend]

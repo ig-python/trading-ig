@@ -30,10 +30,9 @@ jobs:
       run: |
         uv sync --all-extras --dev
 
-    - name: Prettify with black
-      uses: psf/black@stable
-      with:
-        version: "23.3.0"
+    - name: Check code prettiness with ruff
+      run: |
+        uv run ruff format --check 
 
     - name: Lint with ruff
       run: |
