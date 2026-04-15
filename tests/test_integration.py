@@ -461,6 +461,11 @@ class TestIntegration:
         response = ig_service.search_markets(search_term)
         assert isinstance(response, pd.DataFrame)
 
+    def test_search_markets_v2(self, ig_service: IGService):
+        epics = "CS.D.GBPUSD.TODAY.IP"
+        response = ig_service.search_markets_v2(epics)
+        assert isinstance(response, pd.DataFrame)
+
     def test_fetch_historical_prices_by_epic_and_numpoints(self, ig_service: IGService):
         response = ig_service.fetch_historical_prices_by_epic_and_num_points(
             "CS.D.EURUSD.MINI.IP", "h", 4
