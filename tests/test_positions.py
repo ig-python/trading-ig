@@ -5,7 +5,6 @@ import pandas as pd
 
 
 class TestPositions:
-
     """
     unit tests for position methods
     """

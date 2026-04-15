@@ -10,19 +10,25 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    environment:
+      name: pypi
+
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Checkout
+      uses: actions/checkout@v6
+
+    - name: Install uv and Python
+      uses: astral-sh/setup-uv@v7
       with:
+        version: "0.11.6"
         python-version: "3.10"
-    - name: Install Poetry
-      uses: abatilo/actions-poetry@v3
-      with:
-        poetry-version: "latest"
-    - name: Build and publish
-      env:
-        PYPI_USERNAME: __token__
-        PYPI_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-      run: |
-        poetry publish -u $PYPI_USERNAME -p $PYPI_PASSWORD --build
+
+    - name: Build
+      run: uv build
+
+    - name: Publish
+      run: uv publish

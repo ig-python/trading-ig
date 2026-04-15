@@ -4,34 +4,13 @@ Quickstart
 Installation
 ------------
 
-This project uses `Poetry <https://python-poetry.org/>`_.
-
-Adding to an existing Poetry project::
-
-    $ poetry add trading-ig
-
-With all the optional dependencies::
-
-    $ poetry add trading-ig[pandas,munch,tenacity]
-
-Cloning the project with Poetry::
-
-    $ git clone https://github.com/ig-python/trading-ig
-    $ cd trading-ig
-    $ poetry install
-
-And with all optional dependencies::
-
-    $ poetry install --extras "pandas munch tenacity"
-
 Installing with pip::
 
     $ pip install trading-ig
 
-And with all optional dependencies::
+Installing with all optional dependencies::
 
-    $ pip install trading-ig pandas munch tenacity
-
+    $ pip install "trading-ig[pandas, munch, tenacity]"
 
 Configuration
 -------------

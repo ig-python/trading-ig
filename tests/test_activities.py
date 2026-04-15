@@ -7,7 +7,6 @@ import re
 
 
 class TestActivities:
-
     """
     unit tests for activities
     """

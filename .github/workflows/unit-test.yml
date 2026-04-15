@@ -17,31 +17,26 @@ jobs:
 
     steps:
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+    - name: Install uv and setup Python
+      uses: astral-sh/setup-uv@v7
       with:
+        version: "0.11.6"
         python-version: ${{ matrix.python-version }}
-
-    - name: Install Poetry
-      uses: abatilo/actions-poetry@v3
-      with:
-        poetry-version: "latest"
 
     - name: Install dependencies
       run: |
-        poetry install --extras "pandas munch tenacity"
+        uv sync --all-extras --dev
 
-    - name: Prettify with black
-      uses: psf/black@stable
-      with:
-        version: "23.3.0"
-
-    - name: Lint with flake8
+    - name: Check code prettiness with ruff
       run: |
-        poetry run flake8 trading_ig docs sample tests
+        uv run ruff format --check 
+
+    - name: Lint with ruff
+      run: |
+        uv run ruff check trading_ig docs sample tests
 
     - name: Unit tests with pytest
       run: |
-        poetry run pytest --ignore=tests/test_integration.py
+        uv run pytest --ignore=tests/test_integration.py

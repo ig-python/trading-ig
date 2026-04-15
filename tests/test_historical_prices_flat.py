@@ -130,9 +130,7 @@ class TestHistoricalPricesFlat:
             responses.GET,
             "https://demo-api.ig.com/gateway/deal/prices/MT.D.GC.Month2.IP",
             headers={"CST": "abc123", "X-SECURITY-TOKEN": "xyz987"},
-            json={
-                "errorCode": "Unable to convert value=3.14159 to type= Integer int"
-            },  # noqa
+            json={"errorCode": "Unable to convert value=3.14159 to type= Integer int"},  # noqa
             status=400,
         )
 

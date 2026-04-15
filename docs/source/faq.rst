@@ -77,7 +77,7 @@ exceeded one of the limits.
 
 You can query the limits associated with either a LIVE or DEMO API key after logging on by calling::
 
-IGService.get_client_apps()
+    IGService.get_client_apps()
 
 This is the rate used when a new IGService object is created with the use_rate_limiter kwarg set as True.
 
@@ -212,33 +212,33 @@ solutions:
 How do I check my PR will pass CI checks?
 -----------------------------------------
 This project uses some automated continuous integration (CI) processes whenever
-any code is committed, or if someone creates a PR. There are unit tests, code
-formatting with ``black``, and linting with ``flake8``. In addition, an
-integration test gets executed every night. The integration test takes a long
-time due to the :ref:`rate limits<rate_limits>`. Before making a PR, please make
-sure the tests pass - PRs will be rejected if they do not. For code formatting::
+any code is committed, or if someone creates a PR. There are unit tests, and code
+formatting and linting with ``ruff``. In addition, an integration test gets
+executed every night. The integration test takes a long time due to the
+:ref:`rate limits<rate_limits>`. Before making a PR, please make sure the tests
+pass - PRs will be rejected if they do not. For code formatting::
 
-    $ poetry run black .
+    $ uv run ruff format
 
 and for linting::
 
-    $ poetry run flake8 trading_ig docs sample tests
+    $ uv run ruff check trading_ig docs sample tests
 
 for unit tests::
 
-    $ poetry run pytest --ignore=tests/test_integration.py
+    $ uv run pytest --ignore=tests/test_integration.py
 
 for integration tests::
 
-    $ poetry run pytest tests/test_integration.py
+    $ uv run pytest tests/test_integration.py
 
 for unit and integration tests::
 
-    $ poetry run pytest
+    $ uv run pytest
 
 for all tests, including one *really* long running one that tests v3 sessions::
 
-    $ poetry run pytest --runslow
+    $ uv run pytest --runslow
 
 
 .. _v2_or_v3_sessions:
@@ -332,10 +332,12 @@ An issue without all this information may be ignored and/or closed without respo
 
 What happened to ``setup.py`` and ``requirements.txt``?
 -------------------------------------------------------------
-Early versions of this project used the standard ``setup.py`` config, with a ``requirements.txt`` file describing
-dependencies. `Poetry <https://python-poetry.org/>`_
-support was added with version 0.0.10 (July 2021). The old style config was removed with version 0.0.14
+Early versions of this project used the standard ``setup.py`` config, with a
+``requirements.txt`` file describing dependencies. `Poetry <https://python-poetry.org/>`_
+support was added with version 0.0.10 (July 2021).The old style config was
+removed with version 0.0.14.
 
+We switched to `uv <https://docs.astral.sh/uv/>`_ in April 2026.
 
 .. _why-is-pandas-an-optional-dependency-in-pyproject-toml:
 .. _optional-dependencies:
