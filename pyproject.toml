@@ -59,7 +59,7 @@ Issues = "https://github.com/ig-python/trading-ig/issues"
 
 [dependency-groups]
 dev = [
-    "flake8>=7,<8",
+    "ruff",
     "pytest>=8,<9",
     "responses>=0.25,<0.26",
     "coveralls>=3,<4",

@@ -35,9 +35,9 @@ jobs:
       with:
         version: "23.3.0"
 
-    - name: Lint with flake8
+    - name: Lint with ruff
       run: |
-        uv run flake8 trading_ig docs sample tests
+        uv run ruff check trading_ig docs sample tests
 
     - name: Unit tests with pytest
       run: |
