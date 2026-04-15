@@ -2,13 +2,13 @@
 name: trading-ig integration test
 
 on:
-#  schedule:
-#    - cron: '25 2 * * 1-4'
+  schedule:
+    - cron: '25 2 * * 1-4'
   workflow_dispatch:
     
 jobs:
   build:
-    # if: github.repository == 'ig-python/trading-ig'
+    if: github.repository == 'ig-python/trading-ig'
     runs-on: ubuntu-latest
 
     steps:
