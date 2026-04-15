@@ -1569,6 +1569,19 @@ class IGService:
             data = pd.DataFrame(data["markets"])
         return data
 
+    def search_markets_v2(self, epics, session=None):
+        """Returns all markets matching the epics"""
+        self.non_trading_rate_limit_pause_or_pass()
+        version = "2"
+        endpoint = "/markets"
+        params = {"epics": epics}
+        action = "read"
+        response = self._req(action, endpoint, params, session, version)
+        data = self.parse_response(response.text)
+        if self.return_dataframe:
+            data = pd.DataFrame(data["marketDetails"])
+        return data
+
     def format_prices(self, prices, version, flag_calc_spread=False):
         """
         Format prices data as a DataFrame with hierarchical columns
