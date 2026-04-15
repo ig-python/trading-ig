@@ -7,7 +7,7 @@ import sys
 import traceback
 import logging
 
-from lightstreamer.client import LightstreamerClient, Subscription
+from lightstreamer.client import LightstreamerClient, Subscription, ClientListener
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +55,12 @@ class IGStreamService(object):
         subscriptions = self.ls_client.getSubscriptions().copy()
         for sub in subscriptions:
             self.ls_client.unsubscribe(sub)
+
+    def add_client_listener(self, listener: ClientListener):
+        self.ls_client.addListener(listener)
+
+    def remove_client_listener(self, listener: ClientListener):
+        self.ls_client.removeListener(listener)
 
     def disconnect(self):
         self.unsubscribe_all()

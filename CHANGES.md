@@ -1,5 +1,16 @@
 # Release notes
 
+## 0.0.23 (2026-02-02)
+* Skip test where munch needed, if not imported (PR #360)
+* Better support for recent pandas (PR #347)
+* CI updates (PR #351)
+* added feature to request repeat dealing window for traded epics (PR #350)
+* Bump min Python version to 3.9
+* add readthedocs config
+* add a sample jupyter notebook for REST api
+* StreamingManager now supports a user defined timeout length to be set on method ticker() (PR #322)
+* support added for streaming ClientListeners (PR #368)
+
 ## 0.0.22 (2023-12-06)
 * add support for 'time_in_force' parameter (Issue #303, PR #303)
 * add ability to handle KYC errors (Issue #261, PR #307)
