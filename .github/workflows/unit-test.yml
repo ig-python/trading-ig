@@ -28,7 +28,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        uv sync --locked --all-extras --dev
+        uv sync --all-extras --dev
 
     - name: Prettify with black
       uses: psf/black@stable
