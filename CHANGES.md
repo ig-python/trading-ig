@@ -1,5 +1,8 @@
 # Release notes
 
+## 0.0.24 (2026-04-16)
+* switch from poetry to uv for build, config, lint, pretty
+
 ## 0.0.23 (2026-02-02)
 * Skip test where munch needed, if not imported (PR #360)
 * Better support for recent pandas (PR #347)
