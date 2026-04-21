@@ -217,7 +217,7 @@ class TestIntegration:
 
     def test_fetch_account_activity_fiql(self, ig_service: IGService):
         to_date = datetime.now() - timedelta(days=30)
-        from_date = to_date - timedelta(days=60)
+        from_date = to_date - timedelta(days=120)
         response = ig_service.fetch_account_activity(
             from_date=from_date, to_date=to_date, fiql_filter="channel==PUBLIC_WEB_API"
         )
