@@ -1,7 +1,9 @@
-from trading_ig.rest import IGService, IGException
-import responses
 import json
+
 import pytest
+import responses
+
+from trading_ig.rest import IGException, IGService
 
 """
 unit tests for session methods
@@ -75,7 +77,7 @@ class TestSession:
             responses.GET,
             "https://demo-api.ig.com/gateway/deal/session/encryptionKey",
             json={
-                "encryptionKey": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp9te7zwed8HhdRFsn47EI8exZ1Yi+bJoKtclGTiuaP1T+4AclNqB2mIya/Ik6IV6A2pt4FFVoqvrhJA46dWi4XgA4Ojhl2Xxw4++blAMgT3jU7N5nY13LdJzZuYv/oPZKRcEj6RrlBV68HjrTnjAMWARl0jFbVCiLWovTGJ0stx/zJAKX0GFyuUlsoaJISJJRYeOLUtZ8Z4BE6ZkmKnz4V8YNyyoWCyXQp+IKCZrfoEdlMOPBgsjbRy02Gh9xZqcm2erLsp40F+w3AjHUqQQi7eQuPQaPWq9Lhm8cVDH2CB2BtfM8Ew8T5/A36eqa5eoeQcZaMnLUQP5UYtG2Wd//wIDAQAB",  # noqa
+                "encryptionKey": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp9te7zwed8HhdRFsn47EI8exZ1Yi+bJoKtclGTiuaP1T+4AclNqB2mIya/Ik6IV6A2pt4FFVoqvrhJA46dWi4XgA4Ojhl2Xxw4++blAMgT3jU7N5nY13LdJzZuYv/oPZKRcEj6RrlBV68HjrTnjAMWARl0jFbVCiLWovTGJ0stx/zJAKX0GFyuUlsoaJISJJRYeOLUtZ8Z4BE6ZkmKnz4V8YNyyoWCyXQp+IKCZrfoEdlMOPBgsjbRy02Gh9xZqcm2erLsp40F+w3AjHUqQQi7eQuPQaPWq9Lhm8cVDH2CB2BtfM8Ew8T5/A36eqa5eoeQcZaMnLUQP5UYtG2Wd//wIDAQAB",
                 "timeStamp": "1601218928621",
             },
             status=200,
@@ -180,7 +182,7 @@ class TestSession:
             responses.GET,
             "https://demo-api.ig.com/gateway/deal/session/encryptionKey",
             json={
-                "encryptionKey": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp9te7zwed8HhdRFsn47EI8exZ1Yi+bJoKtclGTiuaP1T+4AclNqB2mIya/Ik6IV6A2pt4FFVoqvrhJA46dWi4XgA4Ojhl2Xxw4++blAMgT3jU7N5nY13LdJzZuYv/oPZKRcEj6RrlBV68HjrTnjAMWARl0jFbVCiLWovTGJ0stx/zJAKX0GFyuUlsoaJISJJRYeOLUtZ8Z4BE6ZkmKnz4V8YNyyoWCyXQp+IKCZrfoEdlMOPBgsjbRy02Gh9xZqcm2erLsp40F+w3AjHUqQQi7eQuPQaPWq9Lhm8cVDH2CB2BtfM8Ew8T5/A36eqa5eoeQcZaMnLUQP5UYtG2Wd//wIDAQAB",  # noqa
+                "encryptionKey": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp9te7zwed8HhdRFsn47EI8exZ1Yi+bJoKtclGTiuaP1T+4AclNqB2mIya/Ik6IV6A2pt4FFVoqvrhJA46dWi4XgA4Ojhl2Xxw4++blAMgT3jU7N5nY13LdJzZuYv/oPZKRcEj6RrlBV68HjrTnjAMWARl0jFbVCiLWovTGJ0stx/zJAKX0GFyuUlsoaJISJJRYeOLUtZ8Z4BE6ZkmKnz4V8YNyyoWCyXQp+IKCZrfoEdlMOPBgsjbRy02Gh9xZqcm2erLsp40F+w3AjHUqQQi7eQuPQaPWq9Lhm8cVDH2CB2BtfM8Ew8T5/A36eqa5eoeQcZaMnLUQP5UYtG2Wd//wIDAQAB",
                 "timeStamp": "1601218928621",
             },
             status=200,

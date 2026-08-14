@@ -1,21 +1,23 @@
-from trading_ig.rest import (
-    IGService,
-    IGException,
-    ApiExceededException,
-    TokenInvalidException,
-)
-from trading_ig.config import config
-import pandas as pd
-from datetime import datetime, timedelta
-import pytest
-from random import randint, choice
 import logging
 import time
+from datetime import datetime, timedelta, timezone
+from random import choice, randint
+
+import pandas as pd
+import pytest
 from tenacity import (
     Retrying,
-    wait_exponential,
     retry_if_exception_type,
     stop_after_attempt,
+    wait_exponential,
+)
+
+from trading_ig.config import config
+from trading_ig.rest import (
+    ApiExceededException,
+    IGException,
+    IGService,
+    TokenInvalidException,
 )
 
 try:
@@ -44,16 +46,6 @@ def limited_retrying():
         wait=wait_exponential(),
         retry=retry_if_exception_type(RETRYABLE),
         stop=stop_after_attempt(3),
-    )
-
-
-@pytest.fixture(autouse=True)
-def logging_setup():
-    """sets logging for each test"""
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)s %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
     )
 
 
@@ -100,11 +92,14 @@ def watchlist_id(ig_service: IGService):
     """test fixture creates a dummy watchlist for use in tests,
     and returns the ID. In teardown it also deletes the dummy watchlist"""
     epics = ["CS.D.GBPUSD.TODAY.IP", "IX.D.FTSE.DAILY.IP"]
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     data = ig_service.create_watchlist(f"test_{now.strftime('%Y%m%d%H%H%S')}", epics)
     watchlist_id = data["watchlistId"]
     yield watchlist_id
     ig_service.delete_watchlist(watchlist_id)
+
+
+logger = logging.getLogger(__name__)
 
 
 class TestIntegration:
@@ -163,7 +158,7 @@ class TestIntegration:
         assert isinstance(response, pd.DataFrame)
 
     def test_fetch_account_activity_by_date(self, ig_service: IGService):
-        to_date = datetime.now() - timedelta(days=30)
+        to_date = datetime.now(timezone.utc) - timedelta(days=30)
         from_date = to_date - timedelta(days=60)
         response = ig_service.fetch_account_activity_by_date(from_date, to_date)
         assert isinstance(response, pd.DataFrame)
@@ -174,7 +169,7 @@ class TestIntegration:
         assert isinstance(response, pd.DataFrame)
 
     def test_fetch_account_activity_v2_dates(self, ig_service):
-        to_date = datetime.now() - timedelta(days=30)
+        to_date = datetime.now(timezone.utc) - timedelta(days=30)
         from_date = to_date - timedelta(days=60)
         response = ig_service.fetch_account_activity_v2(
             from_date=from_date, to_date=to_date
@@ -182,15 +177,15 @@ class TestIntegration:
         assert isinstance(response, pd.DataFrame)
 
     def test_fetch_account_activity_from(self, ig_service: IGService):
-        to_date = datetime.now() - timedelta(days=30)
+        to_date = datetime.now(timezone.utc) - timedelta(days=30)
         from_date = to_date - timedelta(days=60)
         response = ig_service.fetch_account_activity(from_date=from_date)
         assert isinstance(response, pd.DataFrame)
         assert response.shape[1] == 9
 
     def test_fetch_account_activity_from_to(self, ig_service: IGService):
-        to_date = datetime.now() - timedelta(days=30)
-        from_date = to_date - timedelta(days=60)
+        to_date = datetime.now(timezone.utc) - timedelta(days=30)
+        from_date = to_date - timedelta(days=360)
         response = ig_service.fetch_account_activity(
             from_date=from_date, to_date=to_date
         )
@@ -198,8 +193,8 @@ class TestIntegration:
         assert response.shape[1] == 9
 
     def test_fetch_account_activity_detailed(self, ig_service):
-        to_date = datetime.now() - timedelta(days=30)
-        from_date = to_date - timedelta(days=60)
+        to_date = datetime.now(timezone.utc) - timedelta(days=30)
+        from_date = to_date - timedelta(days=360)
         response = ig_service.fetch_account_activity(
             from_date=from_date, to_date=to_date, detailed=True
         )
@@ -207,7 +202,7 @@ class TestIntegration:
         assert response.shape[1] == 23
 
     def test_fetch_account_activity_old(self, ig_service: IGService):
-        from_date = datetime(1970, 1, 1)
+        from_date = datetime(1970, 1, 1, tzinfo=timezone.utc)
         to_date = from_date + timedelta(days=60)
         response = ig_service.fetch_account_activity(
             from_date=from_date, to_date=to_date
@@ -216,7 +211,7 @@ class TestIntegration:
         assert response.shape[0] == 0
 
     def test_fetch_account_activity_fiql(self, ig_service: IGService):
-        to_date = datetime.now() - timedelta(days=30)
+        to_date = datetime.now(timezone.utc) - timedelta(days=30)
         from_date = to_date - timedelta(days=120)
         response = ig_service.fetch_account_activity(
             from_date=from_date, to_date=to_date, fiql_filter="channel==PUBLIC_WEB_API"
@@ -320,10 +315,10 @@ class TestIntegration:
         delay_choice = [(1, 59), (60, 650)]
         for count in range(1, 20):
             data = ig_service.fetch_accounts()
-            logging.info(f"Account count: {len(data)}")
+            logger.info(f"Account count: {len(data)}")
             option = choice(delay_choice)
             wait = randint(option[0], option[1])
-            logging.info(f"Waiting for {wait} seconds...")
+            logger.info(f"Waiting for {wait} seconds...")
             time.sleep(wait)
 
     def test_read_session(self, ig_service: IGService):
@@ -787,9 +782,9 @@ class TestIntegration:
         offer = market_info.snapshot.offer
         bid = market_info.snapshot.bid
 
-        logging.info(f"min bet: {min_bet}")
-        logging.info(f"offer: {offer}")
-        logging.info(f"bid: {bid}")
+        logger.info(f"min bet: {min_bet}")
+        logger.info(f"offer: {offer}")
+        logger.info(f"bid: {bid}")
 
         if status != "TRADEABLE":
             pytest.skip("Skipping create working order test, market not open")
@@ -810,7 +805,7 @@ class TestIntegration:
             stop_level=None,
         )
 
-        logging.info(
+        logger.info(
             f"result: {create_result['dealStatus']}, reason {create_result['reason']}"
         )
 
@@ -833,7 +828,7 @@ class TestIntegration:
             deal_id=create_result["dealId"],
         )
 
-        logging.info(
+        logger.info(
             f"result: {update_result['dealStatus']}, reason {update_result['reason']}"
         )
 

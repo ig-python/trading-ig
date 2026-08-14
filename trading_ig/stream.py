@@ -1,18 +1,13 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-from __future__ import absolute_import, division, print_function
-
+import logging
 import sys
 import traceback
-import logging
 
-from lightstreamer.client import LightstreamerClient, Subscription, ClientListener
+from lightstreamer.client import ClientListener, LightstreamerClient, Subscription
 
 logger = logging.getLogger(__name__)
 
 
-class IGStreamService(object):
+class IGStreamService:
     def __init__(self, ig_service):
         self.ig_service = ig_service
         self.lightstreamerEndpoint = None
@@ -29,10 +24,10 @@ class IGStreamService(object):
         self.lightstreamerEndpoint = ig_session["lightstreamerEndpoint"]
         cst = self.ig_service.session.headers["CST"]
         xsecuritytoken = self.ig_service.session.headers["X-SECURITY-TOKEN"]
-        ls_password = "CST-%s|XST-%s" % (cst, xsecuritytoken)
+        ls_password = f"CST-{cst}|XST-{xsecuritytoken}"
 
         # Establishing a new connection to Lightstreamer Server
-        logger.info("Starting connection with %s" % self.lightstreamerEndpoint)
+        logger.info(f"Starting connection with {self.lightstreamerEndpoint}")
         self.ls_client = LightstreamerClient(self.lightstreamerEndpoint, None)
         self.ls_client.connectionDetails.setUser(self.acc_number)
         self.ls_client.connectionDetails.setPassword(ls_password)

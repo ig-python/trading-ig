@@ -1,5 +1,4 @@
-from datetime import datetime
-
+from datetime import datetime, timezone
 
 nan = float("nan")
 
@@ -17,7 +16,9 @@ class StreamObject:
         try:
             if key in values:
                 setattr(
-                    self, attr_name, datetime.fromtimestamp(int(values[key]) / 1000)
+                    self,
+                    attr_name,
+                    datetime.fromtimestamp(int(values[key]) / 1000, tz=timezone.utc),
                 )
         except TypeError:
             # ignore, there will be plenty of dud values

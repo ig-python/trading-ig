@@ -1,10 +1,12 @@
-from trading_ig.rest import IGService, ApiExceededException, TokenInvalidException
-import responses
-from responses import Response
 import json
-import tenacity
-from tenacity import Retrying
+
 import pandas as pd
+import responses
+import tenacity
+from responses import Response
+from tenacity import Retrying
+
+from trading_ig.rest import ApiExceededException, IGService, TokenInvalidException
 
 RETRYABLE = (ApiExceededException, TokenInvalidException)
 

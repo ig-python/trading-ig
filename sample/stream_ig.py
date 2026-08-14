@@ -1,17 +1,19 @@
-import sys
+#!/usr/bin/env python
+
 import logging
-from datetime import datetime
+import sys
+from datetime import datetime, timezone
 
 from lightstreamer.client import (
+    ClientListener,
+    ItemUpdate,
     Subscription,
     SubscriptionListener,
-    ItemUpdate,
-    ClientListener,
 )
 
+from sample.sample_utils import crypto_epics, wait_for_input
 from trading_ig import IGService, IGStreamService
 from trading_ig.config import config
-from sample.sample_utils import crypto_epics, wait_for_input
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +102,7 @@ def ig_stream_sample():
 class PriceListener(SubscriptionListener):
     def onItemUpdate(self, update: ItemUpdate):
         logger.info(
-            f"{datetime.fromtimestamp(int(update.getValue('TIMESTAMP')) / 1000).strftime('%Y-%m-%d %H:%M:%S')} "
+            f"{datetime.fromtimestamp(int(update.getValue('TIMESTAMP')) / 1000, tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} "
             f"{update.getItemName()} "
             f"Bid: {update.getValue('BIDPRICE1')}, "
             f"Offer: {update.getValue('ASKPRICE1')}, "
@@ -164,7 +166,7 @@ class TradeListener(SubscriptionListener):
 
 class StatusListener(ClientListener):
     def onStatusChange(self, status):
-        print(f"{datetime.now()}: ***** {status} *****")
+        print(f"{datetime.now(timezone.utc)}: ***** {status} *****")
 
 
 if __name__ == "__main__":

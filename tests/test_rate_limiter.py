@@ -1,7 +1,9 @@
-from trading_ig.rest import IGService
-import responses
 import json
 import time
+
+import responses
+
+from trading_ig.rest import IGService
 
 """
 unit tests for rate limiter

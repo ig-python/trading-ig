@@ -1,8 +1,5 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
-
-import os
 import logging
+import os
 
 ENV_VAR_ROOT = "IG_SERVICE"
 CONFIG_FILE_NAME = "trading_ig_config.py"
@@ -10,7 +7,7 @@ CONFIG_FILE_NAME = "trading_ig_config.py"
 logger = logging.getLogger(__name__)
 
 
-class ConfigEnvVar(object):
+class ConfigEnvVar:
     def __init__(self, env_var_base):
         self.ENV_VAR_BASE = env_var_base
 
@@ -26,22 +23,21 @@ class ConfigEnvVar(object):
         try:
             return os.environ[env_var]
         except KeyError:
-            raise Exception("Environment variable '%s' doesn't exist" % env_var)
+            raise Exception(f"Environment variable '{env_var}' doesn't exist")
 
 
 try:
     from trading_ig_config import config
 
-    logger.info("import config from %s" % CONFIG_FILE_NAME)
+    logger.info(f"import config from {CONFIG_FILE_NAME}")
 except Exception:
     logger.warning("can't import config from config file")
     try:
         config = ConfigEnvVar(ENV_VAR_ROOT)
-        logger.info("import config from environment variables '%s_...'" % ENV_VAR_ROOT)
+        logger.info(f"import config from environment variables '{ENV_VAR_ROOT}_...'")
     except Exception:
         logger.warning("can't import config from environment variables")
         raise (
-            """Can't import config - you might create a '%s' filename or use
-environment variables such as '%s_...'"""
-            % (CONFIG_FILE_NAME, ENV_VAR_ROOT)
+            f"Can't import config - you might create a '{CONFIG_FILE_NAME}' "
+            f"filename or use environment variables such as '{ENV_VAR_ROOT}_...'"
         )
