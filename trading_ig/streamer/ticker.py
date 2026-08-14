@@ -1,31 +1,33 @@
 from dataclasses import dataclass
 from datetime import datetime
+
 from lightstreamer.client import Subscription
-from .objects import nan, StreamObject
+
+from .objects import StreamObject, nan
+
+TICKER_FIELDS = [
+    "BID",
+    "OFR",
+    "LTP",
+    "LTV",
+    "TTV",
+    "UTM",
+    "DAY_OPEN_MID",
+    "DAY_NET_CHG_MID",
+    "DAY_PERC_CHG_MID",
+    "DAY_HIGH",
+    "DAY_LOW",
+]
 
 
 class TickerSubscription(Subscription):
     """Represents a subscription for tick prices"""
 
-    TICKER_FIELDS = [
-        "BID",
-        "OFR",
-        "LTP",
-        "LTV",
-        "TTV",
-        "UTM",
-        "DAY_OPEN_MID",
-        "DAY_NET_CHG_MID",
-        "DAY_PERC_CHG_MID",
-        "DAY_HIGH",
-        "DAY_LOW",
-    ]
-
     def __init__(self, epic: str):
         super().__init__(
             mode="DISTINCT",
             items=[f"CHART:{epic}:TICK"],
-            fields=self.TICKER_FIELDS,
+            fields=TICKER_FIELDS,
         )
 
     def __repr__(self) -> str:

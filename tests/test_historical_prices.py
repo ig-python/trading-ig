@@ -1,10 +1,12 @@
-from trading_ig.rest import IGService
-import responses
-import json
-import pandas as pd
 import datetime
-import pytest
+import json
 import re
+
+import pandas as pd
+import pytest
+import responses
+
+from trading_ig.rest import IGService
 
 """
 unit tests for historical prices methods
@@ -125,7 +127,7 @@ class TestHistoricalPrices:
             responses.GET,
             "https://demo-api.ig.com/gateway/deal/prices/MT.D.GC.Month2.IP",
             headers={"CST": "abc123", "X-SECURITY-TOKEN": "xyz987"},
-            json={"errorCode": "Unable to convert value=3.14159 to type= Integer int"},  # noqa
+            json={"errorCode": "Unable to convert value=3.14159 to type= Integer int"},
             status=400,
         )
 
@@ -418,7 +420,7 @@ class TestHistoricalPrices:
             responses.GET,
             "https://demo-api.ig.com/gateway/deal/prices/MT.D.GC.Month2.IP",
             headers={"CST": "abc123", "X-SECURITY-TOKEN": "xyz987"},
-            json={"errorCode": "Unable to convert value=3.14159 to type= Integer int"},  # noqa
+            json={"errorCode": "Unable to convert value=3.14159 to type= Integer int"},
             status=400,
         )
 

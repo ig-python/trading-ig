@@ -1,5 +1,5 @@
 def wait_for_input():
-    input("{0:-^80}\n".format("HIT CR TO UNSUBSCRIBE AND DISCONNECT"))
+    input("{:-^80}\n".format("HIT CR TO UNSUBSCRIBE AND DISCONNECT"))
 
 
 # sample weekend spreadbet epics
