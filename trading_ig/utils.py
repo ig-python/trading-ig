@@ -1,9 +1,7 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
-
-import os
 import logging
+import os
 import traceback
+
 import six
 
 logger = logging.getLogger(__name__)
@@ -12,8 +10,8 @@ logger.setLevel(logging.WARNING)
 OPT_URL = "https://trading-ig.readthedocs.io/en/latest/faq.html#optional-dependencies"
 
 try:
-    import pandas as pd
     import numpy as np  # noqa
+    import pandas as pd
 except ImportError:
     _HAS_PANDAS = False
     logger.warning(f"pandas is not present in the environment. See {OPT_URL}")
@@ -68,7 +66,7 @@ def conv_resol(resolution):
             return d[offset]
         else:
             logger.error(traceback.format_exc())
-            logger.warning("conv_resol returns '%s'" % resolution)
+            logger.warning(f"conv_resol returns '{resolution}'")
             return resolution
     else:
         return resolution
@@ -81,14 +79,13 @@ def conv_datetime(dt, version=2):
     version 3 = 2014/12/15 00:00:00
     """
     try:
-        if isinstance(dt, six.string_types):
-            if _HAS_PANDAS:
-                dt = pd.to_datetime(dt)
+        if isinstance(dt, six.string_types) and _HAS_PANDAS:
+            dt = pd.to_datetime(dt)
 
         fmt = DATE_FORMATS[int(version)]
         return dt.strftime(fmt)
     except (ValueError, TypeError):
-        logger.warning("conv_datetime returns %s" % dt)
+        logger.warning(f"conv_datetime returns {dt}")
         return dt
 
 
@@ -101,18 +98,18 @@ def conv_to_ms(td):
             return int(td.total_seconds() * 1000.0)
     except ValueError:
         logger.error(traceback.format_exc())
-        logger.warning("conv_to_ms returns '%s'" % td)
+        logger.warning(f"conv_to_ms returns '{td}'")
         return td
 
 
 def remove(cache):
     """Remove cache"""
     try:
-        filename = "%s.sqlite" % cache
-        print("remove %s" % filename)
+        filename = f"{cache}.sqlite"
+        print(f"remove {filename}")
         os.remove(filename)
-    except Exception:
-        pass
+    except Exception as ex:
+        logger.error(f"Problem removing cache file: {ex}")
 
 
 def print_full(x):

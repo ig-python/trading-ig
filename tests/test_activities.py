@@ -1,9 +1,11 @@
-from trading_ig.rest import IGService
-import responses
 import json
-import pandas as pd
-from datetime import datetime, timedelta
 import re
+from datetime import datetime, timedelta, timezone
+
+import pandas as pd
+import responses
+
+from trading_ig.rest import IGService
 
 
 class TestActivities:
@@ -56,7 +58,7 @@ class TestActivities:
         )
 
         ig_service = IGService("username", "password", "api_key", "DEMO")
-        to_date = datetime.now()
+        to_date = datetime.now(timezone.utc)
         from_date = to_date - timedelta(days=7)
         result = ig_service.fetch_account_activity_by_date(from_date, to_date)
 

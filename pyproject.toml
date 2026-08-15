@@ -59,14 +59,17 @@ Issues = "https://github.com/ig-python/trading-ig/issues"
 
 [dependency-groups]
 dev = [
-    "ruff",
     "pytest>=8,<9",
     "responses>=0.25,<0.26",
     "coveralls>=3,<4",
     "sphinx",
     "sphinx-rtd-theme",
+    "ruff==0.16.1",
 ]
 
 [tool.uv.build-backend]
 module-name = "trading_ig"
 module-root = ""
+
+[tool.ruff.lint]
+ignore = ["B017", "B023", "BLE001", "TRY002" ]

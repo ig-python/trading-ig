@@ -1,7 +1,9 @@
-from trading_ig.rest import IGService
-import responses
 import json
+
 import pandas as pd
+import responses
+
+from trading_ig.rest import IGService
 
 
 class TestPositions:

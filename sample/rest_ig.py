@@ -1,18 +1,17 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
-
 """
 IG Markets REST API sample with Python
 2015 FemtoTrader
 """
 
-from trading_ig import IGService
-from trading_ig.config import config
 import logging
 
 # if you need to cache to DB your requests
 from datetime import timedelta
+
 import requests_cache
+
+from trading_ig import IGService
+from trading_ig.config import config
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -49,7 +48,7 @@ def main():
     # ig_stream_service.create_session(version='3')
 
     accounts = ig_service.fetch_accounts()
-    print("accounts:\n%s" % accounts)
+    print(f"accounts:\n{accounts}")
 
     # account_info = ig_service.switch_account(config.acc_number, False)
     # print(account_info)
@@ -57,12 +56,12 @@ def main():
     # open_positions = ig_service.fetch_open_positions()
     # print("open_positions:\n%s" % open_positions)
 
-    print("")
+    print()
 
     # working_orders = ig_service.fetch_working_orders()
     # print("working_orders:\n%s" % working_orders)
 
-    print("")
+    print()
 
     # epic = 'CS.D.EURUSD.MINI.IP'
     epic = "IX.D.ASX.IFM.IP"  # US (SPY) - mini

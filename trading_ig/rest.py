@@ -1,31 +1,29 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
-
 """
 IG Markets REST API Library for Python
 https://labs.ig.com/rest-trading-api-reference
 Original version by Lewis Barber - 2014 - https://uk.linkedin.com/in/lewisbarber/
 Modified by Femto Trader - 2014-2015 - https://github.com/femtotrader/
-"""  # noqa
+"""
 
 import json
 import logging
 import time
-from base64 import b64encode, b64decode
+from base64 import b64decode, b64encode
+from datetime import datetime, timedelta, timezone
+from urllib.parse import parse_qs, urlparse
 
 from Crypto.Cipher import PKCS1_v1_5
 from Crypto.PublicKey import RSA
 from requests import Session
-from urllib.parse import urlparse, parse_qs
 
-from datetime import timedelta, datetime
-from .utils import _HAS_PANDAS, _HAS_MUNCH
 from .utils import (
-    conv_resol,
-    conv_datetime,
-    conv_to_ms,
+    _HAS_MUNCH,
+    _HAS_PANDAS,
     DATE_FORMATS,
     api_limit_hit,
+    conv_datetime,
+    conv_resol,
+    conv_to_ms,
     token_invalid,
 )
 
@@ -33,25 +31,27 @@ if _HAS_MUNCH:
     from .utils import munchify
 
 if _HAS_PANDAS:
-    from .utils import pd
     from pandas import json_normalize
 
+    from .utils import pd
+
+from queue import Empty, Queue
 from threading import Thread
-from queue import Queue, Empty
 
 logger = logging.getLogger(__name__)
+
+D_BASE_URL = {
+    "live": "https://api.ig.com/gateway/deal",
+    "demo": "https://demo-api.ig.com/gateway/deal",
+}
 
 
 class ApiExceededException(Exception):
     """Raised when our code hits the IG endpoint too often"""
 
-    pass
-
 
 class TokenInvalidException(Exception):
     """Raised when the session token is invalid or expired"""
-
-    pass
 
 
 class IGException(Exception):
@@ -61,10 +61,8 @@ class IGException(Exception):
 class KycRequiredException(Exception):
     """Raised when IG needs the user to confirm or re-confirm their KYC status"""
 
-    pass
 
-
-class IGSessionCRUD(object):
+class IGSessionCRUD:
     """Session with CRUD operation"""
 
     BASE_URL = None
@@ -92,8 +90,7 @@ class IGSessionCRUD(object):
         """
         if session is None:
             session = self.session  # requests Session
-        else:
-            session = session
+
         return session
 
     def _url(self, endpoint):
@@ -164,11 +161,6 @@ class IGSessionCRUD(object):
 
 
 class IGService:
-    D_BASE_URL = {
-        "live": "https://api.ig.com/gateway/deal",
-        "demo": "https://demo-api.ig.com/gateway/deal",
-    }
-
     API_KEY = None
     IG_USERNAME = None
     IG_PASSWORD = None
@@ -198,10 +190,10 @@ class IGService:
         self._use_rate_limiter = use_rate_limiter
         self._bucket_threads_run = False
         try:
-            self.BASE_URL = self.D_BASE_URL[acc_type.lower()]
+            self.BASE_URL = D_BASE_URL[acc_type.lower()]
         except Exception:
             raise IGException(
-                "Invalid account type '%s', please provide LIVE or DEMO" % acc_type
+                f"Invalid account type '{acc_type}', please provide LIVE or DEMO"
             )
 
         self.return_dataframe = return_dataframe
@@ -280,17 +272,12 @@ class IGService:
         token_bucket_non_trading_thread.start()
         self._non_trading_times = []
 
-        # TODO
-        # Create a leaky token bucket for allowanceAccountHistoricalData
-        return
-
     def _token_bucket_trading(
         self,
     ):
         while self._bucket_threads_run:
             time.sleep(60.0 / self._trading_requests_per_minute)
             self._trading_requests_queue.put(True, block=True)
-        return
 
     def _token_bucket_non_trading(
         self,
@@ -298,7 +285,6 @@ class IGService:
         while self._bucket_threads_run:
             time.sleep(60.0 / self._non_trading_requests_per_minute)
             self._non_trading_requests_queue.put(True, block=True)
-        return
 
     def trading_rate_limit_pause_or_pass(
         self,
@@ -315,7 +301,6 @@ class IGService:
                 f"Number of trading requests in last 60 seconds = "
                 f"{len(self._trading_times)} of {self._trading_requests_per_minute}"
             )
-        return
 
     def non_trading_rate_limit_pause_or_pass(
         self,
@@ -333,23 +318,20 @@ class IGService:
                 f"{len(self._non_trading_times)} of "
                 f"{self._non_trading_requests_per_minute}"
             )
-        return
 
     def _exit_bucket_threads(
         self,
     ):
-        if self._use_rate_limiter:
-            if self._bucket_threads_run:
-                self._bucket_threads_run = False
-                try:
-                    self._trading_requests_queue.get(block=False)
-                except Empty:
-                    pass
-                try:
-                    self._non_trading_requests_queue.get(block=False)
-                except Empty:
-                    pass
-        return
+        if self._use_rate_limiter and self._bucket_threads_run:
+            self._bucket_threads_run = False
+            try:
+                self._trading_requests_queue.get(block=False)
+            except Empty:
+                pass
+            try:
+                self._non_trading_requests_queue.get(block=False)
+            except Empty:
+                pass
 
     def _get_session(self, session):
         """Returns a Requests session (from self.session) if session is None
@@ -360,10 +342,8 @@ class IGService:
             session = self.session  # requests Session
         else:
             assert isinstance(session, Session), (
-                "session must be <requests.session.Session object> not %s"
-                % type(session)
+                f"session must be <requests.session.Session object> not {type(session)}"
             )
-            session = session
         return session
 
     def _req(self, action, endpoint, params, session, version="1", check=True):
@@ -399,7 +379,7 @@ class IGService:
             raise ApiExceededException()
         if token_invalid(response.text):
             logger.warning("Invalid session token, triggering refresh...")
-            self._valid_until = datetime.now() - timedelta(seconds=15)
+            self._valid_until = datetime.now(timezone.utc) - timedelta(seconds=15)
             raise TokenInvalidException()
         return response
 
@@ -443,7 +423,7 @@ class IGService:
                         colname = col
                     data[colname] = ser.map(lambda x: x[col], na_action="ignore")
                 else:
-                    raise (NotImplementedError("col overlap: %r" % col))
+                    raise (NotImplementedError(f"col overlap: {col}"))
         return data
 
     # -------- END ------- #
@@ -618,9 +598,9 @@ class IGService:
 
     def fetch_account_activity_v2(
         self,
-        from_date: datetime = None,
-        to_date: datetime = None,
-        max_span_seconds: int = None,
+        from_date: datetime | None = None,
+        to_date: datetime | None = None,
+        max_span_seconds: int | None = None,
         page_size: int = 20,
         session=None,
     ):
@@ -685,11 +665,11 @@ class IGService:
 
     def fetch_account_activity(
         self,
-        from_date: datetime = None,
-        to_date: datetime = None,
+        from_date: datetime | None = None,
+        to_date: datetime | None = None,
         detailed=False,
-        deal_id: str = None,
-        fiql_filter: str = None,
+        deal_id: str | None = None,
+        fiql_filter: str | None = None,
         page_size: int = 50,
         session=None,
     ):
@@ -751,11 +731,13 @@ class IGService:
                 query = parse_qs(parse_result.query)
                 logger.debug(f"fetch_account_activity() next query: '{query}'")
                 if "from" in query:
-                    params["from"] = query["from"][0]
+                    # from_str = query["from"][0]
+                    params["from"] = query["from"][0][:19]
                 else:
                     del params["from"]
                 if "to" in query:
-                    params["to"] = query["to"][0]
+                    # to_str = query["from"][0]
+                    params["to"] = query["from"][0][:19]
                 else:
                     del params["to"]
 
@@ -934,8 +916,8 @@ class IGService:
         action = "read"
         for i in range(5):
             response = self._req(action, endpoint, params, session, version)
-            if not response.status_code == 200:
-                logger.info("Deal reference %s not found, retrying." % deal_reference)
+            if response.status_code != 200:
+                logger.info(f"Deal reference {deal_reference} not found, retrying.")
                 time.sleep(1)
             else:
                 break
@@ -952,8 +934,8 @@ class IGService:
         action = "read"
         for i in range(5):
             response = self._req(action, endpoint, params, session, version)
-            if not response.status_code == 200:
-                logger.info("Deal id %s not found, retrying." % deal_id)
+            if response.status_code != 200:
+                logger.info(f"Deal id {deal_id} not found, retrying.")
                 time.sleep(1)
             else:
                 break
@@ -976,7 +958,7 @@ class IGService:
         action = "read"
         for i in range(5):
             response = self._req(action, endpoint, params, session, version)
-            if not response.status_code == 200:
+            if response.status_code != 200:
                 logger.info("Error fetching open positions, retrying.")
                 time.sleep(1)
             else:
@@ -1406,7 +1388,7 @@ class IGService:
         action = "read"
         for i in range(5):
             response = self._req(action, endpoint, params, session, version)
-            if not response.status_code == 200:
+            if response.status_code != 200:
                 logger.info("Error fetching repeat dealing window, retrying.")
                 time.sleep(1)
             else:
@@ -1603,10 +1585,10 @@ class IGService:
 
         def cols(typ):
             return {
-                "openPrice.%s" % typ: "Open",
-                "highPrice.%s" % typ: "High",
-                "lowPrice.%s" % typ: "Low",
-                "closePrice.%s" % typ: "Close",
+                f"openPrice.{typ}": "Open",
+                f"highPrice.{typ}": "High",
+                f"lowPrice.{typ}": "Low",
+                f"closePrice.{typ}": "Close",
                 "lastTradedVolume": "Volume",
             }
 
@@ -1937,10 +1919,12 @@ class IGService:
     def log_allowance(self, data):
         remaining_allowance = data["allowance"]["remainingAllowance"]
         allowance_expiry_secs = data["allowance"]["allowanceExpiry"]
-        allowance_expiry = datetime.today() + timedelta(seconds=allowance_expiry_secs)
+        allowance_expiry = datetime.now(timezone.utc) + timedelta(
+            seconds=allowance_expiry_secs
+        )
         logger.info(
-            "Historic price data allowance: %s remaining until %s"
-            % (remaining_allowance, allowance_expiry)
+            f"Historic price data allowance: {remaining_allowance} "
+            f"remaining until {allowance_expiry}"
         )
 
     # -------- END -------- #
@@ -2137,7 +2121,7 @@ class IGService:
         self.session.headers.update({"Authorization": f"{token_type} {access_token}"})
         self._refresh_token = oauth["refresh_token"]
         validity = int(oauth["expires_in"])
-        self._valid_until = datetime.now() + timedelta(seconds=validity)
+        self._valid_until = datetime.now(timezone.utc) + timedelta(seconds=validity)
 
     def _check_session(self):
         """
@@ -2147,18 +2131,21 @@ class IGService:
             - if not, a new session will be created
         """
         logger.debug("Checking session status...")
-        if self._valid_until is not None and datetime.now() > self._valid_until:
-            if self._refresh_token:
-                # we are in a v3 session, need to refresh
-                try:
-                    logger.info("Current session has expired, refreshing...")
-                    self.refresh_session()
-                except IGException:
-                    logger.info("Refresh failed, logging in again...")
-                    self._refresh_token = None
-                    self._valid_until = None
-                    del self.session.headers["Authorization"]
-                    self.create_session(version="3")
+        if (
+            self._valid_until is not None
+            and datetime.now(timezone.utc) > self._valid_until
+            and self._refresh_token
+        ):
+            # we are in a v3 session, need to refresh
+            try:
+                logger.info("Current session has expired, refreshing...")
+                self.refresh_session()
+            except IGException:
+                logger.info("Refresh failed, logging in again...")
+                self._refresh_token = None
+                self._valid_until = None
+                del self.session.headers["Authorization"]
+                self.create_session(version="3")
 
     def switch_account(self, account_id, default_account, session=None):
         """Switches active accounts, optionally setting the default account"""
@@ -2179,7 +2166,7 @@ class IGService:
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         if not response.ok:
-            raise IGException("Error in read_session() %s" % response.status_code)
+            raise IGException(f"Error in read_session() {response.status_code}")
         data = self.parse_response(response.text)
         return data
 

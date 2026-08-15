@@ -1,13 +1,13 @@
 import logging
+import time
 from queue import Queue
 from threading import Thread
-import time
 
-from lightstreamer.client import SubscriptionListener, ItemUpdate
+from lightstreamer.client import ItemUpdate, SubscriptionListener
 
 from trading_ig import IGStreamService
-from .ticker import Ticker
-from .ticker import TickerSubscription
+
+from .ticker import Ticker, TickerSubscription
 
 logger = logging.getLogger(__name__)
 

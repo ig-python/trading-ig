@@ -1,9 +1,10 @@
 import logging
 import time
+
+from sample.sample_utils import crypto_epics  # fx_epics, index_epics, weekend_epics
 from trading_ig import IGService, IGStreamService
 from trading_ig.config import config
 from trading_ig.streamer.manager import StreamingManager
-from sample.sample_utils import crypto_epics  # fx_epics, index_epics, weekend_epics
 
 
 def main():
@@ -26,7 +27,7 @@ def main():
         sm.start_tick_subscription(epic)
         tickers.append(sm.ticker(epic))
 
-    for idx in range(0, 10):
+    for idx in range(10):
         for ticker in tickers:
             print(ticker)
         time.sleep(0.5)

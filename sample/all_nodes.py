@@ -1,6 +1,7 @@
-from trading_ig.rest import IGService, ApiExceededException
+from tenacity import Retrying, retry_if_exception_type, wait_exponential
+
 from trading_ig.config import config
-from tenacity import Retrying, wait_exponential, retry_if_exception_type
+from trading_ig.rest import ApiExceededException, IGService
 
 DEFAULT_RETRY = Retrying(
     wait=wait_exponential(), retry=retry_if_exception_type(ApiExceededException)
