@@ -1773,8 +1773,9 @@ class IGService:
         :param epic: (str) The epic key for which historical prices are being
             requested
         :param resolution: (str, optional) timescale resolution. Expected values
-            are 1Min, 2Min, 3Min, 5Min, 10Min, 15Min, 30Min, 1H, 2H, 3H, 4H, D,
-            W, M. Default is 1Min
+            are 1Min, 2Min, 3Min, 5Min, 10Min, 15Min, 30Min, 1h, 2h, 3h, 4h, D,
+            W, ME. Default is 1Min. The pre-pandas 3 spellings 1H, 2H, 3H, 4H
+            and M are also accepted
         :param start_date: (datetime, optional) date range start, format
             yyyy-MM-dd'T'HH:mm:ss
         :param end_date: (datetime, optional) date range end, format
@@ -1866,8 +1867,9 @@ class IGService:
         and date range. Supports both versions 1 and 2
         :param epic: IG epic
         :type epic: str
-        :param resolution: timescale for returned data. Expected values 'M', 'D',
-            '1H' etc
+        :param resolution: timescale for returned data. Expected values 'ME',
+            'D', '1h' etc. The pre-pandas 3 spellings 'M' and '1H' are also
+            accepted
         :type resolution: str
         :param start_date: start date for returned data. For v1, format
             '2020:09:01-00:00:00', for v2 use '2020-09-01 00:00:00'

@@ -52,7 +52,16 @@ def conv_resol(resolution):
             to_offset("W"): "WEEK",
             to_offset("ME"): "MONTH",
         }
-        offset = to_offset(resolution)
+        # pandas 3.0 removes the 'H' and 'M' frequency aliases, in favour of
+        # 'h' and 'ME' so normalise them before calling to_offset
+        alias = resolution
+        if isinstance(alias, str):
+            if alias.endswith("H"):
+                alias = alias[:-1] + "h"
+            elif alias in ("M", "1M"):
+                alias = "ME"
+
+        offset = to_offset(alias)
         if offset in d:
             return d[offset]
         else:
