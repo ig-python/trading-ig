@@ -48,7 +48,7 @@ dependencies = [
 
 [project.optional-dependencies]
 pandas = ["pandas>=2,<3"]
-munch = ["munch>=2.5,<3"]
+munch = ["munch>=4,<5"]
 tenacity = ["tenacity>=8,<9"]
 
 [project.urls]
