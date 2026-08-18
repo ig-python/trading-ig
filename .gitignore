@@ -65,6 +65,7 @@ target/
 
 # IntelliJ / PyCharm
 .idea/
+*.iml
 
 # pipenv
 Pipfile
@@ -74,6 +75,7 @@ Pipfile.lock
 .github/.env
 .python-version
 .env/
+trading_ig_config.py
 
 .vscode
 
