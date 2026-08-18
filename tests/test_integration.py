@@ -712,7 +712,7 @@ class TestIntegration:
             limit_level=None,
             stop_level=offer - (2 * min_stop_limit),
             deal_id=open_result["dealId"],
-            version="1"
+            version="1",
         )
         assert update_v1_result["dealStatus"] == "ACCEPTED"
         assert update_v1_result["reason"] == "SUCCESS"
