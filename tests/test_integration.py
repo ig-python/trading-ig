@@ -679,8 +679,8 @@ class TestIntegration:
         market_info = ig_service.fetch_market_by_epic(epic)
         status = market_info.snapshot.marketStatus
         min_bet = market_info.dealingRules.minDealSize.value
-        bid = market_info.snapshot.bid
-        offer = market_info.snapshot.offer
+        min_stop_limit = market_info.dealingRules.minNormalStopOrLimitDistance.value
+        min_cr_limit = market_info.dealingRules.minControlledRiskStopDistance.value
         if status != "TRADEABLE":
             pytest.skip("Skipping open position test, market not open")
 
@@ -706,20 +706,27 @@ class TestIntegration:
         assert open_result["reason"] == "SUCCESS"
         time.sleep(10)
 
+        market_info = ig_service.fetch_market_by_epic(epic)
+        offer = market_info.snapshot.offer
         update_v1_result = ig_service.update_open_position(
-            offer * 1.5, bid * 0.5, open_result["dealId"], version="1"
+            limit_level=None,
+            stop_level=offer - (2 * min_stop_limit),
+            deal_id=open_result["dealId"],
+            version="1"
         )
         assert update_v1_result["dealStatus"] == "ACCEPTED"
         assert update_v1_result["reason"] == "SUCCESS"
         time.sleep(10)
 
+        market_info = ig_service.fetch_market_by_epic(epic)
+        offer = market_info.snapshot.offer
         update_v2_result = ig_service.update_open_position(
-            offer * 1.4,
-            bid * 0.4,
-            open_result["dealId"],
+            limit_level=None,
+            stop_level=offer - (3 * min_stop_limit),
+            deal_id=open_result["dealId"],
             trailing_stop=True,
-            trailing_stop_distance=25.0,
-            trailing_stop_increment=10.0,
+            trailing_stop_distance=(2 * min_cr_limit),
+            trailing_stop_increment=(2 * min_cr_limit),
         )
         assert update_v2_result["dealStatus"] == "ACCEPTED"
         assert update_v2_result["reason"] == "SUCCESS"
