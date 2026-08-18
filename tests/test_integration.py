@@ -710,7 +710,7 @@ class TestIntegration:
         offer = market_info.snapshot.offer
         update_v1_result = ig_service.update_open_position(
             limit_level=None,
-            stop_level=offer - (2 * min_stop_limit),
+            stop_level=offer - (5 * min_stop_limit),
             deal_id=open_result["dealId"],
             version="1",
         )
@@ -722,7 +722,7 @@ class TestIntegration:
         offer = market_info.snapshot.offer
         update_v2_result = ig_service.update_open_position(
             limit_level=None,
-            stop_level=offer - (3 * min_stop_limit),
+            stop_level=offer - (8 * min_stop_limit),
             deal_id=open_result["dealId"],
             trailing_stop=True,
             trailing_stop_distance=(2 * min_cr_limit),
@@ -740,7 +740,7 @@ class TestIntegration:
             level=None,
             order_type="MARKET",
             quote_id=None,
-            size=0.5,
+            size=min_bet,
             session=None,
         )
         assert close_result["dealStatus"] == "ACCEPTED"
