@@ -70,6 +70,39 @@ def ig_service(request, retrying):
         pytest.fail("Integration test currently only works with a spreadbet account")
 
     yield ig_service
+
+    # delete any watchlists created by test
+    wls_dict = ig_service.fetch_all_watchlists().to_dict(orient="records")
+    for watchlist in wls_dict:
+        if watchlist["name"].startswith("test_"):
+            print(f"Deleting watchlist with id {watchlist['id']}")
+            ig_service.delete_watchlist(watchlist["id"])
+
+    # delete any orders
+    wos_dict = ig_service.fetch_working_orders().to_dict(orient="records")
+    for working_order in wos_dict:
+        print(f"Deleting working order with dealId {working_order['dealId']}")
+        ig_service.delete_working_order(working_order["dealId"])
+
+    # close any positions
+    ops_dict = ig_service.fetch_open_positions().to_dict(orient="records")
+    for position in ops_dict:
+        if position["marketStatus"] == "TRADEABLE":
+            close_dir = "SELL" if position["direction"] == "BUY" else "BUY"
+            print(f"Closing position with dealId {position['dealId']}")
+            result = ig_service.close_open_position(
+                deal_id=position["dealId"],
+                direction=close_dir,
+                epic=None,
+                expiry=position["expiry"],
+                level=None,
+                order_type="MARKET",
+                quote_id=None,
+                size=position["size"],
+                session=None,
+            )
+            print(f"Close result for {position['dealId']}: {result['dealStatus']}")
+
     ig_service.logout()
 
 
@@ -211,7 +244,7 @@ class TestIntegration:
         assert response.shape[0] == 0
 
     def test_fetch_account_activity_fiql(self, ig_service: IGService):
-        to_date = datetime.now(timezone.utc) - timedelta(days=30)
+        to_date = datetime.now(timezone.utc) - timedelta(hours=1)
         from_date = to_date - timedelta(days=120)
         response = ig_service.fetch_account_activity(
             from_date=from_date, to_date=to_date, fiql_filter="channel==PUBLIC_WEB_API"
@@ -710,7 +743,7 @@ class TestIntegration:
         offer = market_info.snapshot.offer
         update_v1_result = ig_service.update_open_position(
             limit_level=None,
-            stop_level=offer - (5 * min_stop_limit),
+            stop_level=offer - (10 * min_stop_limit),
             deal_id=open_result["dealId"],
             version="1",
         )
@@ -722,7 +755,7 @@ class TestIntegration:
         offer = market_info.snapshot.offer
         update_v2_result = ig_service.update_open_position(
             limit_level=None,
-            stop_level=offer - (8 * min_stop_limit),
+            stop_level=offer - (15 * min_stop_limit),
             deal_id=open_result["dealId"],
             trailing_stop=True,
             trailing_stop_distance=(2 * min_cr_limit),
