@@ -33,23 +33,25 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development :: Libraries",
 ]
 dependencies = [
     "requests>=2.24,<3",
     "pycryptodome>=3.9,<4",
-    "requests-cache>=0.5,<0.6",
+    "requests-cache>1,<2",
     "six>=1.15,<2",
     "lightstreamer-client-lib==1.0.3",
 ]
 
 [project.optional-dependencies]
-pandas = ["pandas>=2,<3"]
+pandas = [
+    "pandas>=2,<3",
+]
 munch = ["munch>=4,<5"]
-tenacity = ["tenacity>=8,<9"]
+tenacity = [
+    "tenacity>=9,<10",
+]
 
 [project.urls]
 Homepage = "https://github.com/ig-python/trading-ig"
