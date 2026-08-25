@@ -731,12 +731,10 @@ class IGService:
                 query = parse_qs(parse_result.query)
                 logger.debug(f"fetch_account_activity() next query: '{query}'")
                 if "from" in query:
-                    # from_str = query["from"][0]
                     params["from"] = query["from"][0][:19]
                 else:
                     del params["from"]
                 if "to" in query:
-                    # to_str = query["from"][0]
                     params["to"] = query["from"][0][:19]
                 else:
                     del params["to"]
