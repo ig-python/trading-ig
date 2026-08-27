@@ -713,7 +713,7 @@ class TestIntegration:
         status = market_info.snapshot.marketStatus
         min_bet = market_info.dealingRules.minDealSize.value
         min_stop_limit = market_info.dealingRules.minNormalStopOrLimitDistance.value
-        min_cr_limit = market_info.dealingRules.minControlledRiskStopDistance.value
+        min_step_distance = market_info.dealingRules.minStepDistance.value
         if status != "TRADEABLE":
             pytest.skip("Skipping open position test, market not open")
 
@@ -758,8 +758,8 @@ class TestIntegration:
             stop_level=offer - (15 * min_stop_limit),
             deal_id=open_result["dealId"],
             trailing_stop=True,
-            trailing_stop_distance=(2 * min_cr_limit),
-            trailing_stop_increment=(2 * min_cr_limit),
+            trailing_stop_distance=(10 * min_stop_limit),
+            trailing_stop_increment=(2 * min_step_distance),
         )
         assert update_v2_result["dealStatus"] == "ACCEPTED"
         assert update_v2_result["reason"] == "SUCCESS"
