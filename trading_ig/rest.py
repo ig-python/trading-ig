@@ -1791,7 +1791,7 @@ class IGService:
 
         version = "3"
         params = {}
-        if resolution and self.return_dataframe:
+        if resolution:
             params["resolution"] = conv_resol(resolution)
         if start_date:
             params["from"] = start_date

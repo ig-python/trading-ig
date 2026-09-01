@@ -1,6 +1,5 @@
 import logging
 import sys
-import traceback
 
 from lightstreamer.client import ClientListener, LightstreamerClient, Subscription
 
@@ -35,8 +34,7 @@ class IGStreamService:
             self.ls_client.connect()
             return
         except Exception:
-            logger.error("Unable to connect to Lightstreamer Server")
-            logger.error(traceback.format_exc())
+            logger.exception("Unable to connect to Lightstreamer Server")
             sys.exit(1)
 
     def subscribe(self, subscription: Subscription):

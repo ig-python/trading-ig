@@ -4,6 +4,7 @@ import json
 import pandas as pd
 import pytest
 import responses
+from responses.matchers import query_param_matcher
 
 from trading_ig.rest import IGService
 
@@ -23,6 +24,7 @@ class TestHistoricalPricesFlat:
         responses.add(
             responses.GET,
             "https://demo-api.ig.com/gateway/deal/prices/MT.D.GC.Month2.IP",
+            match=[query_param_matcher({"pageNumber": "1", "pageSize": "20"})],
             headers={"CST": "abc123", "X-SECURITY-TOKEN": "xyz987"},
             json=response_body,
             status=200,
@@ -56,6 +58,17 @@ class TestHistoricalPricesFlat:
         responses.add(
             responses.GET,
             "https://demo-api.ig.com/gateway/deal/prices/MT.D.GC.Month2.IP",
+            match=[
+                query_param_matcher(
+                    {
+                        "resolution": "DAY",
+                        "from": "2020-09-01T00:00:00",
+                        "to": "2020-09-04T23:59:59",
+                        "pageSize": "20",
+                        "pageNumber": "1",
+                    }
+                )
+            ],
             headers={"CST": "abc123", "X-SECURITY-TOKEN": "xyz987"},
             json=response_body,
             status=200,
@@ -98,6 +111,16 @@ class TestHistoricalPricesFlat:
         responses.add(
             responses.GET,
             "https://demo-api.ig.com/gateway/deal/prices/MT.D.GC.Month2.IP",
+            match=[
+                query_param_matcher(
+                    {
+                        "resolution": "WEEK",
+                        "max": "10",
+                        "pageSize": "20",
+                        "pageNumber": "1",
+                    }
+                )
+            ],
             headers={"CST": "abc123", "X-SECURITY-TOKEN": "xyz987"},
             json=response_body,
             status=200,
@@ -131,6 +154,7 @@ class TestHistoricalPricesFlat:
         responses.add(
             responses.GET,
             "https://demo-api.ig.com/gateway/deal/prices/MT.D.GC.Month2.IP",
+            match=[query_param_matcher({"pageNumber": "1", "pageSize": "20"})],
             headers={"CST": "abc123", "X-SECURITY-TOKEN": "xyz987"},
             json={"errorCode": "Unable to convert value=3.14159 to type= Integer int"},
             status=400,
@@ -156,6 +180,7 @@ class TestHistoricalPricesFlat:
         responses.add(
             responses.GET,
             "https://demo-api.ig.com/gateway/deal/prices/MT.D.GC.Month2.IP",
+            match=[query_param_matcher({"pageNumber": "1", "pageSize": "20"})],
             headers={"CST": "abc123", "X-SECURITY-TOKEN": "xyz987"},
             json=response_body,
             status=200,
@@ -178,6 +203,7 @@ class TestHistoricalPricesFlat:
         responses.add(
             responses.GET,
             "https://demo-api.ig.com/gateway/deal/prices/MT.D.X.Month1.IP",
+            match=[query_param_matcher({"pageNumber": "1", "pageSize": "20"})],
             headers={"CST": "abc123", "X-SECURITY-TOKEN": "xyz987"},
             json={"errorCode": "error.error.price-history.io-error"},
             status=404,
@@ -197,6 +223,7 @@ class TestHistoricalPricesFlat:
         responses.add(
             responses.GET,
             "https://demo-api.ig.com/gateway/deal/prices/MT.D.XX.Month1.IP",
+            match=[query_param_matcher({"pageNumber": "1", "pageSize": "20"})],
             headers={"CST": "abc123", "X-SECURITY-TOKEN": "xyz987"},
             json={"errorCode": "Unable to parse datetime=2020/09/01T00:00:00"},
             status=400,
@@ -220,6 +247,7 @@ class TestHistoricalPricesFlat:
         responses.add(
             responses.GET,
             "https://demo-api.ig.com/gateway/deal/prices/MT.D.XX.Month1.IP",
+            match=[query_param_matcher({"pageNumber": "1", "pageSize": "20"})],
             headers={"CST": "abc123", "X-SECURITY-TOKEN": "xyz987"},
             json={"errorCode": "error.invalid.daterange"},
             status=400,
