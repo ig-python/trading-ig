@@ -1808,6 +1808,7 @@ class IGService:
         more_results = True
 
         while more_results:
+            self.non_trading_rate_limit_pause_or_pass()
             params["pageNumber"] = pagenumber
             response = self._req(action, endpoint, params, session, version)
             data = self.parse_response(response.text)
@@ -1835,6 +1836,7 @@ class IGService:
     ):
         """Returns a list of historical prices for the given epic, resolution,
         number of points"""
+        self.non_trading_rate_limit_pause_or_pass()
         version = "2"
         if self.return_dataframe:
             resolution = conv_resol(resolution)
@@ -1885,6 +1887,7 @@ class IGService:
         :return: historic data
         :rtype: dict, with 'prices' element as pandas.Dataframe
         """
+        self.non_trading_rate_limit_pause_or_pass()
         if self.return_dataframe:
             resolution = conv_resol(resolution)
         params = {}
@@ -2009,6 +2012,7 @@ class IGService:
 
     def logout(self, session=None):
         """Log out of the current session"""
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         params = {}
         endpoint = "/session"
@@ -2019,6 +2023,7 @@ class IGService:
 
     def get_encryption_key(self, session=None):
         """Get encryption key to encrypt the password"""
+        self.non_trading_rate_limit_pause_or_pass()
         endpoint = "/session/encryptionKey"
         session = self._get_session(session)
         response = session.get(self.BASE_URL + endpoint)
@@ -2084,6 +2089,7 @@ class IGService:
         :return: HTTP status code
         :rtype: int
         """
+        self.non_trading_rate_limit_pause_or_pass()
         logger.info(f"Refreshing session '{self.IG_USERNAME}'")
         params = {"refresh_token": self._refresh_token}
         endpoint = "/session/refresh-token"
@@ -2147,6 +2153,7 @@ class IGService:
 
     def switch_account(self, account_id, default_account, session=None):
         """Switches active accounts, optionally setting the default account"""
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         params = {"accountId": account_id, "defaultAccount": default_account}
         endpoint = "/session"
@@ -2158,6 +2165,7 @@ class IGService:
 
     def read_session(self, fetch_session_tokens="false", session=None):
         """Retrieves current session details"""
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         params = {"fetchSessionTokens": fetch_session_tokens}
         endpoint = "/session"
@@ -2174,6 +2182,7 @@ class IGService:
 
     def get_client_apps(self, session=None):
         """Returns a list of client-owned applications"""
+        # No rate limit pause as this is called prior to rate limiter setup
         version = "1"
         params = {}
         endpoint = "/operations/application"
@@ -2191,6 +2200,7 @@ class IGService:
         session=None,
     ):
         """Updates an application"""
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         params = {
             "allowanceAccountOverall": allowance_account_overall,
@@ -2210,6 +2220,7 @@ class IGService:
         Disabled keys may be re-enabled via the My Account section on
         the IG Web Dealing Platform.
         """
+        self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         params = {}
         endpoint = "/operations/application/disable"
