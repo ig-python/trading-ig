@@ -40,12 +40,12 @@ classifiers = [
 dependencies = [
     "requests>=2.24,<3",
     "pycryptodome>=3.9,<4",
-    "requests-cache>1,<2",
     "six>=1.15,<2",
     "lightstreamer-client-lib==1.0.3",
 ]
 
 [project.optional-dependencies]
+requests-cache = ["requests-cache>1,<2"]
 pandas = [
     "pandas>=2,<3",
 ]
