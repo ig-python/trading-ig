@@ -39,4 +39,4 @@ jobs:
 
     - name: Unit tests with pytest
       run: |
-        uv run pytest --ignore=tests/test_integration.py
+        uv run pytest -m "not integration"

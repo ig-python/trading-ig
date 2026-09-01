@@ -135,6 +135,7 @@ def watchlist_id(ig_service: IGService):
 logger = logging.getLogger(__name__)
 
 
+@pytest.mark.integration
 class TestIntegration:
     def test_create_session_no_encryption(self, retrying):
         ig_service = IGService(
