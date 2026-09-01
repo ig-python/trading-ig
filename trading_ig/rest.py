@@ -1432,64 +1432,92 @@ class IGService:
             data = pd.DataFrame(data["clientSentiments"])
         return data
 
-    def fetch_top_level_navigation_nodes(self, session=None):
-        """Returns all top-level nodes (market categories) in the market
-        navigation hierarchy."""
+    def fetch_categories(self, session=None):
+        """Returns all categories of instruments enabled for the current IG account."""
         self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         params = {}
-        endpoint = "/marketnavigation"
+        endpoint = "/categories"
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         data = self.parse_response(response.text)
         if self.return_dataframe:
-            data["markets"] = pd.DataFrame(data["markets"])
-            if len(data["markets"]) == 0:
-                columns = [
-                    "bid",
-                    "delayTime",
-                    "epic",
-                    "expiry",
-                    "high",
-                    "instrumentName",
-                    "instrumentType",
-                    "lotSize",
-                    "low",
-                    "marketStatus",
-                    "netChange",
-                    "offer",
-                    "otcTradeable",
-                    "percentageChange",
-                    "scalingFactor",
-                    "streamingPricesAvailable",
-                    "updateTime",
-                ]
-                data["markets"] = pd.DataFrame(columns=columns)
-            data["nodes"] = pd.DataFrame(data["nodes"])
-            if len(data["nodes"]) == 0:
-                columns = ["id", "name"]
-                data["nodes"] = pd.DataFrame(columns=columns)
-        # if self.return_munch:
-        #     # ToFix: ValueError: The truth value of a DataFrame is ambiguous.
-        #     # Use a.empty, a.bool(), a.item(), a.any() or a.all().
-        #     from .utils import munchify
-        #     data = munchify(data)
+            data["categories"] = pd.DataFrame(
+                data["categories"], columns=["code", "nonTradeable"]
+            )
         return data
 
-    def fetch_sub_nodes_by_node(self, node, session=None):
-        """Returns all sub-nodes of the given node in the market
-        navigation hierarchy"""
-        self.non_trading_rate_limit_pause_or_pass()
+    def fetch_category_instruments(
+        self,
+        category_id,
+        page_size=1000,
+        reference_epic=None,
+        maturity_type=None,
+        wait_secs=1,
+        session=None,
+    ):
+        """Returns all instruments for the given category"""
         version = "1"
         params = {}
-        url_params = {"node": node}
-        endpoint = "/marketnavigation/{node}".format(**url_params)
+        if reference_epic:
+            if category_id != "OPTIONS":
+                raise ValueError(
+                    "reference_epic is only applicable for OPTIONS category"
+                )
+            params["referenceEpic"] = reference_epic
+        if maturity_type:
+            if category_id != "OPTIONS":
+                raise ValueError(
+                    "maturity_type is only applicable for OPTIONS category"
+                )
+            params["maturityType"] = maturity_type
+        if page_size:  # Defaults to 150 if not present
+            params["pageSize"] = page_size
+        endpoint = f"/categories/{category_id}/instruments"
         action = "read"
-        response = self._req(action, endpoint, params, session, version)
-        data = self.parse_response(response.text)
+        insts = []
+        pagenumber = 0  # Pages are zero indexed, different from prices...
+        more_results = True
+
+        while more_results:
+            self.non_trading_rate_limit_pause_or_pass()
+            params["pageNumber"] = pagenumber
+            response = self._req(action, endpoint, params, session, version)
+            data = self.parse_response(response.text)
+            insts.extend(data["instruments"])
+            page_data = data["metadata"]
+            if page_data["totalPages"] == 0 or (
+                page_data["pageNumber"] == page_data["totalPages"] - 1
+            ):
+                more_results = False
+            else:
+                pagenumber += 1
+                time.sleep(wait_secs)
+
+        data = {"instruments": insts}
+
         if self.return_dataframe:
-            data["markets"] = pd.DataFrame(data["markets"])
-            data["nodes"] = pd.DataFrame(data["nodes"])
+            col_names = [
+                "epic",
+                "instrumentName",
+                "expiry",
+                "instrumentType",
+                "lotSize",
+                "otcTradeable",
+                "marketStatus",
+                "delayTime",
+                "bid",
+                "offer",
+                "high",
+                "low",
+                "netChange",
+                "percentageChange",
+                "updateTime",
+                "scalingFactor",
+                "underlyingName",
+                "popularity",
+            ]
+            data["instruments"] = pd.DataFrame(data["instruments"], columns=col_names)
         return data
 
     def fetch_market_by_epic(self, epic, session=None):
@@ -1820,7 +1848,7 @@ class IGService:
                 more_results = False
             else:
                 pagenumber += 1
-            time.sleep(wait)
+                time.sleep(wait)
 
         data["prices"] = prices
 

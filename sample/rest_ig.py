@@ -4,6 +4,7 @@ IG Markets REST API sample with Python
 """
 
 import logging
+import sys
 
 # if you need to cache to DB your requests
 from datetime import timedelta
@@ -18,7 +19,12 @@ logger.setLevel(logging.DEBUG)
 
 
 def main():
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(
+        format="%(asctime)s %(levelname)s %(name)s.%(funcName)s: %(message)s",
+        level=logging.DEBUG,
+        stream=sys.stdout,
+    )
+    logging.captureWarnings(True)
 
     expire_after = timedelta(hours=1)
     session = requests_cache.CachedSession(
@@ -60,6 +66,16 @@ def main():
 
     # working_orders = ig_service.fetch_working_orders()
     # print("working_orders:\n%s" % working_orders)
+
+    print()
+
+    # categories = ig_service.fetch_categories()
+    # print(f"categories: {categories}")
+
+    print()
+
+    # instruments = ig_service.fetch_category_instruments("INDICES")
+    # print(f"category instruments: {instruments}")
 
     print()
 
