@@ -1,5 +1,5 @@
 [build-system]
-requires = ["uv_build>=0.11.6,<0.12.0"]
+requires = ["uv_build>=0.11.6,<0.13.0"]
 build-backend = "uv_build"
 
 [project]
@@ -33,18 +33,19 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development :: Libraries",
 ]
 dependencies = [
     "requests>=2.24,<3",
     "pycryptodome>=3.9,<4",
-    "requests-cache>1,<2",
     "six>=1.15,<2",
     "lightstreamer-client-lib==1.0.3",
 ]
 
 [project.optional-dependencies]
+requests-cache = ["requests-cache>1,<2"]
 pandas = [
     "pandas>=2,<3",
 ]
@@ -67,6 +68,12 @@ dev = [
     "sphinx",
     "sphinx-rtd-theme",
     "ruff==0.16.1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "integration: Integration tests (requires API credentials)",
 ]
 
 [tool.uv.build-backend]

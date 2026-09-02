@@ -79,5 +79,6 @@ trading_ig_config.py
 
 .vscode
 
-# poetry
+# build system
 poetry.lock
+uv.lock

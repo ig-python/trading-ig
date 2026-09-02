@@ -106,12 +106,11 @@ def ig_service(request, retrying):
     ig_service.logout()
 
 
-# TODO refactor for new navigation API
 @pytest.fixture()
-def top_level_nodes(ig_service: IGService):
-    """test fixture gets the top level navigation nodes"""
-    response = ig_service.fetch_top_level_navigation_nodes()
-    return response["nodes"]
+def categories(ig_service: IGService):
+    """test fixture gets the top level categories"""
+    response = ig_service.fetch_categories()
+    return response["categories"]
 
 
 @pytest.fixture()
@@ -135,6 +134,7 @@ def watchlist_id(ig_service: IGService):
 logger = logging.getLogger(__name__)
 
 
+@pytest.mark.integration
 class TestIntegration:
     def test_create_session_no_encryption(self, retrying):
         ig_service = IGService(
@@ -299,9 +299,9 @@ class TestIntegration:
         with pytest.raises(IGException):
             ig_service.create_session()
 
-    @pytest.mark.xfail(reason="Navigation API has been changed by IG")
-    def test_fetch_top_level_navigation_nodes(self, top_level_nodes):
-        assert isinstance(top_level_nodes, pd.DataFrame)
+    def test_fetch_categories(self, categories):
+        assert isinstance(categories, pd.DataFrame)
+        assert list(categories.columns) == ["code", "nonTradeable"]
 
     def test_create_session_v3_no_acc_num(self, retrying):
         ig_service = IGService(
@@ -432,12 +432,10 @@ class TestIntegration:
         assert isinstance(short, float)
         assert long + short == 100.0
 
-    @pytest.mark.xfail(reason="Navigation API has been changed by IG")
-    def test_fetch_sub_nodes_by_node(self, ig_service: IGService, top_level_nodes):
-        rand_index = randint(0, len(top_level_nodes) - 1)
-        response = ig_service.fetch_sub_nodes_by_node(rand_index)
-        assert isinstance(response["markets"], pd.DataFrame)
-        assert isinstance(response["nodes"], pd.DataFrame)
+    def test_fetch_category_instruments(self, ig_service: IGService, categories):
+        rand_category = choice(categories["code"])
+        response = ig_service.fetch_category_instruments(rand_category)
+        assert isinstance(response["instruments"], pd.DataFrame)
 
     def test_fetch_all_watchlists(self, watchlists):
         assert isinstance(watchlists, pd.DataFrame)
