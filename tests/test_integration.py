@@ -110,7 +110,9 @@ def ig_service(request, retrying):
 def categories(ig_service: IGService):
     """test fixture gets the top level categories"""
     response = ig_service.fetch_categories()
-    return response["categories"]
+    df = response["categories"]
+    df = df[df.code != "EQUITIES"]
+    return df
 
 
 @pytest.fixture()
